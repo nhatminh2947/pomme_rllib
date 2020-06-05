@@ -1,13 +1,9 @@
-import unittest
-
-import gym
 import numpy as np
-from gym import spaces
-from ray.rllib.env.multi_agent_env import MultiAgentEnv
-from pommerman import utility
 import pommerman
 from pommerman import agents
 from pommerman import constants
+from pommerman import utility
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 
 class Ability:
@@ -71,6 +67,9 @@ class PommeMultiAgent(MultiAgentEnv):
                 obs[id] = self.featurize(_obs[id])
                 rewards[id] = self.reward(id, self.alive_agents, _obs[id], _info)
                 infos[id] = _info
+
+                if _done:
+                    dones[id] = True
 
         self.alive_agents = _obs[0]['alive']
 

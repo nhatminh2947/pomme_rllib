@@ -1,24 +1,26 @@
+import random
+from typing import Dict
+
+import pommerman
 import ray
+from gym import spaces
+from pommerman import constants
 from ray import tune
+from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
+from ray.rllib.env import BaseEnv
+from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.models import ModelCatalog
-from ray.rllib.utils import try_import_tf
-from gym import spaces
-import pommerman
-from pommerman import constants
+from ray.rllib.policy import Policy
+from ray.tune.schedulers import PopulationBasedTraining
+
 from models.first_model import FirstModel
+from models.rnd_model import RNDActorCriticModel
 from models.second_model import SecondModel
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
-from ray.rllib.agents.callbacks import DefaultCallbacks
-from ray.rllib.env import BaseEnv
-from ray.rllib.policy import Policy
-from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
-from ray.rllib.agents.callbacks import DefaultCallbacks
-from typing import Dict
-from ray.tune.schedulers import PopulationBasedTraining
-import random
+from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
 from pomme_env import PommeMultiAgent
 
@@ -76,13 +78,14 @@ def training_team(params):
     ModelCatalog.register_custom_model("1st_model", FirstModel)
     ModelCatalog.register_custom_model("2nd_model", SecondModel)
     ModelCatalog.register_custom_model("torch_conv", ActorCriticModel)
+    ModelCatalog.register_custom_model("rnd_torch_conv", RNDActorCriticModel)
 
     tune.register_env("PommeMultiAgent-v0", lambda x: PommeMultiAgent(env_config))
 
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "torch_conv",
+                "custom_model": "rnd_torch_conv",
                 "custom_options": {
                     "in_channels": 17,
                     "feature_dim": 512
@@ -91,11 +94,12 @@ def training_team(params):
             "gamma": params['gamma'],
             "use_pytorch": True
         }
-        return PPOTorchPolicy, obs_space, act_space, config
+        return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
 
     policies = {
         "policy_{}".format(i): gen_policy() for i in range(2)
     }
+
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     print(policies.keys())
@@ -115,13 +119,19 @@ def training_team(params):
             "gamma": lambda: random.uniform(0.95, 1.0)
         })
 
+    if params['use_rnd']:
+        trainer = RNDTrainer
+    else:
+        trainer = PPOTrainer
+
     trials = tune.run(
-        PPOTrainer,
+        trainer,
         restore=params["restore"],
         name=params["name"],
         # queue_trials=True,
         # scheduler=pbt_scheduler,
         # num_samples=4,
+        resume=params['resume'],
         stop={
             # "training_iteration": params["training_iteration"],
             "timesteps_total": 100000000
@@ -167,7 +177,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--num_workers', type=int, default=0, help='number of worker')
-    parser.add_argument('--num_gpus', type=float, default=1, help='number of gpu')
+    parser.add_argument('--num_gpus', type=float, default=0.2, help='number of gpu')
     parser.add_argument('--train_batch_size', type=int, default=8192)
     parser.add_argument('--sgd_minibatch_size', type=int, default=128)
     parser.add_argument('--clip_param', type=float, default=0.2)
@@ -185,7 +195,9 @@ if __name__ == "__main__":
     parser.add_argument('--num_envs_per_worker', type=int, default=1)
     parser.add_argument('--num_gpus_per_worker', type=float, default=0.0)
     parser.add_argument('--name', type=str, default="experiment")
-    parser.add_argument('--render', type=bool, default=False)
+    parser.add_argument('--render', default=False, action='store_true')
+    parser.add_argument('--use_rnd', default=False, action='store_true')
+    parser.add_argument('--resume', default=False, action='store_true')
     parser.add_argument('--restore', type=str, default=None)
 
     args = parser.parse_args()
