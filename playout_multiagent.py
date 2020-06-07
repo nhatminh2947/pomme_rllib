@@ -8,18 +8,15 @@ from pommerman import agents
 from pommerman import configs
 from pommerman import constants
 from pommerman.envs.v0 import Pomme
-from rllib_training import models
-from rllib_training.envs import pomme_env
+from models.third_model import ActorCriticModel
+import pomme_env
 
 ray.init(num_cpus=5, num_gpus=1)
 
 env_config = configs.phase_0_team_v0_env()
 env = Pomme(**env_config['env_kwargs'])
-obs_space = pomme_env.DICT_SPACE_FULL
 act_space = env.action_space
-ModelCatalog.register_custom_model("1st_model", models.FirstModel)
-ModelCatalog.register_custom_model("2nd_model", models.SecondModel)
-ModelCatalog.register_custom_model("3rd_model", models.ThirdModel)
+ModelCatalog.register_custom_model("torch_conv", ActorCriticModel)
 agent_names = ["ppo_agent_1", "ppo_agent_2"]
 
 ppo_agent = PPOTrainer(config={

@@ -1,13 +1,8 @@
-import unittest
-
-import gym
 import numpy as np
-from gym import spaces
-from ray.rllib.env.multi_agent_env import MultiAgentEnv
-from pommerman import utility
 import pommerman
 from pommerman import agents
 from pommerman import constants
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 
 class Ability:
@@ -30,15 +25,12 @@ class PommeMultiAgent(MultiAgentEnv):
             agents.StaticAgent(),
             agents.StaticAgent(),
         ]
-        self.env = pommerman.make(config["env_id"], self.agent_list)
+        self.env = pommerman.make(config["env_id"], self.agent_list, config["game_state_file"])
 
         self.is_render = config["render"]
         self._step_count = 0
-        self._max_steps = self.env._max_steps
         self.action_space = self.env.action_space
-        self.eliminated = []
         self.alive_agents = [10, 11, 12, 13]
-        self.ability = [Ability()] * 4
 
     def render(self):
         self.env.render()
@@ -54,21 +46,23 @@ class PommeMultiAgent(MultiAgentEnv):
             else:
                 actions.append(0)
 
+        obs = {}
+        rewards = {}
+        dones = {}
+        infos = {}
+
         _obs, _reward, _done, _info = self.env.step(actions)
 
         if constants.Item.Agent0.value not in _obs[0]['alive']:
-            if not _done:
-                _info['result'] = constants.Result.Loss
+            _info['result'] = constants.Result.Loss
+            dones[0] = True
             _done = True
 
-        obs = {}
-        rewards = {}
-        dones = {"__all__": _done}
-        infos = {}
-
+        dones["__all__"] = _done
         for id in range(4):
-            if (id + 10) in self.alive_agents:
+            if self.is_agent_alive(id):
                 obs[id] = self.featurize(_obs[id])
+                # rewards[id] = _reward[id]  # self.reward(id, self.alive_agents, _obs[id], _info)
                 rewards[id] = self.reward(id, self.alive_agents, _obs[id], _info)
                 infos[id] = _info
 
@@ -90,52 +84,6 @@ class PommeMultiAgent(MultiAgentEnv):
 
         if info['result'] == constants.Result.Tie:
             reward += -1
-
-        return reward
-
-    def update_fow(self, obs):
-        for i in range(4):
-            if i in list(obs.keys()):
-                for channel in range(16):
-                    if channel < 9:
-                        self.fow[i][channel][obs[i][channel] != 0] = obs[i][channel][obs[i][channel] != 0]
-                        # print(self.fow[i][channel])
-                    else:
-                        self.fow[i][channel] = obs[i][channel]
-                        # print(self.fow[i][channel])
-            else:
-                self.fow.pop(i, None)
-
-    def reward_shaping(self, agent_id, new_obs, prev_board, info):
-        reward = 0
-        current_alive_agents = np.asarray(new_obs['alive']) - constants.Item.Agent0.value
-
-        if info['result'] == constants.Result.Tie:
-            return -1
-
-        if agent_id not in current_alive_agents:
-            return -1
-
-        if agent_id % 2 == 0:
-            enemies = [1, 3]
-        else:
-            enemies = [0, 2]
-
-        if utility.position_is_powerup(prev_board, new_obs['position']):
-            if constants.Item(prev_board[new_obs['position']]) == constants.Item.IncrRange:
-                reward += 0.01
-                self.ability[agent_id].blast_strength += 1
-            elif constants.Item(prev_board[new_obs['position']]) == constants.Item.ExtraBomb:
-                reward += 0.01
-                self.ability[agent_id].ammo += 1
-            elif not self.ability[agent_id].can_kick and constants.Item(
-                    prev_board[new_obs['position']]) == constants.Item.Kick:
-                reward += 0.05
-                self.ability[agent_id].can_kick = True
-
-        for enemy in enemies:
-            if enemy not in current_alive_agents and enemy not in self.eliminated:
-                reward += 0.5
 
         return reward
 
@@ -163,8 +111,6 @@ class PommeMultiAgent(MultiAgentEnv):
         board_items = [constants.Item.Passage,
                        constants.Item.Rigid,
                        constants.Item.Wood,
-                       constants.Item.Bomb,
-                       constants.Item.Flames,
                        constants.Item.Fog,
                        constants.Item.ExtraBomb,
                        constants.Item.IncrRange,
@@ -173,7 +119,7 @@ class PommeMultiAgent(MultiAgentEnv):
         for item in board_items:
             features.append(board == item.value)
 
-        for feature in ["bomb_life", "bomb_blast_strength"]:
+        for feature in ["bomb_life", "bomb_blast_strength", "bomb_moving_direction", "flame_life"]:
             features.append(obs[feature])
 
         position = np.zeros(board.shape)
@@ -193,28 +139,50 @@ class PommeMultiAgent(MultiAgentEnv):
 
         return np.stack(features, 0)
 
+    def is_agent_alive(self, id, alive_agents=None):
+        if alive_agents is None:
+            return (id + 10) in self.alive_agents
+        return (id + 10) in alive_agents
+
     def reset(self):
         _obs = self.env.reset()
         self._step_count = 0
-        self.eliminated = []
-        self.alive_agents = [10, 11, 12, 13]
+        self.alive_agents = _obs[0]['alive']
         obs = {}
 
         for i in range(4):
-            self.ability[i].reset()
-            obs[i] = self.featurize(_obs[i])
+            if self.is_agent_alive(i):
+                obs[i] = self.featurize(_obs[i])
 
         return obs
 
 
 if __name__ == '__main__':
     agent_list = [
-        agents.StaticAgent(),
+        agents.RandomAgent(),
         agents.StaticAgent(),
         agents.StaticAgent(),
         agents.StaticAgent()
     ]
-    env = pommerman.make('PommeTeam-v0', agent_list)
+    env = pommerman.make('PommeTeam-v0', agent_list,
+                         '/home/lucius/working/projects/pomme_rllib/resources/one_line_state.json')
     obs = env.reset()
+
+    while True:
+        features = PommeMultiAgent.featurize(obs[0])
+        for i in range(17):
+            print(features[i])
+        print()
+        actions = env.act(obs)
+        print(actions)
+        obs, reward, done, info = env.step(actions)
+
+        if done:
+            break
+
+    print(obs)
     features = PommeMultiAgent.featurize(obs[0])
+    for i in range(17):
+        print(features[i])
+    print()
     # print(PommeMultiAgent.featurize(obs[0]))
