@@ -1,4 +1,3 @@
-import numpy as np
 from ray.rllib.models.torch.misc import SlimConv2d
 from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
 from ray.rllib.utils import try_import_torch
@@ -62,6 +61,7 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 padding=0,
                 stride=1),
             nn.ReLU(),
+            nn.Flatten(),
             nn.Linear(2 * 11 * 11, action_space.n)
         )
 
@@ -73,7 +73,9 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 padding=0,
                 stride=1),
             nn.ReLU(),
+            nn.Flatten(),
             nn.Linear(11 * 11, 32),
+            nn.ReLU(),
             nn.Linear(32, 1),
         )
 
