@@ -25,7 +25,7 @@ class PommeMultiAgent(MultiAgentEnv):
             agents.StaticAgent(),
             agents.StaticAgent(),
         ]
-        self.env = pommerman.make(config["env_id"], self.agent_list, config["game_state_file"])
+        self.env = pommerman.make(config["env_id"], self.agent_list)
 
         self.is_render = config["render"]
         self._step_count = 0
