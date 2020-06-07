@@ -165,7 +165,8 @@ if __name__ == '__main__':
         agents.StaticAgent()
     ]
     env = pommerman.make('PommeTeam-v0', agent_list,
-                         '/home/lucius/working/projects/pomme_rllib/resources/one_line_state.json')
+                         # '/home/lucius/working/projects/pomme_rllib/resources/one_line_state.json'
+                         )
     obs = env.reset()
 
     while True:
