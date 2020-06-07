@@ -53,10 +53,13 @@ class PommeMultiAgent(MultiAgentEnv):
 
         _obs, _reward, _done, _info = self.env.step(actions)
 
-        if constants.Item.Agent0.value not in _obs[0]['alive']:
-            _info['result'] = constants.Result.Loss
-            dones[0] = True
-            _done = True
+        for id in range(4):
+            if self.is_done(id, _obs[0]["alive"]):
+                dones[id] = True
+
+                if id == 0:
+                    _done = True
+                    _info['result'] = constants.Result.Loss
 
         dones["__all__"] = _done
         for id in range(4):
@@ -69,6 +72,9 @@ class PommeMultiAgent(MultiAgentEnv):
         self.alive_agents = _obs[0]['alive']
 
         return obs, rewards, dones, infos
+
+    def is_done(self, id, current_alive):
+        return id in self.alive_agents and id not in current_alive
 
     def reward(self, id, alive, obs, info):
         reward = 0
