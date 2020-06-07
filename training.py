@@ -184,7 +184,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_gpus_per_worker', type=float, default=0.0)
     parser.add_argument('--vf_clip_param', type=float, default=2.0)
     parser.add_argument('--name', type=str, default="experiment")
-    parser.add_argument('--game_state_file', type=str)
+    parser.add_argument('--game_state_file', type=str, default=None)
     parser.add_argument('--render', action='store_true')
     parser.add_argument('--local_mode', action='store_true')
     parser.add_argument('--resume', action='store_true')
