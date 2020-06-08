@@ -66,7 +66,7 @@ def training_team(params):
         time_attr="training_iteration",
         metric="policy_reward_mean/policy_0",
         mode="max",
-        perturbation_interval=1,
+        perturbation_interval=params["perturbation_interval"],
         custom_explore_fn=limit_gamma_explore,
         hyperparam_mutations={
             # "lr": lambda: random.uniform(0.00001, 0.05),
@@ -151,6 +151,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--restore", type=str, default=None)
     parser.add_argument("--num_samples", type=int, default=4)
+    parser.add_argument("--perturbation_interval", type=int, default=10)
 
     args = parser.parse_args()
     params = vars(args)

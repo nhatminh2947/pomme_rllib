@@ -44,5 +44,4 @@ class PommeCallbacks(DefaultCallbacks):
 
 def limit_gamma_explore(config):
     config["gamma"] = min(config["gamma"], 0.999)
-    print("explore func called {}".format(config["gamma"]))
     return config
