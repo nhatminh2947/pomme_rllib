@@ -1,60 +1,20 @@
 import argparse
 import random
-from typing import Dict
 
 import pommerman
 import ray
 from gym import spaces
-from pommerman import constants
 from ray import tune
-from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
-from ray.rllib.env import BaseEnv
-from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.models import ModelCatalog
-from ray.rllib.policy import Policy
 from ray.tune.schedulers import PopulationBasedTraining
 
+from customize_rllib import PommeCallbacks, limit_gamma_explore
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from pomme_env import PommeMultiAgent
-
-
-class PommeCallbacks(DefaultCallbacks):
-    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
-                       episode: MultiAgentEpisode, **kwargs):
-        last_info = None
-        for agent_name in range(4):
-            if episode.last_info_for(agent_name)["result"] != constants.Result.Incomplete:
-                last_info = episode.last_info_for(agent_name)
-                break
-
-        if last_info["result"] == constants.Result.Win:
-            episode.custom_metrics["win"] += 1
-        elif last_info["result"] == constants.Result.Tie:
-            episode.custom_metrics["tie"] += 1
-        else:
-            episode.custom_metrics["loss"] += 1
-
-    def on_episode_step(self, worker: RolloutWorker, base_env: BaseEnv, episode: MultiAgentEpisode, **kwargs):
-        for agent_name in range(4):
-            action = episode.last_action_for(agent_name)
-            if action == constants.Action.Bomb.value:
-                episode.custom_metrics["bomb_agent_{}".format(agent_name)] += 1
-
-    def on_episode_start(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
-                         episode: MultiAgentEpisode, **kwargs):
-        for agent_name in range(4):
-            episode.custom_metrics["bomb_agent_{}".format(agent_name)] = 0
-
-        if "win" not in episode.custom_metrics:
-            episode.custom_metrics["win"] = 0
-        if "loss" not in episode.custom_metrics:
-            episode.custom_metrics["loss"] = 0
-        if "tie" not in episode.custom_metrics:
-            episode.custom_metrics["tie"] = 0
 
 
 def training_team(params):
@@ -106,10 +66,11 @@ def training_team(params):
         time_attr="training_iteration",
         metric="policy_reward_mean/policy_0",
         mode="max",
-        perturbation_interval=10,
+        perturbation_interval=1,
+        custom_explore_fn=limit_gamma_explore,
         hyperparam_mutations={
             # "lr": lambda: random.uniform(0.00001, 0.05),
-            "gamma": lambda: random.uniform(0.5, 0.999)
+            "gamma": lambda: random.uniform(0.85, 0.999)
         })
 
     trials = tune.run(
@@ -126,6 +87,7 @@ def training_team(params):
         },
         checkpoint_freq=params["checkpoint_freq"],
         checkpoint_at_end=True,
+        verbose=1,
         config={
             "gamma": params["gamma"],
             "lr": params["lr"],
@@ -153,6 +115,7 @@ def training_team(params):
                 "policy_mapping_fn": policy_mapping,
                 "policies_to_train": ["policy_0"],
             },
+            "observation_filter": "MeanStdFilter",
             # "evaluation_num_episodes": 10,
             # "evaluation_interval": 5,
             "log_level": "WARN",
@@ -188,6 +151,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--restore", type=str, default=None)
     parser.add_argument("--num_samples", type=int, default=4)
+
     args = parser.parse_args()
     params = vars(args)
 
