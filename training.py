@@ -16,8 +16,6 @@ from ray.rllib.models import ModelCatalog
 from ray.rllib.policy import Policy
 from ray.tune.schedulers import PopulationBasedTraining
 
-from models.first_model import FirstModel
-from models.second_model import SecondModel
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
@@ -111,7 +109,7 @@ def training_team(params):
         perturbation_interval=50,
         hyperparam_mutations={
             "lr": lambda: random.uniform(0.00001, 0.05),
-            "gamma": lambda: random.uniform(0.95, 1.0)
+            "gamma": lambda: random.uniform(0.5, 0.999)
         })
 
     trials = tune.run(
@@ -119,9 +117,9 @@ def training_team(params):
         restore=params["restore"],
         resume=params["resume"],
         name=params["name"],
-        # queue_trials=True,
-        # scheduler=pbt_scheduler,
-        # num_samples=4,
+        queue_trials=True,
+        scheduler=pbt_scheduler,
+        num_samples=params['num_samples'],
         stop={
             # "training_iteration": params["training_iteration"],
             "timesteps_total": 100000000
@@ -179,7 +177,7 @@ if __name__ == "__main__":
     parser.add_argument('--complete_episodes', action='store_true')
     parser.add_argument('--rollout_fragment_length', type=int, default=128)
     parser.add_argument('--training_iteration', type=int, default=1000)
-    parser.add_argument('--checkpoint_freq', type=int, default=10)
+    parser.add_argument('--checkpoint_freq', type=int, default=100)
     parser.add_argument('--num_envs_per_worker', type=int, default=1)
     parser.add_argument('--num_gpus_per_worker', type=float, default=0.0)
     parser.add_argument('--vf_clip_param', type=float, default=2.0)
@@ -189,7 +187,7 @@ if __name__ == "__main__":
     parser.add_argument('--local_mode', action='store_true')
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--restore', type=str, default=None)
-
+    parser.add_argument('--num_samples', type=int, default=4)
     args = parser.parse_args()
     params = vars(args)
 
