@@ -61,8 +61,8 @@ class PommeCallbacks(DefaultCallbacks):
 
 def training_team(params):
     # env_id = "PommeTeamCompetition-v0"
-    env_id = "PommeFFACompetitionFast-v0"
-    # env_id = "PommeTeam-v0"
+    # env_id = "PommeFFACompetitionFast-v0"
+    env_id = "PommeTeam-v0"
 
     env_config = {
         "env_id": env_id,
