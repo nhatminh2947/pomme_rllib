@@ -14,7 +14,7 @@ from customize_rllib import PommeCallbacks, limit_gamma_explore
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
-from pomme_env import PommeMultiAgent
+from rllib_pomme_envs.v0 import v0
 
 
 def training_team(params):
@@ -32,15 +32,15 @@ def training_team(params):
     obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
     act_space = env.action_space
 
-    ModelCatalog.register_custom_model("torch_conv", ActorCriticModel)
+    ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
 
-    tune.register_env("PommeMultiAgent-v0", lambda x: PommeMultiAgent(env_config))
+    tune.register_env("PommeMultiAgent-v0", lambda x: v0(env_config))
 
     # Policy setting
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "torch_conv",
+                "custom_model": "torch_conv_0",
                 "custom_options": {
                     "in_channels": 17,
                     "feature_dim": 512
@@ -59,7 +59,7 @@ def training_team(params):
     print(policies.keys())
 
     def policy_mapping(agent_id):
-        if agent_id == 0:
+        if agent_id % 2 == 0:
             return "policy_0"
         return "static"
 
@@ -97,7 +97,7 @@ def training_team(params):
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": PommeMultiAgent,
+            "env": v0,
             "env_config": env_config,
             "num_workers": params["num_workers"],
             "num_envs_per_worker": params["num_envs_per_worker"],

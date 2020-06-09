@@ -9,7 +9,7 @@ from pommerman import configs
 from pommerman import constants
 from pommerman.envs.v0 import Pomme
 from models.third_model import ActorCriticModel
-import pomme_env
+from envs import v0
 
 ray.init(num_cpus=5, num_gpus=1)
 
@@ -39,7 +39,7 @@ ppo_agent = PPOTrainer(config={
         "policy_mapping_fn": (lambda agent_id: "ppo_policy"),
         "policies_to_train": ["ppo_policy"],
     },
-}, env=pomme_env.PommeMultiAgent)
+}, env=v0.v0)
 
 # fdb733b6
 checkpoint = 950
@@ -53,7 +53,7 @@ agents_list = [agents.StaticAgent(),
 env_id = "PommeTeam-nowood-v0"
 env = pommerman.make(env_id, agents_list)
 
-penv = pomme_env.PommeMultiAgent({
+penv = v0.v0({
     "agent_names": agent_names,
     "env_id": env_id,
     "phase": 0

@@ -6,19 +6,8 @@ from pommerman import utility
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 
-class Ability:
-    def __init__(self):
-        self.ammo = 1
-        self.blast_strength = 2
-        self.can_kick = False
-
-    def reset(self):
-        self.ammo = 1
-        self.blast_strength = 2
-        self.can_kick = False
-
-
-class PommeMultiAgent(MultiAgentEnv):
+# Note: change team for training agents
+class v1(MultiAgentEnv):
     def __init__(self, config):
         self.agent_list = [
             agents.StaticAgent(),
@@ -192,7 +181,7 @@ if __name__ == '__main__':
     obs = env.reset()
 
     while True:
-        features = PommeMultiAgent.featurize(obs[0])
+        features = v1.featurize(obs[0])
         for i in range(17):
             print(features[i])
         print()
@@ -204,7 +193,7 @@ if __name__ == '__main__':
             break
 
     print(obs)
-    features = PommeMultiAgent.featurize(obs[0])
+    features = v1.featurize(obs[0])
     for i in range(17):
         print(features[i])
     print()
