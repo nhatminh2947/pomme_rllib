@@ -78,7 +78,7 @@ def training_team(params):
         restore=params["restore"],
         resume=params["resume"],
         name=params["name"],
-        queue_trials=True,
+        queue_trials=params["queue_trials"],
         scheduler=pbt_scheduler,
         num_samples=params["num_samples"],
         stop={
@@ -115,7 +115,7 @@ def training_team(params):
                 "policy_mapping_fn": policy_mapping,
                 "policies_to_train": ["policy_0"],
             },
-            "observation_filter": "MeanStdFilter",
+            "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",
@@ -155,9 +155,11 @@ if __name__ == "__main__":
     parser.add_argument("--perturbation_interval", type=int, default=10)
     parser.add_argument("--evaluation_num_episodes", type=int, default=10)
     parser.add_argument("--evaluation_interval", type=int, default=None)
+    parser.add_argument("--queue_trials", action="store_true")
 
     args = parser.parse_args()
     params = vars(args)
+    print(params)
 
     ray.shutdown()
     ray.init(local_mode=params["local_mode"], object_store_memory=4e10)
