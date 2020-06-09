@@ -69,8 +69,8 @@ def training_team(params):
         perturbation_interval=params["perturbation_interval"],
         custom_explore_fn=limit_gamma_explore,
         hyperparam_mutations={
-            # "lr": lambda: random.uniform(0.00001, 0.05),
-            "gamma": lambda: random.uniform(0.85, 0.999)
+            "lr": lambda: random.uniform(0.0001, 0.1),
+            # "gamma": lambda: random.uniform(0.85, 0.999)
         })
 
     trials = tune.run(
@@ -92,7 +92,7 @@ def training_team(params):
             "gamma": params["gamma"],
             "lr": params["lr"],
             "entropy_coeff": params["entropy_coeff"],
-            "kl_coeff": 0.0,  # disable KL
+            "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
             "env": PommeMultiAgent,
@@ -116,8 +116,8 @@ def training_team(params):
                 "policies_to_train": ["policy_0"],
             },
             "observation_filter": "MeanStdFilter",
-            # "evaluation_num_episodes": 10,
-            # "evaluation_interval": 5,
+            "evaluation_num_episodes": params["evaluation_num_episodes"],
+            "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",
             "use_pytorch": True
         }
@@ -128,22 +128,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--num_workers", type=int, default=0, help="number of worker")
     parser.add_argument("--num_gpus", type=float, default=1, help="number of gpu")
-    parser.add_argument("--train_batch_size", type=int, default=8192)
-    parser.add_argument("--sgd_minibatch_size", type=int, default=128)
-    parser.add_argument("--clip_param", type=float, default=0.2)
-    parser.add_argument("--lambda", type=float, default=0.95)
-    parser.add_argument("--gamma", type=float, default=0.999)
-    parser.add_argument("--num_sgd_iter", type=int, default=3)
-    parser.add_argument("--vf_loss_coeff", type=float, default=0.5)
-    parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--entropy_coeff", type=float, default=0.001)
-    parser.add_argument("--complete_episodes", action="store_true")
-    parser.add_argument("--rollout_fragment_length", type=int, default=128)
-    parser.add_argument("--training_iteration", type=int, default=1000)
-    parser.add_argument("--checkpoint_freq", type=int, default=10)
     parser.add_argument("--num_envs_per_worker", type=int, default=1)
     parser.add_argument("--num_gpus_per_worker", type=float, default=0.0)
+    parser.add_argument("--num_sgd_iter", type=int, default=3)
+    parser.add_argument("--sgd_minibatch_size", type=int, default=128)
+    parser.add_argument("--train_batch_size", type=int, default=8192)
+    parser.add_argument("--complete_episodes", action="store_true")
+    parser.add_argument("--rollout_fragment_length", type=int, default=128)
+    parser.add_argument("--clip_param", type=float, default=0.2)
     parser.add_argument("--vf_clip_param", type=float, default=2.0)
+    parser.add_argument("--vf_loss_coeff", type=float, default=0.5)
+    parser.add_argument("--kl_coeff", type=float, default=0.2)
+    parser.add_argument("--entropy_coeff", type=float, default=0.001)
+    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--lambda", type=float, default=0.95)
+    parser.add_argument("--gamma", type=float, default=0.999)
+    parser.add_argument("--training_iteration", type=int, default=1000)
+    parser.add_argument("--checkpoint_freq", type=int, default=10)
     parser.add_argument("--name", type=str, default="experiment")
     parser.add_argument("--game_state_file", type=str, default=None)
     parser.add_argument("--render", action="store_true")
@@ -152,6 +153,8 @@ if __name__ == "__main__":
     parser.add_argument("--restore", type=str, default=None)
     parser.add_argument("--num_samples", type=int, default=4)
     parser.add_argument("--perturbation_interval", type=int, default=10)
+    parser.add_argument("--evaluation_num_episodes", type=int, default=10)
+    parser.add_argument("--evaluation_interval", type=int, default=None)
 
     args = parser.parse_args()
     params = vars(args)
