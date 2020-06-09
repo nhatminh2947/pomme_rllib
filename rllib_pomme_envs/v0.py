@@ -7,7 +7,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 
 # Note: change team for training agents
-class v0(MultiAgentEnv):
+class RllibPomme(MultiAgentEnv):
     def __init__(self, config):
         self.agent_list = [
             agents.StaticAgent(),
@@ -21,7 +21,6 @@ class v0(MultiAgentEnv):
         self._step_count = 0
         self.action_space = self.env.action_space
         self.prev_obs = None
-        self.training_agent = 0
 
     def render(self):
         self.env.render()
@@ -181,7 +180,7 @@ if __name__ == '__main__':
     obs = env.reset()
 
     while True:
-        features = v0.featurize(obs[0])
+        features = RllibPomme.featurize(obs[0])
         for i in range(17):
             print(features[i])
         print()
@@ -193,7 +192,7 @@ if __name__ == '__main__':
             break
 
     print(obs)
-    features = v0.featurize(obs[0])
+    features = RllibPomme.featurize(obs[0])
     for i in range(17):
         print(features[i])
     print()

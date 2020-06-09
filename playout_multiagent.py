@@ -39,7 +39,7 @@ ppo_agent = PPOTrainer(config={
         "policy_mapping_fn": (lambda agent_id: "ppo_policy"),
         "policies_to_train": ["ppo_policy"],
     },
-}, env=v0.v0)
+}, env=v0.RllibPomme)
 
 # fdb733b6
 checkpoint = 950
@@ -53,7 +53,7 @@ agents_list = [agents.StaticAgent(),
 env_id = "PommeTeam-nowood-v0"
 env = pommerman.make(env_id, agents_list)
 
-penv = v0.v0({
+penv = v0.RllibPomme({
     "agent_names": agent_names,
     "env_id": env_id,
     "phase": 0
