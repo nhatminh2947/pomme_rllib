@@ -36,6 +36,7 @@ def training_team(params):
 
     tune.register_env("PommeMultiAgent-v0", lambda x: PommeMultiAgent(env_config))
 
+    # Policy setting
     def gen_policy():
         config = {
             "model": {
@@ -62,8 +63,9 @@ def training_team(params):
             return "policy_0"
         return "static"
 
+    # PBT setting
     pbt_scheduler = PopulationBasedTraining(
-        time_attr="training_iteration",
+        time_attr=params["time_attr"],
         metric="policy_reward_mean/policy_0",
         mode="max",
         perturbation_interval=params["perturbation_interval"],
@@ -156,6 +158,7 @@ if __name__ == "__main__":
     parser.add_argument("--evaluation_num_episodes", type=int, default=10)
     parser.add_argument("--evaluation_interval", type=int, default=None)
     parser.add_argument("--queue_trials", action="store_true")
+    parser.add_argument("--time_attr", type=str, default="timesteps_total")
 
     args = parser.parse_args()
     params = vars(args)
