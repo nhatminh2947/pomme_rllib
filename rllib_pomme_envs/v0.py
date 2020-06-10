@@ -1,11 +1,12 @@
-import numpy as np
 import pommerman
+from gym import spaces
 from pommerman import agents
 from pommerman import constants
 from pommerman import utility
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from metrics import Metrics
+from utils import featurize
 
 
 # Note: change team for training agents
@@ -23,6 +24,7 @@ class RllibPomme(MultiAgentEnv):
         self.prev_obs = None
         self.stat = None
         self.reset_stat()
+        self.observation_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
 
     def reset_stat(self):
         self.stat = []
@@ -65,7 +67,7 @@ class RllibPomme(MultiAgentEnv):
 
         for id in range(4):
             if self.is_agent_alive(id):
-                obs[id] = self.featurize(_obs[id])
+                obs[id] = featurize(_obs[id])
                 rewards[id] = self.reward(id, _obs, _info)
                 infos[id] = _info
 
@@ -118,58 +120,6 @@ class RllibPomme(MultiAgentEnv):
 
         return reward
 
-    # Meaning of channels
-    # 0 passage             fow
-    # 1 Rigid               fow
-    # 2 Wood                fow
-    # 3 ExtraBomb           fow
-    # 4 IncrRange           fow
-    # 5 Kick                fow
-    # 6 FlameLife           fow
-    # 7 BombLife            fow
-    # 8 BombBlastStrength   fow
-    # 9 Fog
-    # 10 Position
-    # 11 Teammate
-    # 12 Enemies
-    # 13 Ammo
-    # 14 BlastStrength
-    # 15 CanKick
-    @staticmethod
-    def featurize(obs):
-        board = obs['board']
-        features = []
-        board_items = [constants.Item.Passage,
-                       constants.Item.Rigid,
-                       constants.Item.Wood,
-                       constants.Item.Fog,
-                       constants.Item.ExtraBomb,
-                       constants.Item.IncrRange,
-                       constants.Item.Kick]
-
-        for item in board_items:
-            features.append(board == item.value)
-
-        for feature in ["bomb_life", "bomb_blast_strength", "bomb_moving_direction", "flame_life"]:
-            features.append(obs[feature])
-
-        position = np.zeros(board.shape)
-        position[obs["position"]] = 1
-        features.append(position)
-
-        features.append(board == obs["teammate"].value)
-
-        enemies = np.zeros(board.shape)
-        for enemy in obs["enemies"]:
-            enemies[(board == enemy.value)] = 1
-        features.append(enemies)
-
-        features.append(np.full(board.shape, fill_value=obs["ammo"]))
-        features.append(np.full(board.shape, fill_value=obs["blast_strength"]))
-        features.append(np.full(board.shape, fill_value=(1 if obs["can_kick"] else 0)))
-
-        return np.stack(features, 0)
-
     def is_agent_alive(self, id, alive_agents=None):
         if alive_agents is None:
             return (id + 10) in self.alive_agents
@@ -181,7 +131,7 @@ class RllibPomme(MultiAgentEnv):
         self.reset_stat()
         for i in range(4):
             if self.is_agent_alive(i):
-                obs[i] = self.featurize(self.prev_obs[i])
+                obs[i] = featurize(self.prev_obs[i])
 
         return obs
 
@@ -199,7 +149,7 @@ if __name__ == '__main__':
     obs = env.reset()
 
     while True:
-        features = RllibPomme.featurize(obs[0])
+        features = featurize(obs[0])
         for i in range(17):
             print(features[i])
         print()
@@ -211,7 +161,7 @@ if __name__ == '__main__':
             break
 
     print(obs)
-    features = RllibPomme.featurize(obs[0])
+    features = featurize(obs[0])
     for i in range(17):
         print(features[i])
     print()

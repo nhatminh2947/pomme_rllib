@@ -1,4 +1,5 @@
 from rllib_pomme_envs import v0
+from utils import featurize
 
 
 # Note: change team for training agents
@@ -33,7 +34,7 @@ class RllibPomme(v0.RllibPomme):
 
         for id in range(4):
             if self.is_agent_alive(id):
-                obs[id] = self.featurize(_obs[id])
+                obs[id] = featurize(_obs[id])
                 rewards[id] = self.reward(id, _obs, _info)
                 infos[id].update(_info)
 
