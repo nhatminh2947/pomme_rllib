@@ -25,15 +25,17 @@ class RllibPomme(v0.RllibPomme):
         _obs, _reward, _done, _info = self.env.step(actions)
 
         for id in range(4):
-            if self.is_done(id, _obs[0]['alive']):
+            if _done or self.is_done(id, _obs[0]['alive']):
                 dones[id] = True
+                infos[id]["metrics"] = self.stat[id]
 
         dones["__all__"] = _done
+
         for id in range(4):
             if self.is_agent_alive(id):
                 obs[id] = self.featurize(_obs[id])
                 rewards[id] = self.reward(id, _obs, _info)
-                infos[id] = _info
+                infos[id].update(_info)
 
         self.prev_obs = _obs
 

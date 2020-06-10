@@ -6,6 +6,8 @@ from ray.rllib.env import BaseEnv
 from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.policy import Policy
 
+from metrics import Metrics
+
 
 class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
@@ -16,12 +18,7 @@ class PommeCallbacks(DefaultCallbacks):
                 last_info = episode.last_info_for(agent_name)
                 break
 
-        if last_info["result"] == constants.Result.Win:
-            episode.custom_metrics["win"] += 1
-        elif last_info["result"] == constants.Result.Tie:
-            episode.custom_metrics["tie"] += 1
-        else:
-            episode.custom_metrics["loss"] += 1
+
 
     def on_episode_step(self, worker: RolloutWorker, base_env: BaseEnv, episode: MultiAgentEpisode, **kwargs):
         for agent_name in range(4):
@@ -34,12 +31,9 @@ class PommeCallbacks(DefaultCallbacks):
         for agent_name in range(4):
             episode.custom_metrics["bomb_agent_{}".format(agent_name)] = 0
 
-        if "win" not in episode.custom_metrics:
-            episode.custom_metrics["win"] = 0
-        if "loss" not in episode.custom_metrics:
-            episode.custom_metrics["loss"] = 0
-        if "tie" not in episode.custom_metrics:
-            episode.custom_metrics["tie"] = 0
+        for key in Metrics:
+            if key.name not in episode.custom_metrics:
+                episode.custom_metrics[key.name] = 0
 
 
 def limit_gamma_explore(config):

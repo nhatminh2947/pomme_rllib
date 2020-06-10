@@ -14,7 +14,8 @@ from customize_rllib import PommeCallbacks, limit_gamma_explore
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
-from rllib_pomme_envs.v0 import RllibPomme
+from rllib_pomme_envs import v0
+from rllib_pomme_envs import v1
 
 
 def training_team(params):
@@ -34,7 +35,8 @@ def training_team(params):
 
     ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
 
-    tune.register_env("PommeMultiAgent-v0", lambda x: RllibPomme(env_config))
+    tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
+    tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
 
     # Policy setting
     def gen_policy():
@@ -97,7 +99,7 @@ def training_team(params):
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": RllibPomme,
+            "env": v1.RllibPomme,
             "env_config": env_config,
             "num_workers": params["num_workers"],
             "num_envs_per_worker": params["num_envs_per_worker"],
