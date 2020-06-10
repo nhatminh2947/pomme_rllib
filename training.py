@@ -13,6 +13,7 @@ import arguments
 from customize_rllib import PommeCallbacks, limit_gamma_explore
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
+from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0
 from rllib_pomme_envs import v1
@@ -50,11 +51,12 @@ def initialize(params):
             },
             "use_pytorch": True
         }
-        return PPOTorchPolicy, obs_space, act_space, config
+        return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
 
     policies = {
         "policy_{}".format(i): gen_policy() for i in range(2)
     }
+
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
@@ -76,8 +78,13 @@ def training_team(params):
             # "gamma": lambda: random.uniform(0.85, 0.999)
         })
 
+    if params['use_rnd']:
+        trainer = RNDTrainer
+    else:
+        trainer = PPOTrainer
+
     trials = tune.run(
-        PPOTrainer,
+        trainer,
         restore=params["restore"],
         resume=params["resume"],
         name=params["name"],
