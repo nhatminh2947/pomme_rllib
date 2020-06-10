@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class Metrics(Enum):
-    EliminateEnemies = 0
-    EliminateAlly = 1
+    EnemyDeath = 0
+    AllyDeath = 1
     DeadOrSuicide = 2
-    Win = 3
-    Tie = 4
-    Loss = 5
+    IncrRange = 3
+    ExtraBomb = 4
+    Kick = 5

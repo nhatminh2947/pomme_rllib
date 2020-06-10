@@ -99,7 +99,7 @@ def training_team(params):
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": v1.RllibPomme,
+            "env": "PommeMultiAgent-v1",
             "env_config": env_config,
             "num_workers": params["num_workers"],
             "num_envs_per_worker": params["num_envs_per_worker"],
@@ -167,6 +167,6 @@ if __name__ == "__main__":
     print(params)
 
     ray.shutdown()
-    ray.init(local_mode=params["local_mode"], object_store_memory=4e10)
+    ray.init(local_mode=params["local_mode"], memory=52428800, object_store_memory=4e10)
 
     training_team(params)

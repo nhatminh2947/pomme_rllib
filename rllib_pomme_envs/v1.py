@@ -20,14 +20,14 @@ class RllibPomme(v0.RllibPomme):
         obs = {}
         rewards = {}
         dones = {}
-        infos = {}
+        infos = {i - 10: {} for i in self.prev_obs[0]['alive']}
 
         _obs, _reward, _done, _info = self.env.step(actions)
 
-        for id in range(4):
-            if _done or self.is_done(id, _obs[0]['alive']):
-                dones[id] = True
-                infos[id]["metrics"] = self.stat[id]
+        for id in self.prev_obs[0]['alive']:
+            if _done or self.is_done(id - 10, _obs[0]['alive']):
+                dones[id - 10] = True
+                infos[id - 10]["metrics"] = self.stat[id - 10]
 
         dones["__all__"] = _done
 

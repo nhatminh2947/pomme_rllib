@@ -5,7 +5,7 @@ from pommerman import constants
 from pommerman import utility
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
-from AgentStat import AgentStat
+from metrics import Metrics
 
 
 # Note: change team for training agents
@@ -21,11 +21,16 @@ class RllibPomme(MultiAgentEnv):
         self.is_render = config["render"]
         self.action_space = self.env.action_space
         self.prev_obs = None
+        self.stat = None
+        self.reset_stat()
 
-        self.stat = [AgentStat(),
-                     AgentStat(),
-                     AgentStat(),
-                     AgentStat()]
+    def reset_stat(self):
+        self.stat = []
+        for i in range(4):
+            metrics = {}
+            for key in Metrics:
+                metrics[key.name] = 0
+            self.stat.append(metrics)
 
     def render(self):
         self.env.render()
@@ -82,31 +87,31 @@ class RllibPomme(MultiAgentEnv):
                                      current_obs[id]['position'],
                                      constants.Item.IncrRange):
             reward += 0.01
-            self.stat[id].blast_strength += 1
+            self.stat[id][Metrics.IncrRange.name] += 1
 
         if utility._position_is_item(self.prev_obs[id]['board'],
                                      current_obs[id]['position'],
                                      constants.Item.ExtraBomb):
             reward += 0.01
-            self.stat[id].ammo += 1
+            self.stat[id][Metrics.ExtraBomb.name] += 1
 
         if utility._position_is_item(self.prev_obs[id]['board'],
                                      current_obs[id]['position'],
                                      constants.Item.Kick) and not self.prev_obs[id]['can_kick']:
             reward += 0.02
-            self.stat[id].can_kick = True
+            self.stat[id][Metrics.Kick.name] = True
 
         for i in range(10, 14):
             if i in self.alive_agents and i not in current_obs[id]['alive']:
                 if constants.Item(value=i) in current_obs[id]['enemies']:
                     reward += 0.5
-                    self.stat[id].eliminate_enemies += 1
+                    self.stat[id][Metrics.EnemyDeath.name] += 1
                 elif i - 10 == id:
                     reward += -1
-                    self.stat[id].dead_or_suicide += 1
+                    self.stat[id][Metrics.DeadOrSuicide.name] += 1
                 else:
                     reward += -0.5
-                    self.stat[id].eliminate_ally += 1
+                    self.stat[id][Metrics.AllyDeath.name] += 1
 
         if info['result'] == constants.Result.Tie:
             reward += -1
@@ -173,11 +178,10 @@ class RllibPomme(MultiAgentEnv):
     def reset(self):
         self.prev_obs = self.env.reset()
         obs = {}
-
+        self.reset_stat()
         for i in range(4):
             if self.is_agent_alive(i):
                 obs[i] = self.featurize(self.prev_obs[i])
-                self.stat[i].reset()
 
         return obs
 
