@@ -113,7 +113,6 @@ class RllibPomme(MultiAgentEnv):
                     self.stat[id][Metrics.DeadOrSuicide.name] += 1
                 else:
                     reward += -0.5
-                    self.stat[id][Metrics.AllyDeath.name] += 1
 
         if info['result'] == constants.Result.Tie:
             reward += -1

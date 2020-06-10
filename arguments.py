@@ -34,6 +34,6 @@ def get_parser():
     parser.add_argument("--evaluation_interval", type=int, default=None)
     parser.add_argument("--queue_trials", action="store_true")
     parser.add_argument("--time_attr", type=str, default="timesteps_total")
-    parser.add_argument("--validate", type=bool, action="store_true")
+    parser.add_argument("--validate", action="store_true")
     
     return parser
