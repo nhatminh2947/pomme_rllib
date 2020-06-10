@@ -1,31 +1,35 @@
+import pommerman
 import ray
+from gym import spaces
+from pommerman import agents
 from ray.rllib.agents.ppo import PPOTrainer
+from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
-from pommerman import configs
-from pommerman.agents.simple_agent import SimpleAgent
-from pommerman.envs.v0 import Pomme
-from rllib_training import models
-from rllib_training.envs import PommeMultiAgent
+from models.third_model import ActorCriticModel
+from policies.random_policy import RandomPolicy
+from policies.static_policy import StaticPolicy
+from rllib_pomme_envs import v0
+from utils import policy_mapping, featurize
 
 ray.init()
 env_id = "PommeTeam-v0"
+env = pommerman.make(env_id, [])
 
-env_config = configs.team_v0_env()
-env = Pomme(**env_config['env_kwargs'])
-ModelCatalog.register_custom_model("torch_conv", models.ActorCriticModel)
+obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+act_space = env.action_space
 
 
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "torch_conv",
+            "custom_model": "torch_conv_0",
             "custom_options": {
-                "in_channels": 16,
+                "in_channels": 17,
                 "feature_dim": 512
-            }
+            },
+            "no_final_linear": True,
         },
-        "gamma": 0.999,
         "use_pytorch": True
     }
     return PPOTorchPolicy, obs_space, act_space, config
@@ -34,32 +38,38 @@ def gen_policy():
 policies = {
     "policy_{}".format(i): gen_policy() for i in range(2)
 }
+policies["random"] = (RandomPolicy, obs_space, act_space, {})
+policies["static"] = (StaticPolicy, obs_space, act_space, {})
+
+env_config = {
+    "env_id": env_id,
+    "render": False,
+    "game_state_file": None
+}
+
+ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
 
 ppo_agent = PPOTrainer(config={
-    "env_config": {
-        "env_id": env_id,
-        "render": True
-    },
+    "env_config": env_config,
+    "num_workers": 0,
     "multiagent": {
         "policies": policies,
-        "policy_mapping_fn": policy_mapping_fn,
-        "policies_to_train": ["ppo_policy"],
+        "policy_mapping_fn": policy_mapping,
+        "policies_to_train": ["policy_0"],
     },
-    "num_workers": 0,
-    "model": {"custom_model": "torch_conv"}
-}, env=PommeMultiAgent)
+    "observation_filter": "MeanStdFilter",
+    "use_pytorch": True
+}, env=v0.RllibPomme)
 
 # fdb733b6
-checkpoint = 240
-checkpoint_dir = "/home/nhatminh2947/ray_results//home/lucius/ray_results/experiment/PPO_PommeMultiAgent_0_2020-05-27_20-34-17w_avvlrt"
+checkpoint = 600
+checkpoint_dir = "/home/lucius/ray_results/two_policies_vs_static_agents/PPO_RllibPomme_0_2020-06-09_23-39-347whmqdrs"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
-agents = {}
+agent_list = []
 for agent_id in range(4):
-    agents[agent_id] = SimpleAgent(env_config["agent"](agent_id, env_config["game_type"]))
-env.set_agents(list(agents.values()))
-env.set_init_game_state(None)
-env.training_agent = 1
+    agent_list.append(agents.StaticAgent())
+env = pommerman.make("PommeTeam-v0", agent_list=agent_list)
 
 for i in range(1):
     obs = env.reset()
@@ -68,8 +78,8 @@ for i in range(1):
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[0] = ppo_agent.compute_action(observation=PommeMultiAgent.featurize(obs[0]))
-        actions[2] = ppo_agent.compute_action(observation=PommeMultiAgent.featurize(obs[2]))
+        actions[0] = ppo_agent.compute_action(observation=featurize(obs[0]), policy_id="policy_0")
+        actions[2] = ppo_agent.compute_action(observation=featurize(obs[2]), policy_id="policy_0")
         obs, reward, done, info = env.step(actions)
         print("reward:", reward)
         print("done:", done)
