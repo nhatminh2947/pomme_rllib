@@ -3,9 +3,12 @@ from pommerman import constants
 
 
 def policy_mapping(agent_id):
-    if agent_id % 2 == 0:
-        return "policy_0"
-    return "static"
+    # agent_id pattern training/opponent_policy-id_agent-num
+    print("Calling to policy mapping {}".format(agent_id))
+    name = agent_id.split("_")
+    if name[0] == "opponent":
+        return "opponent"
+    return "policy_{}".format(name[1])
 
 
 # Meaning of channels

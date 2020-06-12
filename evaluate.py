@@ -62,8 +62,8 @@ ppo_agent = PPOTrainer(config={
 }, env=v0.RllibPomme)
 
 # fdb733b6
-checkpoint = 600
-checkpoint_dir = "/home/lucius/ray_results/two_policies_vs_static_agents/PPO_RllibPomme_0_2020-06-09_23-39-347whmqdrs"
+checkpoint = 1000
+checkpoint_dir = "/home/lucius/ray_results/pbt_static_pbt_lr_timesteps/PPO_PommeMultiAgent_7_2020-06-09_20-06-11oppbekpj"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -71,19 +71,21 @@ for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
 env = pommerman.make("PommeTeam-v0", agent_list=agent_list)
 
-for i in range(1):
+for i in range(1000):
     obs = env.reset()
 
     done = False
+    total_reward = 0
     while not done:
         env.render()
         actions = env.act(obs)
         actions[0] = ppo_agent.compute_action(observation=featurize(obs[0]), policy_id="policy_0")
         actions[2] = ppo_agent.compute_action(observation=featurize(obs[2]), policy_id="policy_0")
         obs, reward, done, info = env.step(actions)
-        print("reward:", reward)
-        print("done:", done)
-        print("info:", info)
-        print("=========")
+        total_reward += reward[0]
+        if done:
+            print("info:", info)
+            print("reward:", total_reward)
+            print("=========")
     env.render(close=True)
     # env.close()

@@ -15,8 +15,7 @@ from ray.rllib.utils.torch_ops import sequence_mask
 from models.rnd_model import RNDActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
-from pomme_env import PommeMultiAgent
-
+from rllib_pomme_envs import v0, v1
 torch, nn = try_import_torch()
 
 INTRINSIC_VF_PREDS = 'intrinsic_vf_preds'
@@ -385,7 +384,7 @@ if __name__ == '__main__':
     env = pommerman.make(env_id, [])
     obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
     act_space = env.action_space
-    tune.register_env("PommeMultiAgent-v0", lambda x: PommeMultiAgent(env_config))
+    tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
 
 
     def gen_policy():
@@ -423,7 +422,7 @@ if __name__ == '__main__':
         config={
             "num_workers": 0,
             "num_gpus": 1,
-            "env": PommeMultiAgent,
+            "env": "PommeMultiAgent-v1",
             "env_config": env_config,
             "train_batch_size": 512,
             "multiagent": {

@@ -13,30 +13,30 @@ class RllibPomme(v0.RllibPomme):
 
         actions = []
         for id in range(4):
-            if id in action_dict:
-                actions.append(action_dict[id])
+            if self.agent_names[id] in action_dict:
+                actions.append(action_dict[self.agent_names[id]])
             else:
                 actions.append(0)
 
         obs = {}
         rewards = {}
         dones = {}
-        infos = {i - 10: {} for i in self.prev_obs[0]['alive']}
+        infos = {self.agent_names[i - 10]: {} for i in self.prev_obs[0]['alive']}
 
         _obs, _reward, _done, _info = self.env.step(actions)
 
         for id in self.prev_obs[0]['alive']:
             if _done or self.is_done(id - 10, _obs[0]['alive']):
-                dones[id - 10] = True
-                infos[id - 10]["metrics"] = self.stat[id - 10]
+                dones[self.agent_names[id - 10]] = True
+                infos[self.agent_names[id - 10]]["metrics"] = self.stat[id - 10]
 
         dones["__all__"] = _done
 
         for id in range(4):
             if self.is_agent_alive(id):
-                obs[id] = featurize(_obs[id])
-                rewards[id] = self.reward(id, _obs, _info)
-                infos[id].update(_info)
+                obs[self.agent_names[id]] = featurize(_obs[id])
+                rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
+                infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs
 

@@ -1,5 +1,4 @@
 import pommerman
-import ray
 from gym import spaces
 from pommerman import agents
 from pommerman import constants
@@ -26,7 +25,13 @@ class RllibPomme(MultiAgentEnv):
         self.stat = None
         self.reset_stat()
         self.observation_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
-        self.agent_names = None
+
+        self.agent_name = [
+            "training_0",
+            "opponent_1",
+            "training_2",
+            "opponent_3",
+        ]
 
     def reset_stat(self):
         self.stat = []
@@ -46,7 +51,7 @@ class RllibPomme(MultiAgentEnv):
         actions = []
         for id in range(4):
             if id in action_dict:
-                actions.append(action_dict[self.agent_names[id]])
+                actions.append(action_dict[id])
             else:
                 actions.append(0)
 
@@ -59,7 +64,7 @@ class RllibPomme(MultiAgentEnv):
 
         for id in range(4):
             if self.is_done(id, _obs[0]['alive']):
-                dones[self.agent_names[id]] = True
+                dones[self.agent_name[id]] = True
 
                 if id == 0:
                     _done = True
@@ -69,9 +74,9 @@ class RllibPomme(MultiAgentEnv):
 
         for id in range(4):
             if self.is_agent_alive(id):
-                obs[self.agent_names[id]] = featurize(_obs[id])
-                rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
-                infos[self.agent_names[id]] = _info
+                obs[self.agent_name[id]] = featurize(_obs[id])
+                rewards[self.agent_name[id]] = self.reward(id, _obs, _info)
+                infos[self.agent_name[id]] = _info
 
         self.prev_obs = _obs
 
@@ -130,44 +135,8 @@ class RllibPomme(MultiAgentEnv):
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        g_helper = ray.util.get_actor("g_helper")
-        self.agent_names = ray.get(g_helper.get_agent_names.remote())
-        print("Called reset")
-        print("self.agent_name:", self.agent_names)
         for i in range(4):
             if self.is_agent_alive(i):
-                obs[self.agent_names[i]] = featurize(self.prev_obs[i])
+                obs[i] = featurize(self.prev_obs[i])
 
         return obs
-
-
-if __name__ == '__main__':
-    agent_list = [
-        agents.RandomAgent(),
-        agents.StaticAgent(),
-        agents.StaticAgent(),
-        agents.StaticAgent()
-    ]
-    env = pommerman.make('PommeTeam-v0', agent_list,
-                         # '/home/lucius/working/projects/pomme_rllib/resources/one_line_state.json'
-                         )
-    obs = env.reset()
-
-    while True:
-        features = featurize(obs[0])
-        for i in range(17):
-            print(features[i])
-        print()
-        actions = env.act(obs)
-        print(actions)
-        obs, reward, done, info = env.step(actions)
-
-        if done:
-            break
-
-    print(obs)
-    features = featurize(obs[0])
-    for i in range(17):
-        print(features[i])
-    print()
-    # print(PommeMultiAgent.featurize(obs[0]))

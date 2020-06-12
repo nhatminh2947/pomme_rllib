@@ -11,6 +11,7 @@ from ray.tune.schedulers import PopulationBasedTraining
 
 import arguments
 from customize_rllib import PommeCallbacks, limit_gamma_explore
+from helper import Helper
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
@@ -23,6 +24,7 @@ from utils import policy_mapping
 def initialize(params):
     # env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
+
     env_id = "PommeTeam-v0"
 
     env_config = {
@@ -54,13 +56,30 @@ def initialize(params):
         return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
 
     policies = {
-        "policy_{}".format(i): gen_policy() for i in range(2)
+        "policy_{}".format(i): gen_policy() for i in range(params["populations"])
     }
 
+    policies["opponent"] = gen_policy()
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
+    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies)
+    g_helper.set_agent_names.remote()
+
     return env_config, policies
+
+
+# How to Implement Self Play with PPO? [rllib]
+# https://github.com/ray-project/ray/issues/6669
+#
+# https://github.com/ray-project/ray/issues/6669#issuecomment-602234412
+# 1. Define a trainable policy and several other non-trainable policies up front. The non-trainable policies
+#   will be the "prior selves" and we will update them as we train. Also define the sampling distribution
+#   for the non-trainable policies in the policy mapping function like @josjo80 did above.
+# 2. Train until a certain metric is met (trainable policy wins greater than 60% of the time).
+# 3. Update a list of "prior selves" weights that can be sampled from to update each of the non-trainable policies.
+# 4. Update the weights of the non-trainable policies by sampling from the list of "prior selves" weights.
+# 5. Back to step 2. Continue process until agent is satisfactorily trained.
 
 
 def training_team(params):
@@ -89,7 +108,7 @@ def training_team(params):
         resume=params["resume"],
         name=params["name"],
         queue_trials=params["queue_trials"],
-        scheduler=pbt_scheduler,
+        scheduler=pbt_scheduler if params["pbt"] else None,
         num_samples=params["num_samples"],
         stop={
             # "training_iteration": params["training_iteration"],
@@ -105,9 +124,10 @@ def training_team(params):
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": "PommeMultiAgent-v1",
+            "env": "PommeMultiAgent-v{}".format(params["env_v"]),
             "env_config": env_config,
             "num_workers": params["num_workers"],
+            "num_cpus_per_worker": params["num_cpus_per_worker"],
             "num_envs_per_worker": params["num_envs_per_worker"],
             "num_gpus_per_worker": params["num_gpus_per_worker"],
             "num_gpus": params["num_gpus"],

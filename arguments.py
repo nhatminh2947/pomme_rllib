@@ -7,6 +7,7 @@ def get_parser():
     parser.add_argument("--num_gpus", type=float, default=1, help="number of gpu")
     parser.add_argument("--num_envs_per_worker", type=int, default=1)
     parser.add_argument("--num_gpus_per_worker", type=float, default=0.0)
+    parser.add_argument("--num_cpus_per_worker", type=float, default=0.0)
     parser.add_argument("--num_sgd_iter", type=int, default=3)
     parser.add_argument("--sgd_minibatch_size", type=int, default=128)
     parser.add_argument("--train_batch_size", type=int, default=8192)
@@ -35,5 +36,9 @@ def get_parser():
     parser.add_argument("--queue_trials", action="store_true")
     parser.add_argument("--time_attr", type=str, default="timesteps_total")
     parser.add_argument("--validate", action="store_true")
-    
+    parser.add_argument("--pbt", action="store_true")
+    parser.add_argument("--use_rnd", action="store_true")
+    parser.add_argument("--populations", type=int, default=2)
+    parser.add_argument("--env_v", type=int, default=0)
+
     return parser
