@@ -1,5 +1,6 @@
 '''An example to show how to set up an pommerman game programmatically'''
 import argparse
+import logging
 
 import pommerman
 from pommerman import agents, constants
@@ -15,16 +16,32 @@ parser.add_argument("--render", action="store_true")
 args = parser.parse_args()
 params = vars(args)
 
+logger = logging.getLogger('ranking_champions')
+logger.setLevel(logging.INFO)
+
 
 def ranking(i, j, port, dir, params):
-    agents_1 = ["dypm.1", "eisenach", "hakozakijunctions", "navocado", "skynet955", "nips19-gorogm.gorogm",
+    agents_1 = ["hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955", "nips19-gorogm.gorogm",
                 "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics", "nips19-inspir-ai.inspir"]
-    agents_2 = ["dypm.2", "eisenach", "hakozakijunctions", "navocado", "skynet955", "nips19-gorogm.gorogm",
+    agents_2 = ["hakozakijunctions", "eisenach", "dypm.2", "navocado", "skynet955", "nips19-gorogm.gorogm",
                 "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics", "nips19-inspir-ai.inspir"]
+    file_name = "{}/{}_vs_{}.txt".format(dir, agents_1[i], agents_1[j])
+    fh = logging.FileHandler(file_name)
+    fh.setLevel(logging.INFO)
 
-    with open("{}/{}_vs_{}.txt".format(dir, agents_1[i], agents_1[j]), "a") as log:
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    with open(file_name, "a") as log:
         # Create a set of agents (exactly four)
-        print("Current match: {} {} {} {}".format(agents_1[i], agents_2[i], agents_1[j], agents_2[j]))
+        logger.info("Current match: {} {} {} {}".format(agents_1[i], agents_2[i], agents_1[j], agents_2[j]))
+
         if params["first_half"] != 0:
             agent_list = [
                 agents.DockerAgent("multiagentlearning/{}".format(agents_1[i]), port=port),
@@ -54,11 +71,12 @@ def ranking(i, j, port, dir, params):
                             result = constants.Result.Win
 
                         if params["log"]:
-                            log.write("{} {} {}\n".format(agents_1[i], agents_1[j], result.name))
-                        print("Match {} result: {}".format(i_episode, result.name))
+                            logger.info("{} {} {}".format(agents_1[i], agents_1[j], result.name))
+
+                        logger.debug("Match {} result: {}".format(i_episode, result.name))
 
             env.close()
-        print("Done half match")
+        logger.debug("Done half match")
 
         agent_list = [
             agents.DockerAgent("multiagentlearning/{}".format(agents_1[j]), port=port),
@@ -89,8 +107,6 @@ def ranking(i, j, port, dir, params):
                         result = constants.Result.Win
 
                     if params["log"]:
-                        log.write("{} {} {}\n".format(agents_1[i], agents_1[j], result.name))
-                    print("Match {} result: {}".format(i_episode, result.name))
+                        logger.info("{} {} {}".format(agents_1[i], agents_1[j], result.name))
+                    logger.debug("Match {} result: {}".format(i_episode, result.name))
         env.close()
-
-
