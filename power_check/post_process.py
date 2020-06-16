@@ -27,10 +27,10 @@ second_half_result = {"Win": 0,
                       "Loss": 0,
                       "Tie": 0}
 
-with open("new_logs/{}_vs_{}.txt".format(agents_1[i], agents_1[j]), "r") as file:
+with open("logs/{}_vs_{}.txt".format(agents_1[i], agents_1[j]), "r") as file:
     lines = file.readlines()
     cnt = 0
-    for i, line in enumerate(lines):
+    for line in lines:
         if line.find("Current match") != -1:
             continue
 
