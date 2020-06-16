@@ -10,9 +10,9 @@ parser.add_argument("--log", action="store_true")
 args = parser.parse_args()
 params = vars(args)
 
-agents_1 = ["dypm.1", "eisenach", "hakozakijunctions", "navocado", "skynet955", "nips19-gorogm.gorogm",
+agents_1 = ["hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955", "nips19-gorogm.gorogm",
             "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics", "nips19-inspir-ai.inspir"]
-agents_2 = ["dypm.2", "eisenach", "hakozakijunctions", "navocado", "skynet955", "nips19-gorogm.gorogm",
+agents_2 = ["hakozakijunctions", "eisenach", "dypm.2", "navocado", "skynet955", "nips19-gorogm.gorogm",
             "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics", "nips19-inspir-ai.inspir"]
 
 i = params["i"]
@@ -29,13 +29,22 @@ second_half_result = {"Win": 0,
 
 with open("new_logs/{}_vs_{}.txt".format(agents_1[i], agents_1[j]), "r") as file:
     lines = file.readlines()
-
+    cnt = 0
     for i, line in enumerate(lines):
-        result = line.split()[2]
-        if i < 50:
+        if line.find("Current match") != -1:
+            continue
+
+        result = line.split(" - ")[2]
+        result = result.split()[2]
+        if cnt < 50:
             first_half_result[result] += 1
         else:
             second_half_result[result] += 1
 
-    print(first_half_result)
-    print(second_half_result)
+        cnt += 1
+
+        if cnt == 100:
+            break
+
+    print("{} {} {}".format(agents_1[i], agents_1[j], first_half_result))
+    print("{} {} {}".format(agents_1[j], agents_1[i], second_half_result))
