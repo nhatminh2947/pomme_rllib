@@ -1,100 +1,29 @@
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Tie
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Win
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Loss
-hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 16:58:59,765 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:00:24,119 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:01:16,042 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:03:28,598 - INFO - hakozakijunctions nips19-gorogm.gorogm Tie
+2020-06-16 17:04:22,999 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:05:02,826 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:05:32,983 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:05:48,688 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:06:16,836 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:06:43,602 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:08:05,384 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:08:55,609 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:09:48,711 - INFO - hakozakijunctions nips19-gorogm.gorogm Tie
+2020-06-16 17:10:31,872 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:11:51,841 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:12:13,189 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:12:42,725 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:14:55,916 - INFO - hakozakijunctions nips19-gorogm.gorogm Tie
+2020-06-16 17:15:19,842 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:15:59,179 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:17:06,302 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:17:47,933 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:20:45,413 - INFO - hakozakijunctions nips19-gorogm.gorogm Tie
+2020-06-16 17:21:47,324 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:22:54,613 - INFO - hakozakijunctions nips19-gorogm.gorogm Tie
+2020-06-16 17:23:38,484 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:24:12,610 - INFO - hakozakijunctions nips19-gorogm.gorogm Win
+2020-06-16 17:25:07,818 - INFO - hakozakijunctions nips19-gorogm.gorogm Loss
+2020-06-16 17:25:20,961 - INFO - hakozakijunctions nips19-gorogm.gorogm Win

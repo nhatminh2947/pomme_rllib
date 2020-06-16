@@ -1,0 +1,2 @@
+2020-06-16 15:57:16,207 - INFO - dypm.1 nips19-pauljasek.thing1andthing2 Loss
+2020-06-16 15:57:33,749 - INFO - dypm.1 nips19-pauljasek.thing1andthing2 Loss

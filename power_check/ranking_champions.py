@@ -19,14 +19,16 @@ params = vars(args)
 
 def ranking(port, agent_names, params):
     logger = logging.getLogger('ranking_champions')
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     # Create a set of agents (exactly four)
+    logger.debug("first half: {}".format(agent_names))
     if params["first_half"] != 0:
+        print("First half")
         agent_list = []
         for i in range(4):
             agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + i))
-
+        print("agent_list", agent_list)
         env = pommerman.make('PommeRadioCompetition-v2', agent_list)
 
         # Run the episodes just like OpenAI Gym
@@ -48,20 +50,22 @@ def ranking(port, agent_names, params):
 
                     if params["log"]:
                         logger.info("{} {} {}".format(agent_names[0], agent_names[1], result.name))
-
-                    logger.debug("Match {} result: {}".format(i_episode, result.name))
+                    logger.debug("{} {} {}".format(agent_names[0], agent_names[1], result.name))
 
         env.close()
 
+    print("HERE")
     agent_names[0], agent_names[1] = agent_names[1], agent_names[0]
     agent_names[2], agent_names[3] = agent_names[3], agent_names[2]
-
+    logger.debug("a second half: {}".format(agent_names))
     agent_list = []
     for i in range(4):
         agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + i))
-
+    print("agent_list", agent_list)
+    logger.debug("second half: {}".format(agent_names))
     env = pommerman.make('PommeRadioCompetition-v2', agent_list)
     # Run the episodes just like OpenAI Gym
+
     for i_episode in range(params["second_half"]):
         state = env.reset()
         done = False
@@ -80,5 +84,5 @@ def ranking(port, agent_names, params):
 
                 if params["log"]:
                     logger.info("{} {} {}".format(agent_names[0], agent_names[1], result.name))
-                logger.debug("Match {} result: {}".format(i_episode, result.name))
+                logger.debug("{} {} {}".format(agent_names[0], agent_names[1], result.name))
     env.close()

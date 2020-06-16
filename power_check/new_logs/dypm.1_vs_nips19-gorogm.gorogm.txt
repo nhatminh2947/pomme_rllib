@@ -94,3 +94,8 @@
 2020-06-16 15:52:11,888 - INFO - nips19-gorogm.gorogm dypm.1 Tie
 2020-06-16 15:53:34,958 - INFO - nips19-gorogm.gorogm dypm.1 Tie
 2020-06-16 15:53:57,454 - INFO - nips19-gorogm.gorogm dypm.1 Loss
+2020-06-16 15:55:03,236 - INFO - nips19-gorogm.gorogm dypm.1 Tie
+2020-06-16 15:55:59,656 - INFO - nips19-gorogm.gorogm dypm.1 Loss
+2020-06-16 15:56:18,020 - INFO - nips19-gorogm.gorogm dypm.1 Loss
+2020-06-16 15:56:37,763 - INFO - nips19-gorogm.gorogm dypm.1 Loss
+2020-06-16 15:56:46,193 - INFO - nips19-gorogm.gorogm dypm.1 Loss
