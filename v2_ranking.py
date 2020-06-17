@@ -51,8 +51,8 @@ def main():
         logger.removeHandler(fh)
         logger.removeHandler(ch)
     else:
-        for i in range(6, 9):
-            for j in range(i+1, 9):
+        for i in [3, 5]:
+            for j in [7, 8]:
                 agent_names = [agents_1[i], agents_1[j], agents_2[i], agents_2[j]]
                 file_name = "power_check/logs/{}_vs_{}.txt".format(agents_1[i], agents_1[j])
 

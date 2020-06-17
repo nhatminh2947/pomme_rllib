@@ -25,6 +25,7 @@ class RllibPomme(MultiAgentEnv):
         self.stat = None
         self.reset_stat()
         self.observation_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+        self.memory = None
 
         self.agent_name = [
             "training_0",
@@ -74,13 +75,30 @@ class RllibPomme(MultiAgentEnv):
 
         for id in range(4):
             if self.is_agent_alive(id):
-                obs[self.agent_name[id]] = featurize(_obs[id])
+                self.update_memory(id, _obs[id])
+
+                obs[self.agent_name[id]] = featurize(self.memory[id])
                 rewards[self.agent_name[id]] = self.reward(id, _obs, _info)
                 infos[self.agent_name[id]] = _info
 
         self.prev_obs = _obs
 
         return obs, rewards, dones, infos
+
+    def update_memory(self, id, obs):
+        for i in range(11):
+            for j in range(11):
+                if self.memory[id]['bomb_life'][i][j] == 0:
+                    self.memory[id]['bomb_blast_strength'][i][j] = 0
+                else:
+                    self.memory[id]['bomb_life'][i, j] -= 1
+
+        for i in range(11):
+            for j in range(11):
+                if obs['board'][i, j] != constants.Item.Fog.value:
+                    self.memory[id]['board'][i, j] = obs['board'][i, j]
+                    self.memory[id]['bomb_life'][i, j] = obs['bomb_life'][i, j]
+                    self.memory[id]['bomb_blast_strength'][i, j] = obs['bomb_blast_strength'][i, j]
 
     @property
     def alive_agents(self):
@@ -119,7 +137,7 @@ class RllibPomme(MultiAgentEnv):
                     reward += -1
                     self.stat[id][Metrics.DeadOrSuicide.name] += 1
                 else:
-                    reward += -0.5
+                    reward += -0.1
 
         if info['result'] == constants.Result.Tie:
             reward += -1
@@ -131,6 +149,11 @@ class RllibPomme(MultiAgentEnv):
             return (id + 10) in self.alive_agents
         return (id + 10) in alive_agents
 
+    def init_memory(self, observations):
+        self.memory = []
+        for i in range(4):
+            self.memory.append(observations[i])
+
     def reset(self):
         self.prev_obs = self.env.reset()
         obs = {}
@@ -138,5 +161,6 @@ class RllibPomme(MultiAgentEnv):
         for i in range(4):
             if self.is_agent_alive(i):
                 obs[i] = featurize(self.prev_obs[i])
+        self.init_memory(self.prev_obs)
 
         return obs

@@ -16,8 +16,7 @@ from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
-from rllib_pomme_envs import v0
-from rllib_pomme_envs import v1
+from rllib_pomme_envs import v0, v1, v2
 from utils import policy_mapping
 
 
@@ -25,7 +24,7 @@ def initialize(params):
     # env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
 
-    env_id = "PommeTeam-v0"
+    env_id = "PommeRadioCompetition-v2"
 
     env_config = {
         "env_id": env_id,
@@ -35,6 +34,7 @@ def initialize(params):
     ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
+    tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 
     env = pommerman.make(env_id, [])
     obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))

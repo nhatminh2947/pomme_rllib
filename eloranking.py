@@ -5,7 +5,7 @@ class EloRatingSystem:
     def __init__(self):
         self.population = 0
         self.rating = {}
-        self.k = 32
+        self.k = 16
 
     def add_player(self, name, elo=1000):
         self.rating[name] = elo
@@ -23,14 +23,23 @@ class EloRatingSystem:
 
 
 if __name__ == '__main__':
-    n_player = 5
+    n_player = 9
     ers = EloRatingSystem()
     np.random.seed(1)
     for i in range(n_player):
         ers.add_player('player_{}'.format(i), elo=np.random.randint(1000, 1500))
 
-    result = np.random.randint(0, 2, (5, 5))
-    result = (result + result.T) / 2
+    result = [
+        [0, 35, 35, 53, 75, 28, 32, 73, 8],  # hakojaki
+        [26, 0, 54, 87, 85, 21, 53, 87, 35],  # eisenach
+        # [3, 10, 0, 24, 10], # dypm
+        [],  # navocado
+        [],  # skynet
+        [],  # gorogm
+        [],  # thing1
+        [],  # inspir
+        [],  # neoteric
+    ]
     print(result)
     ers.list_elo_rating()
 
