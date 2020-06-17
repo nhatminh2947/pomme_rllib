@@ -1,0 +1,5 @@
+2020-06-17 15:07:50,444 - INFO - nips19-sumedhgupta.neoterics nips19-inspir-ai.inspir Tie
+2020-06-17 15:08:58,931 - INFO - nips19-sumedhgupta.neoterics nips19-inspir-ai.inspir Loss
+2020-06-17 15:11:01,285 - INFO - nips19-sumedhgupta.neoterics nips19-inspir-ai.inspir Loss
+2020-06-17 15:12:40,056 - INFO - nips19-sumedhgupta.neoterics nips19-inspir-ai.inspir Loss
+2020-06-17 15:13:07,740 - INFO - nips19-sumedhgupta.neoterics nips19-inspir-ai.inspir Loss

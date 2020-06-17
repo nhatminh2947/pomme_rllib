@@ -60,7 +60,7 @@ def ranking(port, agent_names, params):
     logger.debug("a second half: {}".format(agent_names))
     agent_list = []
     for i in range(4):
-        agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + i))
+        agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + 4 + i))
     print("agent_list", agent_list)
     logger.debug("second half: {}".format(agent_names))
     env = pommerman.make('PommeRadioCompetition-v2', agent_list)
