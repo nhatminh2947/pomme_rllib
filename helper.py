@@ -9,6 +9,7 @@ class Helper:
         self.population_size = population_size
         self.agent_names = {}
         self.policies = policies
+        self._is_init = False
 
     def set_agent_names(self):
         i, j = np.random.randint(low=0, high=self.population_size, size=2)
@@ -27,3 +28,9 @@ class Helper:
 
     def get_agent_names(self):
         return self.agent_names
+
+    def is_init(self):
+        return self._is_init
+
+    def set_init_done(self):
+        self._is_init = True

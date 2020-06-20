@@ -36,9 +36,8 @@ def initialize(params):
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 
-    env = pommerman.make(env_id, [])
     obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
-    act_space = env.action_space
+    act_space = spaces.Discrete(6)
 
     # Policy setting
     def gen_policy():
@@ -66,6 +65,8 @@ def initialize(params):
     g_helper = Helper.options(name="g_helper").remote(params["populations"], policies)
     g_helper.set_agent_names.remote()
 
+    print("Training policies:", policies.keys())
+
     return env_config, policies
 
 
@@ -85,22 +86,9 @@ def initialize(params):
 def training_team(params):
     env_config, policies = initialize(params)
 
-    # PBT setting
-    pbt_scheduler = PopulationBasedTraining(
-        time_attr=params["time_attr"],
-        metric="policy_reward_mean/policy_0",
-        mode="max",
-        perturbation_interval=params["perturbation_interval"],
-        custom_explore_fn=limit_gamma_explore,
-        hyperparam_mutations={
-            "lr": lambda: random.uniform(0.0001, 0.1),
-            # "gamma": lambda: random.uniform(0.85, 0.999)
-        })
-
+    trainer = PPOTrainer
     if params['use_rnd']:
         trainer = RNDTrainer
-    else:
-        trainer = PPOTrainer
 
     trials = tune.run(
         trainer,
@@ -108,8 +96,6 @@ def training_team(params):
         resume=params["resume"],
         name=params["name"],
         queue_trials=params["queue_trials"],
-        scheduler=pbt_scheduler if params["pbt"] else None,
-        num_samples=params["num_samples"],
         stop={
             # "training_iteration": params["training_iteration"],
             "timesteps_total": 1000000000

@@ -25,10 +25,7 @@ class RllibPomme(MultiAgentEnv):
         self.prev_obs = None
         self.stat = None
         self.reset_stat()
-        if config["env_id"] == "OneVsOne-v0":
-            self.observation_space = spaces.Box(low=0, high=20, shape=(17, 8, 8))
-        else:
-            self.observation_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+        self.observation_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
         self.agent_names = None
 
     def reset_stat(self):

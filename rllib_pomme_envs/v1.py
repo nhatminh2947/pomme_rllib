@@ -14,7 +14,7 @@ class RllibPomme(v0.RllibPomme):
         actions = []
         for id in range(4):
             if self.agent_names[id] in action_dict:
-                actions.append(action_dict[self.agent_names[id]])
+                actions.append(int(action_dict[self.agent_names[id]]))
             else:
                 actions.append(0)
 
@@ -22,7 +22,7 @@ class RllibPomme(v0.RllibPomme):
         rewards = {}
         dones = {}
         infos = {self.agent_names[i - 10]: {} for i in self.prev_obs[0]['alive']}
-
+        print(actions)
         _obs, _reward, _done, _info = self.env.step(actions)
 
         for id in self.prev_obs[0]['alive']:
