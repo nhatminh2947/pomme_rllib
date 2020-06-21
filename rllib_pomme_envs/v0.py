@@ -13,12 +13,11 @@ from utils import featurize
 # Note: change team for training agents
 class RllibPomme(MultiAgentEnv):
     def __init__(self, config):
-        self.agent_list = [
-            agents.StaticAgent(),
-            agents.StaticAgent(),
-            agents.StaticAgent(),
-            agents.StaticAgent(),
-        ]
+        self.num_agents = 2 if config["env_id"] == "OneVsOne-v0" else 4
+        self.agent_list = []
+        for i in range(self.num_agents):
+            self.agent_list.append(agents.StaticAgent())
+
         self.env = pommerman.make(config["env_id"], self.agent_list, config["game_state_file"])
         self.is_render = config["render"]
         self.action_space = self.env.action_space
@@ -33,7 +32,7 @@ class RllibPomme(MultiAgentEnv):
 
     def reset_stat(self):
         self.stat = []
-        for i in range(4):
+        for i in range(self.num_agents):
             metrics = {}
             for key in Metrics:
                 metrics[key.name] = 0
@@ -47,7 +46,7 @@ class RllibPomme(MultiAgentEnv):
             self.render()
 
         actions = []
-        for id in range(4):
+        for id in range(self.num_agents):
             if id in action_dict:
                 actions.append(action_dict[self.agent_names[id]])
             else:
@@ -60,7 +59,7 @@ class RllibPomme(MultiAgentEnv):
 
         _obs, _reward, _done, _info = self.env.step(actions)
 
-        for id in range(4):
+        for id in range(self.num_agents):
             if self.is_done(id, _obs[0]['alive']):
                 dones[self.agent_names[id]] = True
 
@@ -70,7 +69,7 @@ class RllibPomme(MultiAgentEnv):
 
         dones["__all__"] = _done
 
-        for id in range(4):
+        for id in range(self.num_agents):
             if self.is_agent_alive(id):
                 obs[self.agent_names[id]] = featurize(_obs[id])
                 rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
@@ -135,9 +134,9 @@ class RllibPomme(MultiAgentEnv):
         self.reset_stat()
         g_helper = ray.util.get_actor("g_helper")
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
-        print("Called reset")
-        print("self.agent_name:", self.agent_names)
-        for i in range(4):
+        # print("Called reset")
+        # print("self.agent_name:", self.agent_names)
+        for i in range(self.num_agents):
             if self.is_agent_alive(i):
                 obs[self.agent_names[i]] = featurize(self.prev_obs[i])
 

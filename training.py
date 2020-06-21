@@ -1,30 +1,27 @@
-import random
-
-import pommerman
 import ray
 from gym import spaces
 from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
-from ray.tune.schedulers import PopulationBasedTraining
 
 import arguments
-from customize_rllib import PommeCallbacks, limit_gamma_explore
+from customize_rllib import PommeCallbacks
+from customize_rllib import policy_mapping
 from helper import Helper
+from models import one_vs_one_model
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
-from rllib_pomme_envs import v0, v1, v2
-from utils import policy_mapping
+from rllib_pomme_envs import v0, v1, v2, one_vs_one
 
 
 def initialize(params):
     # env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
-
-    env_id = "PommeRadioCompetition-v2"
+    env_id = "OneVsOne-v0"
+    # env_id = "PommeRadioCompetition-v2"
 
     env_config = {
         "env_id": env_id,
@@ -32,18 +29,22 @@ def initialize(params):
         "game_state_file": params["game_state_file"]
     }
     ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
+    ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
-
-    obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+    tune.register_env("PommeMultiAgent-1vs1", lambda x: one_vs_one.RllibPomme(env_config))
+    if env_id == "OneVsOne-v0":
+        obs_space = spaces.Box(low=0, high=20, shape=(17, 8, 8))
+    else:
+        obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
     act_space = spaces.Discrete(6)
 
     # Policy setting
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "torch_conv_0",
+                "custom_model": "1vs1",
                 "custom_options": {
                     "in_channels": 17,
                     "feature_dim": 512
@@ -110,7 +111,7 @@ def training_team(params):
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": "PommeMultiAgent-v{}".format(params["env_v"]),
+            "env": "PommeMultiAgent-{}".format(params["env_v"]),
             "env_config": env_config,
             "num_workers": params["num_workers"],
             "num_cpus_per_worker": params["num_cpus_per_worker"],
@@ -150,7 +151,7 @@ def validate(params):
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": "PommeMultiAgent-v1",
+            "env": params["env"],
             "env_config": env_config,
             "num_workers": params["num_workers"],
             "num_envs_per_worker": params["num_envs_per_worker"],
@@ -170,7 +171,7 @@ def validate(params):
                 "policy_mapping_fn": policy_mapping,
                 "policies_to_train": ["policy_0"],
             },
-            "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
+            # "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",

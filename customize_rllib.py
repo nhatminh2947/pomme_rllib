@@ -13,17 +13,14 @@ from metrics import Metrics
 class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
-        print("Callback on_episode_end")
-        print(worker.worker_index)
         winners = None
-        g_helper = ray.util.get_actor("g_helper")
 
         for k, v in episode.agent_rewards.items():
             agent_name = k[0]
             name = agent_name.split("_")
             if name[0] == "opponent":
                 continue
-            print(episode.last_info_for(agent_name))
+            # print(episode.last_info_for(agent_name))
             info = episode.last_info_for(agent_name)
 
             if "winners" in info:
@@ -49,7 +46,6 @@ class PommeCallbacks(DefaultCallbacks):
             for k, v in episode.agent_rewards.items():
                 agent_name = k[0]
                 name = agent_name.split("_")
-                print("agent name:", agent_name)
                 if name[0] == "opponent":
                     continue
                 episode.custom_metrics["agent_{}/num_bombs".format(agent_name)] = 0
@@ -59,12 +55,12 @@ class PommeCallbacks(DefaultCallbacks):
                         episode.custom_metrics["agent_{}/{}".format(agent_name, key.name)] = 0
 
             g_helper.set_init_done.remote()
-            print("Init DONE")
+            # print("Init DONE")
 
         for k, v in episode.agent_rewards.items():
             agent_name = k[0]
             name = agent_name.split("_")
-            print("agent name:", agent_name)
+            # print("agent name:", agent_name)
             if name[0] == "opponent":
                 continue
             action = episode.last_action_for(agent_name)
@@ -75,11 +71,18 @@ class PommeCallbacks(DefaultCallbacks):
 
     def on_train_result(self, trainer, result: dict, **kwargs):
         g_helper = ray.util.get_actor("g_helper")
-        ray.get(g_helper.set_agent_names.remote())
-        print("New pair generated")
-        print(ray.get(g_helper.get_agent_names.remote()))
+        # ray.get(g_helper.set_agent_names.remote())
 
 
 def limit_gamma_explore(config):
     config["gamma"] = min(config["gamma"], 0.999)
     return config
+
+
+def policy_mapping(agent_id):
+    # agent_id pattern training/opponent_policy-id_agent-num
+    # print("Calling to policy mapping {}".format(agent_id))
+    name = agent_id.split("_")
+    if name[0] == "opponent":
+        return "static"
+    return "policy_{}".format(name[1])

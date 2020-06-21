@@ -15,9 +15,10 @@ class Helper:
         i, j = np.random.randint(low=0, high=self.population_size, size=2)
         while i == j:
             j = np.random.randint(low=0, high=self.population_size, size=None)
-
+        i = 0
+        j = 0
         self.agent_names = []
-        for k in range(4):
+        for k in range(2):
             if k % 2 == 0:
                 self.agent_names.append("training_{}_{}".format(i, k))
             else:

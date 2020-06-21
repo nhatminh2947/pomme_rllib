@@ -39,6 +39,6 @@ def get_parser():
     parser.add_argument("--pbt", action="store_true")
     parser.add_argument("--use_rnd", action="store_true")
     parser.add_argument("--populations", type=int, default=2)
-    parser.add_argument("--env_v", type=int, default=0)
+    parser.add_argument("--env_v", type=str, default="v0")
 
     return parser
