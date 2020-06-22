@@ -40,5 +40,6 @@ def get_parser():
     parser.add_argument("--use_rnd", action="store_true")
     parser.add_argument("--populations", type=int, default=2)
     parser.add_argument("--env_v", type=str, default="v0")
+    parser.add_argument("--kl_target", type=float, default=0.01)
 
     return parser
