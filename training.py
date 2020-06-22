@@ -149,6 +149,7 @@ def validate(params):
             "lr": params["lr"],
             "entropy_coeff": params["entropy_coeff"],
             "kl_coeff": params["kl_coeff"],  # disable KL
+            "kl_target": params["kl_target"],
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
             "env": params["env"],
