@@ -1,3 +1,6 @@
+import ray
+from pommerman import constants
+
 from rllib_pomme_envs import v0
 from utils import featurize
 
@@ -6,6 +9,7 @@ from utils import featurize
 class RllibPomme(v0.RllibPomme):
     def __init__(self, config):
         super().__init__(config)
+        self.memory = None
 
     def step(self, action_dict):
         if self.is_render:
@@ -32,12 +36,48 @@ class RllibPomme(v0.RllibPomme):
 
         dones["__all__"] = _done
 
-        for id in range(4):
+        for id in range(self.num_agents):
             if self.is_agent_alive(id):
                 obs[self.agent_names[id]] = featurize(_obs[id])
+                self.update_memory(id, _obs[id])
+
+                obs[self.agent_names[id]] = featurize(self.memory[id])
                 rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
                 infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs
 
         return obs, rewards, dones, infos
+
+    def update_memory(self, id, obs):
+        for i in range(11):
+            for j in range(11):
+                if self.memory[id]['bomb_life'][i][j] == 0:
+                    self.memory[id]['bomb_blast_strength'][i][j] = 0
+                else:
+                    self.memory[id]['bomb_life'][i, j] -= 1
+
+        for i in range(11):
+            for j in range(11):
+                if obs['board'][i, j] != constants.Item.Fog.value:
+                    self.memory[id]['board'][i, j] = obs['board'][i, j]
+                    self.memory[id]['bomb_life'][i, j] = obs['bomb_life'][i, j]
+                    self.memory[id]['bomb_blast_strength'][i, j] = obs['bomb_blast_strength'][i, j]
+
+    def init_memory(self, observations):
+        self.memory = []
+        for i in range(self.num_agents):
+            self.memory.append(observations[i])
+
+    def reset(self):
+        self.prev_obs = self.env.reset()
+        obs = {}
+        self.reset_stat()
+        g_helper = ray.util.get_actor("g_helper")
+        self.agent_names = ray.get(g_helper.get_agent_names.remote())
+        for i in range(self.num_agents):
+            if self.is_agent_alive(i):
+                obs[self.agent_names[i]] = featurize(self.prev_obs[i])
+        self.init_memory(self.prev_obs)
+
+        return obs

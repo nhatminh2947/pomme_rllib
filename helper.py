@@ -18,7 +18,7 @@ class Helper:
         i = 0
         j = 0
         self.agent_names = []
-        for k in range(2):
+        for k in range(4):
             if k % 2 == 0:
                 self.agent_names.append("training_{}_{}".format(i, k))
             else:

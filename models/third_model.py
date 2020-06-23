@@ -13,63 +13,51 @@ class ActorCriticModel(nn.Module, TorchModelV2):
         self.shared_layers = nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
-                out_channels=32,
-                kernel_size=3,
-                padding=1,
-                stride=1),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                padding=1,
-                stride=1),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=64,
                 out_channels=128,
                 kernel_size=3,
                 stride=1),
             nn.ReLU(),
-            Flatten(),
-            nn.Linear(9 * 9 * 128, 256),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
             nn.ReLU(),
-            nn.Linear(256, feature_dim),
-            nn.ReLU()
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            Flatten()
         )
 
         self.actor_layers = nn.Sequential(
-            nn.Linear(feature_dim, 256),
-            nn.ReLU(),
-            nn.Linear(256, action_space.n)
+            nn.Linear(128, action_space.n)
         )
 
         self.critic_layers = nn.Sequential(
-            nn.Linear(feature_dim, 512),
-            nn.ReLU(),
-            nn.Linear(in_features=512, out_features=1)
+            nn.Linear(128, 1),
         )
 
         self._shared_layer_out = None
 
         for p in self.modules():
-            if isinstance(p, nn.Conv2d):
+            if isinstance(p, nn.Conv2d) or isinstance(p, nn.Linear):
                 nn.init.orthogonal_(p.weight, np.sqrt(2))
                 p.bias.data.zero_()
-
-            if isinstance(p, nn.Linear):
-                nn.init.orthogonal_(p.weight, np.sqrt(2))
-                p.bias.data.zero_()
-
-        for i in range(len(self.actor_layers)):
-            if type(self.actor_layers[i]) == nn.Linear:
-                nn.init.orthogonal_(self.actor_layers[i].weight, 0.01)
-                self.actor_layers[i].bias.data.zero_()
-
-        for i in range(len(self.critic_layers)):
-            if type(self.critic_layers[i]) == nn.Linear:
-                nn.init.orthogonal_(self.critic_layers[i].weight, 0.1)
-                self.critic_layers[i].bias.data.zero_()
 
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]

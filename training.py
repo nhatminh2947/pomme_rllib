@@ -9,8 +9,7 @@ import arguments
 from customize_rllib import PommeCallbacks
 from customize_rllib import policy_mapping
 from helper import Helper
-from models import one_vs_one_model
-from models.third_model import ActorCriticModel
+from models import one_vs_one_model, third_model
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
@@ -20,15 +19,15 @@ from rllib_pomme_envs import v0, v1, v2, one_vs_one
 def initialize(params):
     # env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
-    env_id = "OneVsOne-v0"
-    # env_id = "PommeRadioCompetition-v2"
+    # env_id = "OneVsOne-v0"
+    env_id = "PommeRadioCompetition-v2"
 
     env_config = {
         "env_id": env_id,
         "render": params["render"],
         "game_state_file": params["game_state_file"]
     }
-    ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
+    ModelCatalog.register_custom_model("torch_conv_0", third_model.ActorCriticModel)
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
@@ -44,7 +43,7 @@ def initialize(params):
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "1vs1",
+                "custom_model": "torch_conv_0",
                 "custom_options": {
                     "in_channels": 17,
                     "feature_dim": 512
