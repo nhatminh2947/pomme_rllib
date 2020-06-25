@@ -51,4 +51,14 @@ def featurize(obs):
     features.append(np.full(board.shape, fill_value=obs["blast_strength"]))
     features.append(np.full(board.shape, fill_value=(1 if obs["can_kick"] else 0)))
 
-    return np.stack(features, 0)
+    features = np.stack(features, 0)
+    features = np.asarray(features, dtype=np.float)
+    check_nan(features)
+    return features
+
+def check_nan(array):
+    tmp = np.sum(array)
+    if np.isnan(tmp) or np.isinf(tmp):
+        print('NaN or Inf found in input tensor.')
+        print(tmp)
+    return array
