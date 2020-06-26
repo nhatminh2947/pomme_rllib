@@ -1,12 +1,8 @@
-import logging
-
 import ray
 from pommerman import constants
 
 from rllib_pomme_envs import v0
 from utils import featurize
-
-logging.basicConfig(filename='/home/lucius/ray_results/records/logs.txt', level=logging.DEBUG)
 
 
 # Note: change team for training agents
@@ -47,10 +43,6 @@ class RllibPomme(v0.RllibPomme):
                 obs[self.agent_names[id]] = featurize(self.memory[id])
                 rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
                 infos[self.agent_names[id]].update(_info)
-
-                if id == 0:
-                    logging.info(obs[self.agent_names[0]])
-                    logging.info(rewards[self.agent_names[0]])
 
         self.prev_obs = _obs
 
