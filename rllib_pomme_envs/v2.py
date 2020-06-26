@@ -1,8 +1,12 @@
+import logging
+
 import ray
 from pommerman import constants
 
 from rllib_pomme_envs import v0
 from utils import featurize
+
+logging.basicConfig(filename='/home/lucius/ray_results/records/logs.txt', level=logging.DEBUG)
 
 
 # Note: change team for training agents
@@ -13,7 +17,8 @@ class RllibPomme(v0.RllibPomme):
 
     def step(self, action_dict):
         if self.is_render:
-            self.render()
+            self.render(record_pngs_dir="/home/lucius/ray_results/records/pngs",
+                        record_json_dir="/home/lucius/ray_results/records/logs")
 
         actions = []
         for id in range(4):
@@ -43,11 +48,22 @@ class RllibPomme(v0.RllibPomme):
                 rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
                 infos[self.agent_names[id]].update(_info)
 
+                if id == 0:
+                    logging.info(obs[self.agent_names[0]])
+                    logging.info(rewards[self.agent_names[0]])
+
         self.prev_obs = _obs
 
         return obs, rewards, dones, infos
 
     def update_memory(self, id, obs):
+        self.memory[id]['alive'] = obs['alive']
+        self.memory[id]['bomb_moving_direction'] = obs['bomb_moving_direction']
+        self.memory[id]['position'] = obs['position']
+        self.memory[id]['blast_strength'] = obs['blast_strength']
+        self.memory[id]['can_kick'] = obs['can_kick']
+        self.memory[id]['ammo'] = obs['ammo']
+
         for i in range(11):
             for j in range(11):
                 if self.memory[id]['bomb_life'][i][j] == 0:
@@ -55,12 +71,20 @@ class RllibPomme(v0.RllibPomme):
                 else:
                     self.memory[id]['bomb_life'][i, j] -= 1
 
+                if self.memory[id]['flame_life'][i, j] != 0:
+                    self.memory[id]['flame_life'][i, j] -= 1
+
         for i in range(11):
             for j in range(11):
                 if obs['board'][i, j] != constants.Item.Fog.value:
                     self.memory[id]['board'][i, j] = obs['board'][i, j]
                     self.memory[id]['bomb_life'][i, j] = obs['bomb_life'][i, j]
                     self.memory[id]['bomb_blast_strength'][i, j] = obs['bomb_blast_strength'][i, j]
+                    self.memory[id]['flame_life'][i, j] = obs['flame_life'][i, j]
+
+                if constants.Item(self.memory[id]['board'][i, j]) in obs['enemies'] \
+                        and self.memory[id]['board'][i, j] not in obs['alive']:
+                    self.memory[id]['board'][i, j] = 0
 
     def init_memory(self, observations):
         self.memory = []

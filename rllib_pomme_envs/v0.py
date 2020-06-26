@@ -38,8 +38,8 @@ class RllibPomme(MultiAgentEnv):
                 metrics[key.name] = 0
             self.stat.append(metrics)
 
-    def render(self):
-        self.env.render()
+    def render(self, record_pngs_dir=None, record_json_dir=None):
+        self.env.render(record_pngs_dir=record_pngs_dir)
 
     def step(self, action_dict):
         if self.is_render:
@@ -89,9 +89,7 @@ class RllibPomme(MultiAgentEnv):
     def reward(self, id, current_obs, info):
         reward = 0
 
-        if utility._position_is_item(self.prev_obs[id]['board'],
-                                     current_obs[id]['position'],
-                                     constants.Item.IncrRange):
+        if self.prev_obs[id]['blast_strength'] < current_obs[id]['blast_strength']:
             reward += 0.01
             self.stat[id][Metrics.IncrRange.name] += 1
 
@@ -101,16 +99,14 @@ class RllibPomme(MultiAgentEnv):
             reward += 0.01
             self.stat[id][Metrics.ExtraBomb.name] += 1
 
-        if utility._position_is_item(self.prev_obs[id]['board'],
-                                     current_obs[id]['position'],
-                                     constants.Item.Kick) and not self.prev_obs[id]['can_kick']:
+        if not self.prev_obs[id]['can_kick'] and current_obs[id]['can_kick']:
             reward += 0.02
             self.stat[id][Metrics.Kick.name] = True
 
         for i in range(10, 14):
             if i in self.alive_agents and i not in current_obs[id]['alive']:
                 if constants.Item(value=i) in current_obs[id]['enemies']:
-                    reward += 0.5
+                    reward += 0.75
                     self.stat[id][Metrics.EnemyDeath.name] += 1
                 elif i - 10 == id:
                     reward += -1

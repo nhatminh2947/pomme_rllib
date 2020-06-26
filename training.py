@@ -98,7 +98,7 @@ def training_team(params):
         queue_trials=params["queue_trials"],
         stop={
             # "training_iteration": params["training_iteration"],
-            "timesteps_total": 1000000000
+            "timesteps_total": params["timesteps_total"]
         },
         checkpoint_freq=params["checkpoint_freq"],
         checkpoint_at_end=True,

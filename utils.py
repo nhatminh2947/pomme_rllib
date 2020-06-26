@@ -25,7 +25,6 @@ def featurize(obs):
     board_items = [constants.Item.Passage,
                    constants.Item.Rigid,
                    constants.Item.Wood,
-                   constants.Item.Fog,
                    constants.Item.ExtraBomb,
                    constants.Item.IncrRange,
                    constants.Item.Kick]
