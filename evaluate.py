@@ -6,18 +6,19 @@ from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
-from models.third_model import ActorCriticModel
+import utils
+from customize_rllib import policy_mapping
+from models import one_vs_one_model
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0
 from utils import featurize
-from customize_rllib import policy_mapping
-from models import one_vs_one_model
+
 ray.init()
 env_id = "OneVsOne-v0"
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(17, 8, 8))
+obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
 act_space = env.action_space
 
 
@@ -26,7 +27,7 @@ def gen_policy():
         "model": {
             "custom_model": "1vs1",
             "custom_options": {
-                "in_channels": 17,
+                "in_channels": utils.NUM_FEATURES,
                 "feature_dim": 512
             },
             "no_final_linear": True,

@@ -14,7 +14,7 @@ from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v1, v2, one_vs_one
-
+import utils
 
 def initialize(params):
     # env_id = "PommeTeamCompetition-v0"
@@ -34,9 +34,9 @@ def initialize(params):
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-1vs1", lambda x: one_vs_one.RllibPomme(env_config))
     if env_id == "OneVsOne-v0":
-        obs_space = spaces.Box(low=0, high=20, shape=(17, 8, 8))
+        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
     else:
-        obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
     act_space = spaces.Discrete(6)
 
     # Policy setting
@@ -45,7 +45,7 @@ def initialize(params):
             "model": {
                 "custom_model": "torch_conv_0",
                 "custom_options": {
-                    "in_channels": 17,
+                    "in_channels": utils.NUM_FEATURES,
                     "feature_dim": 512
                 },
                 "no_final_linear": True,

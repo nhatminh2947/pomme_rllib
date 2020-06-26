@@ -2,6 +2,9 @@ import numpy as np
 from pommerman import constants
 
 
+NUM_FEATURES = 16
+
+
 # Meaning of channels
 # 0 passage             fow
 # 1 Rigid               fow
@@ -54,6 +57,7 @@ def featurize(obs):
     features = np.asarray(features, dtype=np.float)
     check_nan(features)
     return features
+
 
 def check_nan(array):
     tmp = np.sum(array)

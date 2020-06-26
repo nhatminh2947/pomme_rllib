@@ -8,7 +8,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from metrics import Metrics
 from utils import featurize
-
+import utils
 
 # Note: change team for training agents
 class RllibPomme(MultiAgentEnv):
@@ -25,9 +25,9 @@ class RllibPomme(MultiAgentEnv):
         self.stat = None
         self.reset_stat()
         if config["env_id"] == "OneVsOne-v0":
-            self.observation_space = spaces.Box(low=0, high=20, shape=(17, 8, 8))
+            self.observation_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
         else:
-            self.observation_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+            self.observation_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
         self.agent_names = None
 
     def reset_stat(self):
@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     while True:
         features = featurize(obs[0])
-        for i in range(17):
+        for i in range(16):
             print(features[i])
         print()
         actions = env.act(obs)
@@ -165,7 +165,7 @@ if __name__ == '__main__':
 
     print(obs)
     features = featurize(obs[0])
-    for i in range(17):
+    for i in range(16):
         print(features[i])
     print()
     # print(PommeMultiAgent.featurize(obs[0]))

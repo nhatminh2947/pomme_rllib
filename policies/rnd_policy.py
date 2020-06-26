@@ -12,16 +12,19 @@ from ray.rllib.utils import try_import_torch
 from ray.rllib.utils.explained_variance import explained_variance
 from ray.rllib.utils.torch_ops import sequence_mask
 
+import utils
 from models.rnd_model import RNDActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
-from rllib_pomme_envs import v0, v1
+from rllib_pomme_envs import v1
+
 torch, nn = try_import_torch()
 
 INTRINSIC_VF_PREDS = 'intrinsic_vf_preds'
 INTRINSIC_REWARD = 'intrinsic_reward'
 INTRINSIC_VALUE_TARGETS = 'intrinsic_targets'
 INTRINSIC_ADV = 'intrinsic_adv'
+
 
 class RewardForwardFilter(object):
     def __init__(self, gamma):
@@ -382,7 +385,7 @@ if __name__ == '__main__':
         "render": False
     }
     env = pommerman.make(env_id, [])
-    obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+    obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
     act_space = env.action_space
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
 
