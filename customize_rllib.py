@@ -65,8 +65,6 @@ class PommeCallbacks(DefaultCallbacks):
                 continue
             action = episode.last_action_for(agent_name)
             if action == constants.Action.Bomb.value:
-                if "agent_{}/num_bombs".format(agent_name) not in episode.custom_metrics:
-                    episode.custom_metrics["agent_{}/num_bombs".format(agent_name)] = 0
                 episode.custom_metrics["agent_{}/num_bombs".format(agent_name)] += 1
 
     def on_train_result(self, trainer, result: dict, **kwargs):

@@ -11,21 +11,22 @@ from customize_rllib import policy_mapping
 from models import one_vs_one_model
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
-from rllib_pomme_envs import v0
+from rllib_pomme_envs import v0, v2
+from models import third_model
 from utils import featurize
 
 ray.init()
-env_id = "OneVsOne-v0"
+env_id = "PommeRadioCompetition-v2"
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
-act_space = env.action_space
+obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
+act_space = spaces.Discrete(6)
 
 
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "1vs1",
+            "custom_model": "torch_conv_0",
             "custom_options": {
                 "in_channels": utils.NUM_FEATURES,
                 "feature_dim": 512
@@ -50,7 +51,7 @@ env_config = {
     "game_state_file": None
 }
 
-# ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
+ModelCatalog.register_custom_model("torch_conv_0", third_model.ActorCriticModel)
 ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
 
 ppo_agent = PPOTrainer(config={
@@ -66,14 +67,14 @@ ppo_agent = PPOTrainer(config={
 }, env=v0.RllibPomme)
 
 # fdb733b6
-checkpoint = 500
-checkpoint_dir = "/home/lucius/ray_results/one_vs_one/PPO_PommeMultiAgent-1vs1_0_2020-06-21_01-16-48xgm6jedn"
+checkpoint = 30
+checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-06-26_17-07-54qo5mwkua"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
-for agent_id in range(2):
+for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
-env = pommerman.make("OneVsOne-v0", agent_list=agent_list)
+env = pommerman.make(env_id, agent_list=agent_list)
 
 for i in range(1):
     obs = env.reset()
@@ -84,6 +85,7 @@ for i in range(1):
         env.render()
         actions = env.act(obs)
         actions[0] = ppo_agent.compute_action(observation=featurize(obs[0]), policy_id="policy_0")
+        actions[0] = int(actions[0])
         obs, reward, done, info = env.step(actions)
         total_reward += reward[0]
         if done:

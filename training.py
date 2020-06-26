@@ -131,7 +131,7 @@ def training_team(params):
                 "policy_mapping_fn": policy_mapping,
                 "policies_to_train": ["policy_0"],
             },
-            "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
+            "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",
