@@ -3,7 +3,7 @@ from pommerman import constants
 
 from rllib_pomme_envs import v0
 from utils import featurize
-
+from metrics import Metrics
 
 # Note: change team for training agents
 class RllibPomme(v0.RllibPomme):
@@ -22,6 +22,10 @@ class RllibPomme(v0.RllibPomme):
                 actions.append(int(action_dict[self.agent_names[id]]))
             else:
                 actions.append(0)
+
+        for id in range(self.num_agents):
+            if actions[id] == constants.Action.Bomb.value:
+                self.stat[id][Metrics.NumBombs.name] += 1
 
         obs = {}
         rewards = {}
