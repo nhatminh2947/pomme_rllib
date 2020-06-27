@@ -45,7 +45,7 @@ class RllibPomme(v0.RllibPomme):
             if self.is_agent_alive(id):
                 self.update_memory(id, _obs[id])
                 obs[self.agent_names[id]] = featurize(self.memory[id])
-                rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
+                rewards[self.agent_names[id]] = self.reward(id, actions, _obs, _info)
                 infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs

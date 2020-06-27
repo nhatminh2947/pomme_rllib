@@ -146,6 +146,7 @@ class TestEnvironment(unittest.TestCase):
                    ]
 
         obs = self.env.reset()
+        total_reward = 0
         for i, action in enumerate(actions):
             self.logger.info("step: {}".format(i))
             self.env.render(record_pngs_dir="./pngs/")
@@ -157,7 +158,9 @@ class TestEnvironment(unittest.TestCase):
                             "training_0_2": 0,
                             "opponent_0_3": 0}
             obs, rewards, done, _info = self.env.step(actions_dict)
-
+            total_reward += rewards["training_0_0"]
             self.logger.info("rewards: {}".format(rewards))
             if done["__all__"]:
                 break
+
+        self.logger.info("total reward: {}".format(total_reward))

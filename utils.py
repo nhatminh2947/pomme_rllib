@@ -1,7 +1,6 @@
 import numpy as np
 from pommerman import constants
 
-
 NUM_FEATURES = 16
 
 
@@ -33,7 +32,17 @@ def featurize(obs):
                    constants.Item.Kick]
 
     for item in board_items:
-        features.append(board == item.value)
+        features.append(np.asarray(board == item.value, dtype=int))
+
+    # Set walkable feature plan for extrabomb, incrange, kick and bomb if can kick
+    for i in range(11):
+        for j in range(11):
+            if board[i, j] in [constants.Item.ExtraBomb.value,
+                               constants.Item.IncrRange.value,
+                               constants.Item.Kick.value]:
+                features[0][i, j] = 1
+            if obs['can_kick'] and board[i, j] == constants.Item.Bomb.value:
+                features[0][i, j] = 1
 
     for feature in ["bomb_life", "bomb_blast_strength", "bomb_moving_direction", "flame_life"]:
         features.append(obs[feature])

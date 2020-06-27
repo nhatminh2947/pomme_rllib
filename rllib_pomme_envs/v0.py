@@ -6,9 +6,10 @@ from pommerman import constants
 from pommerman import utility
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
+import utils
 from metrics import Metrics
 from utils import featurize
-import utils
+
 
 # Note: change team for training agents
 class RllibPomme(MultiAgentEnv):
@@ -72,7 +73,7 @@ class RllibPomme(MultiAgentEnv):
         for id in range(self.num_agents):
             if self.is_agent_alive(id):
                 obs[self.agent_names[id]] = featurize(_obs[id])
-                rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
+                rewards[self.agent_names[id]] = self.reward(id, actions, _obs, _info)
                 infos[self.agent_names[id]] = _info
 
         self.prev_obs = _obs
@@ -86,7 +87,7 @@ class RllibPomme(MultiAgentEnv):
     def is_done(self, id, current_alive):
         return (id + 10) in self.alive_agents and (id + 10) not in current_alive
 
-    def reward(self, id, current_obs, info):
+    def reward(self, id, actions, current_obs, info):
         reward = 0
 
         if self.prev_obs[id]['blast_strength'] < current_obs[id]['blast_strength']:
@@ -113,6 +114,18 @@ class RllibPomme(MultiAgentEnv):
                     self.stat[id][Metrics.DeadOrSuicide.name] += 1
                 else:
                     reward += -0.5
+
+        pos = current_obs[id]['position']
+        if actions[id] == constants.Action.Bomb.value:
+            dx = [-1, 0, 0, 1]
+            dy = [0, -1, 1, 0]
+
+            for i in range(4):
+                row = pos[0] + dx[i]
+                col = pos[1] + dy[i]
+
+                if current_obs[id]['board'][row, col] == constants.Item.Wood.value:
+                    reward += 0.01
 
         if info['result'] == constants.Result.Tie:
             reward += -1
