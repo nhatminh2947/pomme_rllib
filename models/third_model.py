@@ -41,7 +41,7 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 kernel_size=3,
                 stride=1),
             nn.ReLU(),
-            Flatten()
+            nn.Flatten()
         )
 
         self.actor_layers = nn.Sequential(
@@ -61,22 +61,10 @@ class ActorCriticModel(nn.Module, TorchModelV2):
 
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]
-        assert not np.any(torch.isnan(x).tolist()), "x has nan {}".format(x)
-        assert not np.any(torch.isinf(x).tolist()), "x has inf {}".format(x)
-
         self._shared_layer_out = self.shared_layers(x)
-        assert not np.any(torch.isnan(self._shared_layer_out).tolist()), "self._shared_layer_out has nan {}".format(
-            self._shared_layer_out)
-        assert not np.any(torch.isinf(self._shared_layer_out).tolist()), "self._shared_layer_out has inf {}".format(
-            self._shared_layer_out)
         logits = self.actor_layers(self._shared_layer_out)
 
         return logits, state
 
     def value_function(self):
         return torch.reshape(self.critic_layers(self._shared_layer_out), [-1])
-
-
-class Flatten(nn.Module):
-    def forward(self, input):
-        return input.view(input.size(0), -1)
