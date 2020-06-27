@@ -123,7 +123,7 @@ class RllibPomme(MultiAgentEnv):
             for i in range(4):
                 row = pos[0] + dx[i]
                 col = pos[1] + dy[i]
-                if 0 <= row <= 11 and 0 <= col <= 11:
+                if 0 <= row < 11 and 0 <= col < 11:
                     if current_obs[id]['board'][row, col] == constants.Item.Wood.value:
                         reward += 0.01
 
