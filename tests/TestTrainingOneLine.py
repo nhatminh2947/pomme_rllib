@@ -3,7 +3,6 @@ import os
 import shutil
 import unittest
 
-import numpy as np
 import ray
 from gym import spaces
 from pommerman import agents, constants
@@ -72,7 +71,7 @@ class TestEnvironment(unittest.TestCase):
         env_config = {
             "env_id": env_id,
             "render": False,
-            "game_state_file": "000.json"
+            "game_state_file": "line.json"
         }
         shutil.rmtree("./pngs")
         os.mkdir("pngs")
@@ -129,14 +128,18 @@ class TestEnvironment(unittest.TestCase):
                    constants.Action.Stop.value,
                    constants.Action.Stop.value,
                    constants.Action.Stop.value,
+                   constants.Action.Down.value,
+                   constants.Action.Down.value,
+                   constants.Action.Down.value,
+                   constants.Action.Down.value,
                    constants.Action.Bomb.value,
                    constants.Action.Up.value,
-                   constants.Action.Down.value,
                    constants.Action.Up.value,
                    constants.Action.Up.value,
                    constants.Action.Up.value,
                    constants.Action.Up.value,
                    constants.Action.Up.value,
+                   constants.Action.Stop.value,
                    constants.Action.Stop.value,
                    constants.Action.Stop.value,
                    constants.Action.Stop.value,
@@ -147,14 +150,11 @@ class TestEnvironment(unittest.TestCase):
         for i, action in enumerate(actions):
             self.logger.info("step: {}".format(i))
             self.env.render(record_pngs_dir="./pngs/")
-            self.logger.info("teammate enemies: \n{}".format(obs["training_0_2"][8, :, :]))
-            self.logger.info("enemies: \n{}".format(obs["opponent_0_1"][8, :, :]))
             for i, feature in enumerate(["Passage", "Rigid", "Wood", "ExtraBomb", "Incrange", "Kick", "Position",
                                          "Teammate", "Enemies", "Bomb_move_1", "Bomb_move_2", "Bomb_move_3",
                                          "Bomb_move_4", "bomb_life", "bomb_blast_strength", "flame_life",
                                          "ammo", "blast_strength", "can_kick"]):
                 self.logger.info("id: {} feature: {}\n{}".format(i, feature, obs["training_0_0"][i, :, :]))
-
             self.logger.info("  actions: {}".format(action))
             actions_dict = {"training_0_0": action,
                             "opponent_0_1": 0,
@@ -167,19 +167,3 @@ class TestEnvironment(unittest.TestCase):
                 break
 
         self.logger.info("total reward: {}".format(total_reward))
-
-    def test_position(self):
-        obs = self.env.reset()
-
-        team_1_enemies = np.zeros((11, 11))
-        team_1_enemies[9, 1] = 1
-        team_1_enemies[1, 9] = 1
-
-        team_2_enemies = np.zeros((11, 11))
-        team_2_enemies[1, 1] = 1
-        team_2_enemies[9, 9] = 1
-
-        assert obs["training_0_0"][8].all() == team_1_enemies.all()
-        assert obs["opponent_0_1"][8].all() == team_2_enemies.all()
-        assert obs["training_0_2"][8].all() == team_1_enemies.all()
-        assert obs["opponent_0_3"][8].all() == team_2_enemies.all()

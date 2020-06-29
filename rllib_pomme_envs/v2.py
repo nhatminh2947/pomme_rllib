@@ -1,9 +1,10 @@
 import ray
 from pommerman import constants
 
+from metrics import Metrics
 from rllib_pomme_envs import v0
 from utils import featurize
-from metrics import Metrics
+
 
 # Note: change team for training agents
 class RllibPomme(v0.RllibPomme):
@@ -52,6 +53,7 @@ class RllibPomme(v0.RllibPomme):
 
         return obs, rewards, dones, infos
 
+    # Note: add memory of enemy position of some previous steps
     def update_memory(self, id, obs):
         self.memory[id]['alive'] = obs['alive']
         self.memory[id]['bomb_moving_direction'] = obs['bomb_moving_direction']
@@ -64,27 +66,35 @@ class RllibPomme(v0.RllibPomme):
             for j in range(11):
                 if self.memory[id]['bomb_life'][i][j] == 0:
                     self.memory[id]['bomb_blast_strength'][i][j] = 0
+                    self.memory[id]['bomb_moving_direction'][i][j] = 0
                 else:
                     self.memory[id]['bomb_life'][i, j] -= 1
 
                 if self.memory[id]['flame_life'][i, j] != 0:
                     self.memory[id]['flame_life'][i, j] -= 1
 
-        for i in range(11):
-            for j in range(11):
-                if obs['board'][i, j] != constants.Item.Fog.value:
-                    self.memory[id]['board'][i, j] = obs['board'][i, j]
-                    self.memory[id]['bomb_life'][i, j] = obs['bomb_life'][i, j]
-                    self.memory[id]['bomb_blast_strength'][i, j] = obs['bomb_blast_strength'][i, j]
-                    self.memory[id]['flame_life'][i, j] = obs['flame_life'][i, j]
+        for enemy in obs['enemies']:
+            if obs['board'][obs['board'] == enemy.value].any() or enemy.value not in obs['alive']:
+                self.memory[id]['board'][self.memory[id]['board'] == enemy.value] = constants.Item.Passage.value
 
-                if constants.Item(self.memory[id]['board'][i, j]) in obs['enemies'] \
-                        and self.memory[id]['board'][i, j] not in obs['alive']:
-                    self.memory[id]['board'][i, j] = 0
+        self.memory[id]['board'][obs['board'] != constants.Item.Fog.value] = obs['board'][
+            obs['board'] != constants.Item.Fog.value]
+        self.memory[id]['bomb_life'][obs['board'] != constants.Item.Fog.value] = obs['bomb_life'][
+            obs['board'] != constants.Item.Fog.value]
+        self.memory[id]['bomb_blast_strength'][obs['board'] != constants.Item.Fog.value] = obs['bomb_blast_strength'][
+            obs['board'] != constants.Item.Fog.value]
+        self.memory[id]['flame_life'][obs['board'] != constants.Item.Fog.value] = obs['flame_life'][
+            obs['board'] != constants.Item.Fog.value]
 
     def init_memory(self, observations):
         self.memory = []
+        team_pos = [[(1, 1), (9, 9)],
+                    [(9, 1), (1, 9)]]
+        enemies = [[11, 13],
+                   [10, 12]]
         for i in range(self.num_agents):
+            for j in range(2):
+                observations[i]['board'][team_pos[1 - (i % 2)][j]] = enemies[i % 2][j]
             self.memory.append(observations[i])
 
     def reset(self):
@@ -93,9 +103,9 @@ class RllibPomme(v0.RllibPomme):
         self.reset_stat()
         g_helper = ray.util.get_actor("g_helper")
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
+        self.init_memory(self.prev_obs)
         for i in range(self.num_agents):
             if self.is_agent_alive(i):
-                obs[self.agent_names[i]] = featurize(self.prev_obs[i])
-        self.init_memory(self.prev_obs)
+                obs[self.agent_names[i]] = featurize(self.memory[i])
 
         return obs

@@ -17,10 +17,10 @@ from rllib_pomme_envs import v0, v1, v2, one_vs_one
 import utils
 
 def initialize(params):
-    # env_id = "PommeTeamCompetition-v0"
+    env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
     # env_id = "OneVsOne-v0"
-    env_id = "PommeRadioCompetition-v2"
+    # env_id = "PommeRadioCompetition-v2"
 
     env_config = {
         "env_id": env_id,
