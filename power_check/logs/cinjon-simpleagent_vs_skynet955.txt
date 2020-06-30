@@ -1,0 +1,15 @@
+2020-06-30 19:46:35,993 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:46:52,116 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:47:13,293 - INFO - cinjon-simpleagent skynet955 Tie
+2020-06-30 19:47:18,837 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:47:26,414 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:47:37,845 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:47:49,350 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:48:09,602 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:48:19,961 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:48:28,358 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:48:34,314 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:48:43,668 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:48:52,764 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:49:10,419 - INFO - cinjon-simpleagent skynet955 Loss
+2020-06-30 19:49:18,503 - INFO - cinjon-simpleagent skynet955 Loss

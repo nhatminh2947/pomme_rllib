@@ -11,13 +11,13 @@ class WLTRate:
         self._tie = tie
 
 
-ers = EloRatingSystem(k=0.1)
+ers = EloRatingSystem(k=32)
 
 data = genfromtxt("./prior_power.txt", delimiter='\t', dtype=str)
 player_names = data[0]
 
 for player in player_names:
-    ers.add_player(player)
+    ers.add_player(player, elo=1000)
 
 ers.list_elo_rating()
 
@@ -34,20 +34,28 @@ for i, player_a in enumerate(player_names):
 
 print(prior)
 # fix worst agent
-for round in range(10000):
+for round in range(1000):
     for i, player_a in enumerate(player_names):
         for j, player_b in enumerate(player_names):
+            if i == j:
+                continue
+
             r = np.random.random()
-            expected_score = ers.expected_score(player_a, player_b)
 
             if r < prior[0][i][j]:
+                expected_score = ers.expected_score(player_a, player_b)
                 ers.update_rating(player_a, expected_score, 1)
+                expected_score = ers.expected_score(player_b, player_a)
                 ers.update_rating(player_b, expected_score, 0)
-            elif prior[0][i][j] <= r < prior[1][i][j]:
+            elif prior[0][i][j] <= r < prior[0][i][j] + prior[1][i][j]:
+                expected_score = ers.expected_score(player_a, player_b)
                 ers.update_rating(player_a, expected_score, 0)
+                expected_score = ers.expected_score(player_b, player_a)
                 ers.update_rating(player_b, expected_score, 1)
             else:
+                expected_score = ers.expected_score(player_a, player_b)
                 ers.update_rating(player_a, expected_score, 0.5)
+                expected_score = ers.expected_score(player_b, player_a)
                 ers.update_rating(player_b, expected_score, 0.5)
 
 ers.list_elo_rating()
