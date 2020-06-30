@@ -10,6 +10,7 @@ from pommerman import agents, constants
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 
 from helper import Helper
+from memory import Memory
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
@@ -147,8 +148,8 @@ class TestEnvironment(unittest.TestCase):
         for i, action in enumerate(actions):
             self.logger.info("step: {}".format(i))
             self.env.render(record_pngs_dir="./pngs/")
-            self.logger.info("teammate enemies: \n{}".format(obs["training_0_2"][8, :, :]))
-            self.logger.info("enemies: \n{}".format(obs["opponent_0_1"][8, :, :]))
+            self.logger.info("enemies of teammate: \n{}".format(obs["training_0_2"][8, :, :]))
+            self.logger.info("enemies of enemies: \n{}".format(obs["opponent_0_1"][8, :, :]))
             for i, feature in enumerate(["Passage", "Rigid", "Wood", "ExtraBomb", "Incrange", "Kick", "Position",
                                          "Teammate", "Enemies", "Bomb_move_1", "Bomb_move_2", "Bomb_move_3",
                                          "Bomb_move_4", "bomb_life", "bomb_blast_strength", "flame_life",

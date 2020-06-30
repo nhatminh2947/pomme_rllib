@@ -8,15 +8,16 @@ from ray.rllib.models import ModelCatalog
 
 import utils
 from customize_rllib import policy_mapping
+from memory import Memory
 from models import one_vs_one_model
+from models import third_model
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v2
-from models import third_model
 from utils import featurize
 
 ray.init()
-env_id = "PommeRadioCompetition-v2"
+env_id = "PommeTeamCompetition-v0"
 env = pommerman.make(env_id, [])
 
 obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
@@ -62,13 +63,13 @@ ppo_agent = PPOTrainer(config={
         "policy_mapping_fn": policy_mapping,
         "policies_to_train": ["policy_0"],
     },
-    "observation_filter": "MeanStdFilter",
+    "observation_filter": "NoFilter",
     "use_pytorch": True
-}, env=v0.RllibPomme)
+}, env=v2.RllibPomme)
 
 # fdb733b6
-checkpoint = 30
-checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-06-26_17-07-54qo5mwkua"
+checkpoint = 400
+checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-06-29_15-38-45iow9_yax"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -76,17 +77,34 @@ for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
 env = pommerman.make(env_id, agent_list=agent_list)
 
+memories = [
+    Memory(0),
+    Memory(1),
+    Memory(2),
+    Memory(2),
+]
+
+policy = ppo_agent.get_policy("policy_0")
+weights = policy.get_weights()
 for i in range(1):
     obs = env.reset()
+    for i, memory in enumerate(memories):
+        memory.init_memory(obs[i])
 
     done = False
     total_reward = 0
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[0] = ppo_agent.compute_action(observation=featurize(obs[0]), policy_id="policy_0")
+
+        actions[0] = ppo_agent.compute_action(observation=featurize(memories[0].obs), policy_id="policy_0")
         actions[0] = int(actions[0])
+        actions[2] = ppo_agent.compute_action(observation=featurize(memories[2].obs), policy_id="policy_0")
+        actions[2] = int(actions[2])
         obs, reward, done, info = env.step(actions)
+
+        memories[0].update_memory(obs[0])
+        memories[2].update_memory(obs[2])
         total_reward += reward[0]
         if done:
             print("info:", info)

@@ -6,6 +6,7 @@ from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
 import arguments
+import utils
 from customize_rllib import PommeCallbacks
 from customize_rllib import policy_mapping
 from helper import Helper
@@ -14,7 +15,7 @@ from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v1, v2, one_vs_one
-import utils
+
 
 def initialize(params):
     env_id = "PommeTeamCompetition-v0"
@@ -134,6 +135,7 @@ def training_team(params):
             "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
+            "metrics_smoothing_episodes": 1000,
             "log_level": "WARN",
             "use_pytorch": True
         }

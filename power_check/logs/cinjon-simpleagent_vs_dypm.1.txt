@@ -1,0 +1,8 @@
+2020-06-30 15:40:19,212 - INFO - cinjon-simpleagent dypm.1 Loss
+2020-06-30 15:40:33,954 - INFO - cinjon-simpleagent dypm.1 Loss
+2020-06-30 15:40:50,676 - INFO - cinjon-simpleagent dypm.1 Loss
+2020-06-30 15:41:03,891 - INFO - cinjon-simpleagent dypm.1 Loss
+2020-06-30 15:41:38,307 - INFO - cinjon-simpleagent dypm.1 Loss
+2020-06-30 15:41:48,393 - INFO - cinjon-simpleagent dypm.1 Loss
+2020-06-30 15:41:58,624 - INFO - cinjon-simpleagent dypm.1 Loss
+2020-06-30 15:42:13,924 - INFO - cinjon-simpleagent dypm.1 Loss

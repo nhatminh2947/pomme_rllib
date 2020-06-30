@@ -1,6 +1,7 @@
 import numpy as np
 from pommerman import constants
 
+# NUM_FEATURES = 20
 NUM_FEATURES = 19
 
 
@@ -29,6 +30,7 @@ def featurize(obs):
     board_items = [constants.Item.Passage,
                    constants.Item.Rigid,
                    constants.Item.Wood,
+                   # constants.Item.Fog,
                    constants.Item.ExtraBomb,
                    constants.Item.IncrRange,
                    constants.Item.Kick]
