@@ -7,7 +7,7 @@ from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
 import utils
-from customize_rllib import policy_mapping
+from utils import policy_mapping
 from memory import Memory
 from models import one_vs_one_model
 from models import third_model

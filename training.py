@@ -7,8 +7,7 @@ from ray.rllib.models import ModelCatalog
 
 import arguments
 import utils
-from customize_rllib import PommeCallbacks
-from customize_rllib import policy_mapping
+from utils import PommeCallbacks, policy_mapping
 from helper import Helper
 from models import one_vs_one_model, third_model
 from policies.random_policy import RandomPolicy

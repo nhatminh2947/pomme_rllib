@@ -3,15 +3,7 @@ from numpy import genfromtxt
 
 from eloranking import EloRatingSystem
 
-
-class WLTRate:
-    def __init__(self, win, loss, tie):
-        self._win = win,
-        self._loss = loss,
-        self._tie = tie
-
-
-ers = EloRatingSystem(k=32)
+ers = EloRatingSystem(k=1)
 
 data = genfromtxt("./prior_power.txt", delimiter='\t', dtype=str)
 player_names = data[0]
@@ -21,7 +13,7 @@ for player in player_names:
 
 ers.list_elo_rating()
 
-prior = np.zeros((3, 9, 9))
+prior = np.zeros((3, 10, 10))
 
 data = np.delete(data, 0, 0)
 for i, player_a in enumerate(player_names):

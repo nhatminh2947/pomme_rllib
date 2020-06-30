@@ -45,11 +45,15 @@ class ActorCriticModel(nn.Module, TorchModelV2):
         )
 
         self.actor_layers = nn.Sequential(
-            nn.Linear(128, action_space.n)
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, action_space.n)
         )
 
         self.critic_layers = nn.Sequential(
-            nn.Linear(128, 1),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
         )
 
         self._shared_layer_out = None
@@ -61,17 +65,7 @@ class ActorCriticModel(nn.Module, TorchModelV2):
 
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]
-        if torch.sum(torch.isnan(x)):
-            print("There is NaN in x = \n{}".format(x))
-        if torch.sum(torch.isinf(x)):
-            print("There is Inf in x = \n{}".format(x))
-
         self._shared_layer_out = self.shared_layers(x)
-        if torch.sum(torch.isnan(self._shared_layer_out)):
-            print("There is NaN in self._shared_layer_out = \n{}".format(self._shared_layer_out))
-        if torch.sum(torch.isinf(self._shared_layer_out)):
-            print("There is Inf in self._shared_layer_out = \n{}".format(self._shared_layer_out))
-
         logits = self.actor_layers(self._shared_layer_out)
 
         return logits, state

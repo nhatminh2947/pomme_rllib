@@ -14,117 +14,133 @@ class RNDActorCriticModel(nn.Module, TorchModelV2):
         self.shared_layers = nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
-                out_channels=32,
-                kernel_size=3,
-                padding=1,
-                stride=1),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                padding=1,
-                stride=1),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=64,
                 out_channels=128,
                 kernel_size=3,
                 stride=1),
             nn.ReLU(),
-            Flatten(),
-            nn.Linear(9 * 9 * 128, 256),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
             nn.ReLU(),
-            nn.Linear(256, feature_dim),
-            nn.ReLU()
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Flatten()
         )
 
         self.actor_layers = nn.Sequential(
-            nn.Linear(feature_dim, 256),
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(256, action_space.n)
+            nn.Linear(64, action_space.n)
         )
 
-        self.intrinsic_value_out = nn.Sequential(
-            nn.Linear(feature_dim, 512),
+        self.critic_layers = nn.Sequential(
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(in_features=512, out_features=1)
-        )
-
-        self.extrinsic_value_out = nn.Sequential(
-            nn.Linear(feature_dim, 512),
-            nn.ReLU(),
-            nn.Linear(in_features=512, out_features=1)
+            nn.Linear(64, 1),
         )
 
         feature_output = 9 * 9 * 64
         self.predictor = nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
-                out_channels=32,
-                kernel_size=3,
-                padding=1,
-                stride=1),
-            nn.LeakyReLU(),
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                padding=1,
-                stride=1),
-            nn.LeakyReLU(),
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=64,
+                out_channels=128,
                 kernel_size=3,
                 stride=1),
-            nn.LeakyReLU(),
-            Flatten(),
-            nn.Linear(feature_output, 512),
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
             nn.ReLU(),
-            nn.Linear(512, 512)
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Linear(128, 256),
+            nn.ReLU(),
+            nn.Linear(256, 512)
         )
 
         self.target = nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
-                out_channels=32,
+                out_channels=128,
                 kernel_size=3,
-                padding=1,
                 stride=1),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
+                in_channels=128,
+                out_channels=128,
                 kernel_size=3,
-                padding=1,
                 stride=1),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(
-                in_channels=64,
-                out_channels=64,
+                in_channels=128,
+                out_channels=128,
                 kernel_size=3,
                 stride=1),
-            nn.LeakyReLU(),
-            Flatten(),
-            nn.Linear(feature_output, 512)
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                stride=1),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Linear(128, 256),
+            nn.ReLU(),
+            nn.Linear(256, 512)
         )
-
-        for p in self.modules():
-            if isinstance(p, nn.Conv2d):
-                init.orthogonal_(p.weight, np.sqrt(2))
-                p.bias.data.zero_()
-
-            if isinstance(p, nn.Linear):
-                init.orthogonal_(p.weight, np.sqrt(2))
-                p.bias.data.zero_()
 
         for param in self.target.parameters():
             param.requires_grad = False
 
         self._shared_layer_out = None
+
+        for p in self.modules():
+            if isinstance(p, nn.Conv2d) or isinstance(p, nn.Linear):
+                nn.init.orthogonal_(p.weight, np.sqrt(2))
+                p.bias.data.zero_()
 
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]

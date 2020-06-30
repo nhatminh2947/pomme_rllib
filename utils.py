@@ -1,27 +1,24 @@
+from typing import Dict
+
 import numpy as np
 from pommerman import constants
+from ray.rllib.agents.callbacks import DefaultCallbacks
+from ray.rllib.env import BaseEnv
+from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
+from ray.rllib.policy import Policy
+
+from metrics import Metrics
 
 # NUM_FEATURES = 20
 NUM_FEATURES = 19
 
+agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
+            "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
+            "nips19-inspir-ai.inspir"]
+agents_2 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.2", "navocado", "skynet955",
+            "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
+            "nips19-inspir-ai.inspir"]
 
-# Meaning of channels
-# 0 passage             fow
-# 1 Rigid               fow
-# 2 Wood                fow
-# 3 ExtraBomb           fow
-# 4 IncrRange           fow
-# 5 Kick                fow
-# 6 FlameLife           fow
-# 7 BombLife            fow
-# 8 BombBlastStrength   fow
-# 9 Fog
-# 10 Position
-# 11 Teammate
-# 12 Enemies
-# 13 Ammo
-# 14 BlastStrength
-# 15 CanKick
 def featurize(obs):
     board = obs['board']
     features = []
@@ -67,8 +64,8 @@ def featurize(obs):
                                   [9, 10, 3]):
         features.append(obs[feature] / max_value)
 
-    features.append(np.full(board.shape, fill_value=obs["ammo"] / 10))
-    features.append(np.full(board.shape, fill_value=obs["blast_strength"] / 10))
+    features.append(np.full(board.shape, fill_value=obs["ammo"] / 10.0))
+    features.append(np.full(board.shape, fill_value=obs["blast_strength"] / 10.0))
     features.append(np.full(board.shape, fill_value=(1 if obs["can_kick"] else 0)))
 
     features = np.stack(features, 0)
@@ -83,3 +80,48 @@ def check_nan(array):
         print('NaN or Inf found in input tensor.')
         print(tmp)
     return array
+
+
+class PommeCallbacks(DefaultCallbacks):
+    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
+                       episode: MultiAgentEpisode, **kwargs):
+        winners = None
+
+        for k, v in episode.agent_rewards.items():
+            agent_name = k[0]
+            name = agent_name.split("_")
+            if name[0] == "opponent":
+                continue
+            # print(episode.last_info_for(agent_name))
+            info = episode.last_info_for(agent_name)
+
+            if "winners" in info:
+                winners = info["winners"]
+
+            agent_stat = info["metrics"]
+
+            for key in Metrics:
+                episode.custom_metrics["agent_{}/{}".format(agent_name, key.name)] = agent_stat[key.name]
+
+        if winners is None:
+            episode.custom_metrics["Tie"] = 1
+        elif winners == [0, 2]:
+            episode.custom_metrics["team_0_win"] = 1
+            episode.custom_metrics["team_1_win"] = 0
+        else:
+            episode.custom_metrics["team_0_win"] = 0
+            episode.custom_metrics["team_1_win"] = 1
+
+
+def limit_gamma_explore(config):
+    config["gamma"] = min(config["gamma"], 0.999)
+    return config
+
+
+def policy_mapping(agent_id):
+    # agent_id pattern training/opponent_policy-id_agent-num
+    # print("Calling to policy mapping {}".format(agent_id))
+    name = agent_id.split("_")
+    if name[0] == "opponent":
+        return "static"
+    return "policy_{}".format(name[1])
