@@ -9,7 +9,7 @@ import arguments
 import utils
 from utils import PommeCallbacks, policy_mapping
 from helper import Helper
-from models import one_vs_one_model, third_model
+from models import one_vs_one_model, third_model, fourth_model
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
@@ -27,7 +27,8 @@ def initialize(params):
         "render": params["render"],
         "game_state_file": params["game_state_file"]
     }
-    ModelCatalog.register_custom_model("torch_conv_0", third_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("third_model", third_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
@@ -43,10 +44,9 @@ def initialize(params):
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "torch_conv_0",
+                "custom_model": "fourth_model",
                 "custom_options": {
-                    "in_channels": utils.NUM_FEATURES,
-                    "feature_dim": 512
+                    "in_channels": utils.NUM_FEATURES
                 },
                 "no_final_linear": True,
             },
