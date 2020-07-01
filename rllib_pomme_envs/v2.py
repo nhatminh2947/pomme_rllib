@@ -29,7 +29,9 @@ class RllibPomme(v0.RllibPomme):
 
         for id in range(self.num_agents):
             if actions[id] == constants.Action.Bomb.value:
-                self.stat[id][Metrics.NumBombs.name] += 1
+                self.stat[id][Metrics.ActionBombs.name] += 1
+                if self.prev_obs[id]['ammo'] > 0:
+                    self.stat[id][Metrics.RealBombs.name] += 1
 
         obs = {}
         rewards = {}

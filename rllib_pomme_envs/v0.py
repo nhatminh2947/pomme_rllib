@@ -116,7 +116,7 @@ class RllibPomme(MultiAgentEnv):
                     reward += -0.5
 
         pos = current_obs[id]['position']
-        if actions[id] == constants.Action.Bomb.value:
+        if self.prev_obs[id]['ammo'] > 0 and actions[id] == constants.Action.Bomb.value:
             dx = [-1, 0, 0, 1]
             dy = [0, -1, 1, 0]
 
