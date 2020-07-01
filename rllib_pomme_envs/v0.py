@@ -121,12 +121,15 @@ class RllibPomme(MultiAgentEnv):
             dy = [0, -1, 1, 0]
 
             for i in range(4):
-                row = pos[0] + dx[i]
-                col = pos[1] + dy[i]
-                if 0 <= row < 11 and 0 <= col < 11:
-                    if current_obs[id]['board'][row, col] == constants.Item.Wood.value:
-                        reward += 0.01
-                        self.stat[id][Metrics.ExplodeWood.name] += 1
+                for j in range(1, self.prev_obs[id]['blast_strength']):
+                    row = pos[0] + j * dx[i]
+                    col = pos[1] + j * dy[i]
+                    if 0 <= row < 11 and 0 <= col < 11:
+                        if current_obs[id]['board'][row, col] != constants.Item.Passage.value:
+                            if current_obs[id]['board'][row, col] == constants.Item.Wood.value:
+                                reward += 0.01
+                                self.stat[id][Metrics.ExplodeWood.name] += 1
+                            break
 
         if info['result'] == constants.Result.Tie:
             reward += -1
