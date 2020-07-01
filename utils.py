@@ -10,7 +10,7 @@ from ray.rllib.policy import Policy
 from metrics import Metrics
 
 # NUM_FEATURES = 20
-NUM_FEATURES = 19
+NUM_FEATURES = 22
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
             "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
@@ -28,13 +28,14 @@ def featurize(obs):
     board_items = [constants.Item.Passage,
                    constants.Item.Rigid,
                    constants.Item.Wood,
-                   constants.Item.Fog,
                    constants.Item.ExtraBomb,
                    constants.Item.IncrRange,
                    constants.Item.Kick]
 
     for item in board_items:
         features.append(board == item.value)
+
+    features.append(obs['fog'])
 
     # Set walkable feature plan for extrabomb, incrange, kick and bomb if can kick
     for i in range(11):

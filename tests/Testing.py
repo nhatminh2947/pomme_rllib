@@ -40,7 +40,7 @@ class TestEnvironment(unittest.TestCase):
             agents.StaticAgent(),
             agents.StaticAgent(),
         ]
-        obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+        obs_space = spaces.Box(low=0, high=20, shape=(22, 11, 11))
         act_space = spaces.Discrete(6)
 
         def gen_policy():
@@ -81,10 +81,8 @@ class TestEnvironment(unittest.TestCase):
 
         self.logger = setup_logging()
         self.env = v2.RllibPomme(env_config)
-        self.env.reset()
 
     def test_reward(self):
-        obs = self.env.reset()
         actions = [constants.Action.Down.value,
                    constants.Action.Down.value,
                    constants.Action.Bomb.value,
@@ -177,12 +175,12 @@ class TestEnvironment(unittest.TestCase):
         for i, action in enumerate(actions):
             self.logger.info("step: {}".format(i))
             self.env.render(record_pngs_dir="./pngs/")
-            self.logger.info("enemies of teammate: \n{}".format(obs["training_0_2"][8, :, :]))
-            self.logger.info("enemies of enemies: \n{}".format(obs["opponent_0_1"][8, :, :]))
-            for i, feature in enumerate(["Passage", "Rigid", "Wood", "ExtraBomb", "Incrange", "Kick", "Position",
-                                         "Teammate", "Enemies", "Bomb_move_1", "Bomb_move_2", "Bomb_move_3",
-                                         "Bomb_move_4", "bomb_life", "bomb_blast_strength", "flame_life",
-                                         "ammo", "blast_strength", "can_kick"]):
+            self.logger.info("enemies of teammate: \n{}".format(obs["training_0_2"][10, :, :]))
+            self.logger.info("enemies of enemies: \n{}".format(obs["opponent_0_1"][10, :, :]))
+            for i, feature in enumerate(["Passage", "Rigid", "Wood", "ExtraBomb", "Incrange", "Kick", "Fog", "Position",
+                                         "Teammate", "IsAliveTeammate", "Enemies", "NumEnemies", "Bomb_move_1",
+                                         "Bomb_move_2", "Bomb_move_3", "Bomb_move_4", "bomb_life",
+                                         "bomb_blast_strength", "flame_life", "ammo", "blast_strength", "can_kick"]):
                 self.logger.info("id: {} feature: {}\n{}".format(i, feature, obs["training_0_0"][i, :, :]))
 
             self.logger.info("  actions: {}".format(action))

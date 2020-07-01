@@ -7,17 +7,14 @@ class Memory:
         self.agent_id = agent_id
         self.obs = None
 
-        if self.team == 0:
-            self.enemies = [11, 13]
-            self.enemies_pos = [(9, 1), (1, 9)]
-        else:
-            self.enemies = [10, 11]
-            self.enemies_pos = [(1, 1), (9, 9)]
+    def init_memory(self, obs):
+        self.obs['fog'] = obs['board'] == constants.Item.Fog.value
 
-    def init_memory(self, observation):
-        for j in range(2):
-            observation['board'][self.enemies_pos[j]] = self.enemies[j]
-        self.obs = observation
+        obs['board'][1, 1] = 10
+        obs['board'][9, 1] = 11
+        obs['board'][9, 9] = 12
+        obs['board'][1, 9] = 13
+        self.obs = obs
 
     # Note: add memory of enemy position of some previous steps
     def update_memory(self, obs):
@@ -27,6 +24,7 @@ class Memory:
         self.obs['blast_strength'] = obs['blast_strength']
         self.obs['can_kick'] = obs['can_kick']
         self.obs['ammo'] = obs['ammo']
+        self.obs['fog'] = obs['board'] == constants.Item.Fog.value
 
         for i in range(11):
             for j in range(11):
