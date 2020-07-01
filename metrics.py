@@ -8,4 +8,5 @@ class Metrics(Enum):
     IncrRange = 3
     ExtraBomb = 4
     Kick = 5
+    ExplodeWood = 6
 

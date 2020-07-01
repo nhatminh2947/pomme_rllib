@@ -126,6 +126,7 @@ class RllibPomme(MultiAgentEnv):
                 if 0 <= row < 11 and 0 <= col < 11:
                     if current_obs[id]['board'][row, col] == constants.Item.Wood.value:
                         reward += 0.01
+                        self.stat[id][Metrics.ExplodeWood.name] += 1
 
         if info['result'] == constants.Result.Tie:
             reward += -1

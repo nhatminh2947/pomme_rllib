@@ -19,6 +19,7 @@ agents_2 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.2", "na
             "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
             "nips19-inspir-ai.inspir"]
 
+
 def featurize(obs):
     board = obs['board']
     features = []
