@@ -28,7 +28,7 @@ def featurize(obs):
     board_items = [constants.Item.Passage,
                    constants.Item.Rigid,
                    constants.Item.Wood,
-                   # constants.Item.Fog,
+                   constants.Item.Fog,
                    constants.Item.ExtraBomb,
                    constants.Item.IncrRange,
                    constants.Item.Kick]
@@ -51,11 +51,16 @@ def featurize(obs):
     features.append(position)
 
     features.append(board == obs["teammate"].value)
+    features.append(np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0))
 
+    alive_enemies = 0
     enemies = np.zeros(board.shape)
     for enemy in obs["enemies"]:
         enemies[(board == enemy.value)] = 1
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+            alive_enemies += 1
     features.append(enemies)
+    features.append(np.full(board.shape, fill_value=(alive_enemies / 2)))
 
     for i in range(1, 5):
         features.append(obs["bomb_moving_direction"] == i)
@@ -65,8 +70,8 @@ def featurize(obs):
                                   [9, 10, 3]):
         features.append(obs[feature] / max_value)
 
-    features.append(np.full(board.shape, fill_value=obs["ammo"] / 10.0))
-    features.append(np.full(board.shape, fill_value=obs["blast_strength"] / 10.0))
+    features.append(np.full(board.shape, fill_value=(obs["ammo"] / 10.0)))
+    features.append(np.full(board.shape, fill_value=(obs["blast_strength"] / 10.0)))
     features.append(np.full(board.shape, fill_value=(1 if obs["can_kick"] else 0)))
 
     features = np.stack(features, 0)
