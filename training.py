@@ -7,13 +7,14 @@ from ray.rllib.models import ModelCatalog
 
 import arguments
 import utils
-from utils import PommeCallbacks, policy_mapping
 from helper import Helper
 from models import one_vs_one_model, third_model, fourth_model
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
+from policies.simple_policy import SimplePolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v1, v2, one_vs_one
+from utils import PommeCallbacks, policy_mapping
 
 
 def initialize(params):
@@ -61,6 +62,7 @@ def initialize(params):
     policies["opponent"] = gen_policy()
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
+    policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
     g_helper = Helper.options(name="g_helper").remote(params["populations"], policies)
     g_helper.set_agent_names.remote()

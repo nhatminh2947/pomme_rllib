@@ -3,10 +3,8 @@ import random
 from collections import defaultdict
 
 import numpy as np
-from ray.rllib.policy import Policy
-from ray.rllib.models import  model
-
 from pommerman import constants, utility
+from ray.rllib.policy import Policy
 
 
 class SimplePolicy(Policy):
@@ -14,7 +12,6 @@ class SimplePolicy(Policy):
         # Keep track of recently visited uninteresting positions so that we
         # don't keep visiting the same places.
         super().__init__(observation_space, action_space, config)
-
 
         self._recently_visited_positions = []
         self._recently_visited_length = 6

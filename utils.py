@@ -129,6 +129,6 @@ def policy_mapping(agent_id):
     # agent_id pattern training/opponent_policy-id_agent-num
     # print("Calling to policy mapping {}".format(agent_id))
     name = agent_id.split("_")
-    if int(name[2]) != 0:
+    if name[0] == "opponent":
         return "static"
     return "policy_{}".format(name[1])

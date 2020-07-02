@@ -683,3 +683,1475 @@ Number of trials: 1 (1 RUNNING)
 | PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:480534 |      8 |          1174.96 | 409600 | 0.518923 |
 +------------------------------+----------+------------------+--------+------------------+--------+----------+
 
+2020-07-02 15:13:06,202	INFO resource_spec.py:212 -- Starting Ray with 0.05 GiB memory available for workers and up to 37.25 GiB for objects. You can adjust these settings with ray.init(memory=<bytes>, object_store_memory=<bytes>).
+2020-07-02 15:13:06,571	INFO services.py:1170 -- View the Ray dashboard at [1m[32mlocalhost:8265[39m[22m
+2020-07-02 15:13:06,574	WARNING services.py:1494 -- WARNING: The object store is using /tmp instead of /dev/shm because /dev/shm has only 33614946304 bytes available. This may slow down performance! You may be able to free up space by deleting files in /dev/shm or terminating any running plasma_store_server processes. If you are inside a Docker container, you may need to pass an argument with the flag '--shm-size' to 'docker run'.
+WARNING:root:NaN or Inf found in input tensor.
+{'num_workers': 4, 'num_gpus': 0.2, 'num_envs_per_worker': 16, 'num_gpus_per_worker': 0.1, 'num_cpus_per_worker': 0.0, 'num_sgd_iter': 3, 'sgd_minibatch_size': 256, 'train_batch_size': 51200, 'complete_episodes': False, 'rollout_fragment_length': 800, 'clip_param': 0.2, 'vf_clip_param': 10.0, 'vf_loss_coeff': 0.001, 'kl_coeff': 0.0, 'entropy_coeff': 0.01, 'lr': 0.0005, 'lambda': 0.95, 'gamma': 0.997, 'training_iteration': 1000, 'checkpoint_freq': 10, 'name': 'team_radio_lucius', 'game_state_file': None, 'render': False, 'local_mode': False, 'resume': False, 'restore': None, 'num_samples': 1, 'perturbation_interval': 10, 'evaluation_num_episodes': 10, 'evaluation_interval': None, 'queue_trials': False, 'time_attr': 'timesteps_total', 'validate': False, 'pbt': False, 'use_rnd': False, 'populations': 2, 'env_v': 'v2', 'kl_target': 0.01, 'timesteps_total': 100000000, 'filter': 'MeanStdFilter'}
+Training policies: dict_keys(['policy_0', 'policy_1', 'opponent', 'random', 'static'])
+== Status ==
+Memory usage on this node: 5.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-------+
+| Trial name                   | status   | loc   |
+|------------------------------+----------+-------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  |       |
++------------------------------+----------+-------+
+
+
+[2m[36m(pid=32538)[0m called set_agent_names
+[2m[36m(pid=32538)[0m ['training_0_0', 'opponent_0_1', 'training_0_2', 'opponent_0_3']
+[2m[36m(pid=32549)[0m 2020-07-02 15:13:09,735	INFO trainer.py:421 -- Tip: set 'eager': true or the --eager flag to enable TensorFlow eager execution
+[2m[36m(pid=32549)[0m 2020-07-02 15:13:09,739	INFO trainer.py:580 -- Current log_level is WARN. For more information, set 'log_level': 'INFO' / 'DEBUG' or use the -v and -vv flags.
+[2m[36m(pid=32549)[0m 2020-07-02 15:13:11,504	INFO trainable.py:217 -- Getting current IP.
+== Status ==
+Memory usage on this node: 19.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+-------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |    ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+-------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      1 |          90.3997 | 51200 |      nan |
++------------------------------+----------+-----------------+--------+------------------+-------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      2 |          190.682 | 102400 | -2.98672 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      3 |          287.591 | 153600 | -2.98797 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.0/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      4 |          381.418 | 204800 | -2.98833 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      5 |          469.607 | 256000 | -2.98906 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      6 |           553.62 | 307200 | -2.98863 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      7 |          639.195 | 358400 |  -2.9888 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      8 |          724.069 | 409600 | -2.98864 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 20.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |      9 |           807.24 | 460800 | -2.98824 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     10 |          891.556 | 512000 |  -2.9883 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     11 |          984.372 | 563200 | -2.98842 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 20.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     12 |           1076.1 | 614400 | -2.98967 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     13 |          1172.44 | 665600 | -2.99332 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     14 |          1268.55 | 716800 | -2.99544 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 21.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     15 |          1384.78 | 768000 | -2.99823 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     16 |          1495.75 | 819200 | -3.01525 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     17 |           1619.4 | 870400 | -3.02931 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     18 |          1749.84 | 921600 |  -3.0729 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |     ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+--------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     19 |          1876.84 | 972800 | -3.13441 |
++------------------------------+----------+-----------------+--------+------------------+--------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 24.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     20 |          2004.68 | 1024000 | -3.19582 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     21 |          2129.42 | 1075200 | -3.25758 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     22 |          2254.07 | 1126400 | -3.31507 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     23 |          2383.39 | 1177600 | -3.37278 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     24 |           2507.6 | 1228800 |  -3.4365 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     25 |          2636.97 | 1280000 | -3.49423 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     26 |          2764.99 | 1331200 | -3.55598 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     27 |          2895.07 | 1382400 | -3.61974 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     28 |          3021.11 | 1433600 | -3.67949 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     29 |          3147.13 | 1484800 | -3.74127 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 23.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     30 |           3273.2 | 1536000 |  -3.8022 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     31 |          3397.71 | 1587200 | -3.85279 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     32 |          3522.22 | 1638400 | -3.89857 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     33 |          3649.59 | 1689600 | -3.93702 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     34 |          3772.83 | 1740800 | -3.94927 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     35 |          3899.27 | 1792000 | -3.95134 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     36 |          4023.77 | 1843200 | -3.94944 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     37 |          4147.86 | 1894400 | -3.95652 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     38 |          4278.33 | 1945600 | -3.95748 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     39 |          4406.66 | 1996800 | -3.96453 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 22.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     40 |          4535.56 | 2048000 | -3.96355 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     41 |          4664.36 | 2099200 | -3.96755 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     42 |          4793.43 | 2150400 | -3.96955 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     43 |          4923.56 | 2201600 | -3.97057 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     44 |          5052.69 | 2252800 | -3.97155 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     45 |          5181.09 | 2304000 | -3.97355 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     46 |          5306.56 | 2355200 | -3.96853 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     47 |          5433.63 | 2406400 |  -3.9716 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     48 |          5562.95 | 2457600 | -3.97764 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     49 |          5691.52 | 2508800 | -3.97663 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 23.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     50 |          5821.51 | 2560000 | -3.97661 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     51 |          5953.86 | 2611200 | -3.97561 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     52 |          6084.44 | 2662400 | -3.97865 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     53 |          6213.24 | 2713600 | -3.97971 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     54 |          6341.69 | 2764800 | -3.98072 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     55 |          6471.87 | 2816000 | -3.98075 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     56 |          6603.93 | 2867200 | -3.97978 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     57 |          6730.36 | 2918400 | -3.97981 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     58 |             6859 | 2969600 | -3.97878 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     59 |          6990.04 | 3020800 | -3.97779 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 23.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     60 |          7119.36 | 3072000 | -3.97781 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 22.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     61 |          7231.29 | 3123200 |  -3.9747 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.3/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     62 |          7347.51 | 3174400 |  -3.9512 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     63 |          7475.61 | 3225600 | -3.93888 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     64 |          7609.13 | 3276800 | -3.93384 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     65 |          7747.35 | 3328000 | -3.93485 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     66 |          7882.32 | 3379200 | -3.93288 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     67 |          8021.69 | 3430400 | -3.93393 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     68 |          8154.63 | 3481600 | -3.93393 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     69 |          8281.67 | 3532800 | -3.93493 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 23.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     70 |          8410.21 | 3584000 | -3.93689 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     71 |          8546.09 | 3635200 | -3.93588 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.0/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     72 |          8683.06 | 3686400 | -3.93481 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     73 |          8818.74 | 3737600 | -3.93485 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     74 |          8955.36 | 3788800 | -3.93585 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     75 |          9088.08 | 3840000 | -3.93578 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     76 |          9221.36 | 3891200 | -3.93575 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     77 |          9353.84 | 3942400 | -3.94609 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     78 |          9486.23 | 3993600 | -3.97258 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     79 |          9618.92 | 4044800 | -3.98169 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     80 |           9751.3 | 4096000 | -3.98468 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     81 |          9885.19 | 4147200 | -3.98266 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     82 |          10021.4 | 4198400 | -3.98564 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     83 |          10154.3 | 4249600 | -3.98456 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     84 |          10289.2 | 4300800 | -3.98456 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     85 |          10411.3 | 4352000 | -3.98252 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     86 |          10546.2 | 4403200 | -3.98359 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     87 |          10685.7 | 4454400 | -3.98457 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     88 |            10822 | 4505600 | -3.98463 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.9/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     89 |          10958.2 | 4556800 | -3.98663 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     90 |          11089.6 | 4608000 | -3.98555 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     91 |          11218.2 | 4659200 |  -3.9846 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     92 |            11348 | 4710400 | -3.98663 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     93 |          11476.6 | 4761600 | -3.98663 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.6/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     94 |          11602.2 | 4812800 | -3.98765 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.0/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     95 |          11732.9 | 4864000 | -3.98459 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     96 |          11865.7 | 4915200 | -3.98363 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.5/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     97 |            11996 | 4966400 | -3.98466 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     98 |          12123.3 | 5017600 | -3.98466 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.0/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |     99 |          12247.2 | 5068800 | -3.98574 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    100 |          12366.1 | 5120000 | -3.98368 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    101 |          12487.7 | 5171200 | -3.98269 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.2/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    102 |          12614.1 | 5222400 | -3.98369 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 23.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    103 |          12742.7 | 5273600 | -3.98473 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.4/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    104 |          12869.4 | 5324800 | -3.98473 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    105 |          12998.2 | 5376000 | -3.98476 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.8/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    106 |          13124.5 | 5427200 |  -3.9838 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 25.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    107 |          13253.9 | 5478400 | -3.98481 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 25.1/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    108 |          13384.3 | 5529600 | -3.98481 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+
+== Status ==
+Memory usage on this node: 24.7/62.8 GiB
+Using FIFO scheduling algorithm.
+Resources requested: 1.0/12 CPUs, 0.6/1 GPUs, 0.0/0.05 GiB heap, 0.0/25.68 GiB objects
+Result logdir: /home/lucius/ray_results/team_radio_lucius
+Number of trials: 1 (1 RUNNING)
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+| Trial name                   | status   | loc             |   iter |   total time (s) |      ts |   reward |
+|------------------------------+----------+-----------------+--------+------------------+---------+----------|
+| PPO_PommeMultiAgent-v2_00000 | RUNNING  | 10.0.0.21:32549 |    109 |          13512.1 | 5580800 | -3.98481 |
++------------------------------+----------+-----------------+--------+------------------+---------+----------+
+
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
+WARNING:root:NaN or Inf found in input tensor.
