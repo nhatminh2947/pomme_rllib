@@ -3,7 +3,6 @@ from pommerman import constants
 
 from memory import Memory
 from metrics import Metrics
-from rllib_pomme_envs import reward_func
 from rllib_pomme_envs import v0
 from utils import featurize
 
@@ -49,11 +48,11 @@ class RllibPomme(v0.RllibPomme):
         dones["__all__"] = _done
 
         for id in range(self.num_agents):
-            if self.is_agent_alive(id):
+            if self.is_agent_alive(id, self.prev_obs[id]['alive']):
                 self.memory[id].update_memory(_obs[id])
                 obs[self.agent_names[id]] = featurize(self.memory[id].obs)
-                rewards[self.agent_names[id]] = reward_func.reward(actions[id], self.prev_obs[id],
-                                                                   _obs[id], _info, self.stat[id])
+                rewards[self.agent_names[id]] = self.reward(id, actions[id], self.prev_obs[id],
+                                                            _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs
@@ -69,7 +68,26 @@ class RllibPomme(v0.RllibPomme):
 
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
-            if self.is_agent_alive(i):
+            if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 obs[self.agent_names[i]] = featurize(self.memory[i].obs)
 
         return obs
+
+    def reward(self, id, action, prev_obs, current_obs, info, stat):
+        reward = 0
+
+        reward += self.immediate_reward(action, prev_obs, current_obs, stat)
+
+        if id in prev_obs['alive'] and id not in current_obs['alive']:
+            reward += -1
+            for i in range(10, 14):
+                if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
+                    reward += 0.5
+        elif info['result'] == constants.Result.Win:
+            for i in range(10, 14):
+                if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
+                    reward += 0.5
+        elif info['result'] == constants.Result.Tie:
+            reward += -1
+
+        return reward

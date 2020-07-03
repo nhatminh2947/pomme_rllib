@@ -7,7 +7,6 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from pommerman import utility
 import utils
 from metrics import Metrics
-from rllib_pomme_envs import reward_func
 from utils import featurize
 
 
@@ -19,7 +18,6 @@ class RllibPomme(MultiAgentEnv):
         for i in range(self.num_agents):
             self.agent_list.append(agents.StaticAgent())
 
-        self.dead_time = []
         self.env = pommerman.make(config["env_id"], self.agent_list, config["game_state_file"])
         self.is_render = config["render"]
         self.action_space = self.env.action_space
@@ -74,40 +72,51 @@ class RllibPomme(MultiAgentEnv):
         for id in range(self.num_agents):
             if self.is_agent_alive(id):
                 obs[self.agent_names[id]] = featurize(_obs[id])
-                rewards[self.agent_names[id]] = reward_func.reward(actions[id], self.prev_obs[id],
-                                                                   _obs[id], _info, self.stat[id])
+                rewards[self.agent_names[id]] = self.reward(id, actions[id], self.prev_obs[id],
+                                                            _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]] = _info
 
         self.prev_obs = _obs
 
         return obs, rewards, dones, infos
 
-    @property
-    def alive_agents(self):
-        return self.prev_obs[0]['alive']
-
     def is_done(self, id, current_alive):
         return (id + 10) in self.alive_agents and (id + 10) not in current_alive
 
-    def is_agent_alive(self, id, alive_agents=None):
-        if alive_agents is None:
-            return (id + 10) in self.alive_agents
+    def is_agent_alive(self, id, alive_agents):
         return (id + 10) in alive_agents
 
     def reset(self):
         self.prev_obs = self.env.reset()
-        self.dead_time = []
         obs = {}
         self.reset_stat()
         g_helper = ray.util.get_actor("g_helper")
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
-        # print("Called reset")
-        # print("self.agent_name:", self.agent_names)
         for i in range(self.num_agents):
             if self.is_agent_alive(i):
                 obs[self.agent_names[i]] = featurize(self.prev_obs[i])
 
         return obs
+
+    def reward(self, id, action, prev_obs, current_obs, info, stat):
+        reward = 0
+        reward += self.immediate_reward(action, prev_obs, current_obs, stat)
+
+        for i in range(10, 14):
+            if i in self.prev_obs['alive'] and i not in current_obs['alive']:
+                if constants.Item(value=i) in current_obs['enemies']:
+                    reward += 0.75
+                    self.stat[Metrics.EnemyDeath.name] += 1
+                elif i - 10 == id:
+                    reward += -1
+                    self.stat[Metrics.DeadOrSuicide.name] += 1
+                else:
+                    reward += -0.5
+
+        if info['result'] == constants.Result.Tie:
+            reward += -1
+
+        return reward
 
     def immediate_reward(self, action, prev_obs, current_obs, stat):
         reward = 0
