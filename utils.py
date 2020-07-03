@@ -68,11 +68,11 @@ def featurize(obs):
 
     # normal features
     for feature, max_value in zip(["bomb_life", "bomb_blast_strength", "flame_life"],
-                                  [9, 10, 3]):
+                                  [9, 20, 3]):
         features.append(obs[feature] / max_value)
 
-    features.append(np.full(board.shape, fill_value=(obs["ammo"] / 10.0)))
-    features.append(np.full(board.shape, fill_value=(obs["blast_strength"] / 10.0)))
+    features.append(np.full(board.shape, fill_value=(obs["ammo"] / 20.0)))
+    features.append(np.full(board.shape, fill_value=(obs["blast_strength"] / 20.0)))
     features.append(np.full(board.shape, fill_value=(1 if obs["can_kick"] else 0)))
 
     features = np.stack(features, 0)

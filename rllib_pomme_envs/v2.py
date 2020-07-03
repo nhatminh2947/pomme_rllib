@@ -3,6 +3,7 @@ from pommerman import constants
 
 from memory import Memory
 from metrics import Metrics
+from rllib_pomme_envs import reward_func
 from rllib_pomme_envs import v0
 from utils import featurize
 
@@ -51,7 +52,8 @@ class RllibPomme(v0.RllibPomme):
             if self.is_agent_alive(id):
                 self.memory[id].update_memory(_obs[id])
                 obs[self.agent_names[id]] = featurize(self.memory[id].obs)
-                rewards[self.agent_names[id]] = self.reward(id, actions, _obs, _info)
+                rewards[self.agent_names[id]] = reward_func.reward(actions[id], self.prev_obs[id],
+                                                                   _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs

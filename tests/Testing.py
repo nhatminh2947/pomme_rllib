@@ -164,10 +164,7 @@ class TestEnvironment(unittest.TestCase):
                    constants.Action.Up.value,
                    constants.Action.Up.value,
                    constants.Action.Up.value,
-                   constants.Action.Up.value,
-                   constants.Action.Up.value,
-                   constants.Action.Up.value,
-                   constants.Action.Up.value,
+                   constants.Action.Up.value
                    ]
 
         obs = self.env.reset()

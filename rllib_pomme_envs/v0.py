@@ -3,11 +3,11 @@ import ray
 from gym import spaces
 from pommerman import agents
 from pommerman import constants
-from pommerman import utility
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
-
+from pommerman import utility
 import utils
 from metrics import Metrics
+from rllib_pomme_envs import reward_func
 from utils import featurize
 
 
@@ -19,6 +19,7 @@ class RllibPomme(MultiAgentEnv):
         for i in range(self.num_agents):
             self.agent_list.append(agents.StaticAgent())
 
+        self.dead_time = []
         self.env = pommerman.make(config["env_id"], self.agent_list, config["game_state_file"])
         self.is_render = config["render"]
         self.action_space = self.env.action_space
@@ -73,7 +74,8 @@ class RllibPomme(MultiAgentEnv):
         for id in range(self.num_agents):
             if self.is_agent_alive(id):
                 obs[self.agent_names[id]] = featurize(_obs[id])
-                rewards[self.agent_names[id]] = self.reward(id, actions, _obs, _info)
+                rewards[self.agent_names[id]] = reward_func.reward(actions[id], self.prev_obs[id],
+                                                                   _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]] = _info
 
         self.prev_obs = _obs
@@ -87,55 +89,6 @@ class RllibPomme(MultiAgentEnv):
     def is_done(self, id, current_alive):
         return (id + 10) in self.alive_agents and (id + 10) not in current_alive
 
-    def reward(self, id, actions, current_obs, info):
-        reward = 0
-
-        if self.prev_obs[id]['blast_strength'] < current_obs[id]['blast_strength']:
-            reward += 0.01
-            self.stat[id][Metrics.IncrRange.name] += 1
-
-        if utility._position_is_item(self.prev_obs[id]['board'],
-                                     current_obs[id]['position'],
-                                     constants.Item.ExtraBomb):
-            reward += 0.01
-            self.stat[id][Metrics.ExtraBomb.name] += 1
-
-        if not self.prev_obs[id]['can_kick'] and current_obs[id]['can_kick']:
-            reward += 0.02
-            self.stat[id][Metrics.Kick.name] = True
-
-        for i in range(10, 14):
-            if i in self.alive_agents and i not in current_obs[id]['alive']:
-                if constants.Item(value=i) in current_obs[id]['enemies']:
-                    reward += 0.75
-                    self.stat[id][Metrics.EnemyDeath.name] += 1
-                elif i - 10 == id:
-                    reward += -1
-                    self.stat[id][Metrics.DeadOrSuicide.name] += 1
-                else:
-                    reward += -0.5
-
-        pos = current_obs[id]['position']
-        if self.prev_obs[id]['ammo'] > 0 and actions[id] == constants.Action.Bomb.value:
-            dx = [-1, 0, 0, 1]
-            dy = [0, -1, 1, 0]
-
-            for i in range(4):
-                for j in range(1, self.prev_obs[id]['blast_strength']):
-                    row = pos[0] + j * dx[i]
-                    col = pos[1] + j * dy[i]
-                    if 0 <= row < 11 and 0 <= col < 11:
-                        if current_obs[id]['board'][row, col] != constants.Item.Passage.value:
-                            if current_obs[id]['board'][row, col] == constants.Item.Wood.value:
-                                reward += 0.01
-                                self.stat[id][Metrics.ExplodeWood.name] += 1
-                            break
-
-        if info['result'] == constants.Result.Tie:
-            reward += -1
-
-        return reward
-
     def is_agent_alive(self, id, alive_agents=None):
         if alive_agents is None:
             return (id + 10) in self.alive_agents
@@ -143,6 +96,7 @@ class RllibPomme(MultiAgentEnv):
 
     def reset(self):
         self.prev_obs = self.env.reset()
+        self.dead_time = []
         obs = {}
         self.reset_stat()
         g_helper = ray.util.get_actor("g_helper")
@@ -155,34 +109,36 @@ class RllibPomme(MultiAgentEnv):
 
         return obs
 
+    def immediate_reward(self, action, prev_obs, current_obs, stat):
+        reward = 0
+        if prev_obs['blast_strength'] < current_obs['blast_strength']:
+            reward += 0.01
+            stat[Metrics.IncrRange.name] += 1
 
-if __name__ == '__main__':
-    agent_list = [
-        agents.RandomAgent(),
-        agents.StaticAgent(),
-        agents.StaticAgent(),
-        agents.StaticAgent()
-    ]
-    env = pommerman.make('PommeTeam-v0', agent_list,
-                         # '/home/lucius/working/projects/pomme_rllib/resources/one_line_state.json'
-                         )
-    obs = env.reset()
+        if utility._position_is_item(prev_obs['board'],
+                                     current_obs['position'],
+                                     constants.Item.ExtraBomb):
+            reward += 0.01
+            stat[Metrics.ExtraBomb.name] += 1
 
-    while True:
-        features = featurize(obs[0])
-        for i in range(16):
-            print(features[i])
-        print()
-        actions = env.act(obs)
-        print(actions)
-        obs, reward, done, info = env.step(actions)
+        if not prev_obs['can_kick'] and current_obs['can_kick']:
+            reward += 0.02
+            stat[Metrics.Kick.name] = True
 
-        if done:
-            break
+        pos = current_obs['position']
+        if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value:
+            dx = [-1, 0, 0, 1]
+            dy = [0, -1, 1, 0]
 
-    print(obs)
-    features = featurize(obs[0])
-    for i in range(16):
-        print(features[i])
-    print()
-    # print(PommeMultiAgent.featurize(obs[0]))
+            for i in range(4):
+                for j in range(1, prev_obs['blast_strength']):
+                    row = pos[0] + j * dx[i]
+                    col = pos[1] + j * dy[i]
+                    if 0 <= row < 11 and 0 <= col < 11:
+                        if current_obs['board'][row, col] != constants.Item.Passage.value:
+                            if current_obs['board'][row, col] == constants.Item.Wood.value:
+                                reward += 0.01
+                                stat[Metrics.ExplodeWood.name] += 1
+                            break
+
+        return reward
