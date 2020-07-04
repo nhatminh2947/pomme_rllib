@@ -46,7 +46,7 @@ def initialize(params):
         config = {
             "model": {
                 "custom_model": "fourth_model",
-                "custom_options": {
+                "custom_model_config": {
                     "in_channels": utils.NUM_FEATURES
                 },
                 "no_final_linear": True,
@@ -138,7 +138,7 @@ def training_team(params):
             "evaluation_interval": params["evaluation_interval"],
             # "metrics_smoothing_episodes": 1000,
             "log_level": "WARN",
-            "use_pytorch": True
+            "framework": "torch"
         }
     )
 

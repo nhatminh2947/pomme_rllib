@@ -83,9 +83,11 @@ class RllibPomme(v0.RllibPomme):
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     reward += 0.5
+                    stat[Metrics.DeadOrSuicide.value] += 1
         elif info['result'] == constants.Result.Win or info['result'] == constants.Result.Tie:
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     reward += 0.5
+                    stat[Metrics.EnemyDeath.value] += 1
 
         return reward
