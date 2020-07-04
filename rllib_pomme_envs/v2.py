@@ -91,4 +91,7 @@ class RllibPomme(v0.RllibPomme):
                     reward += 0.5
                     stat[Metrics.EnemyDeath.name] += 1
 
+            if info['result'] == constants.Result.Tie:
+                reward += -1
+
         return reward

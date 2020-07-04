@@ -12,9 +12,9 @@ class Helper:
         self._is_init = False
 
     def set_agent_names(self):
-        i, j = np.random.randint(low=0, high=self.population_size, size=2)
-        while i == j:
-            j = np.random.randint(low=0, high=self.population_size, size=None)
+        # i, j = np.random.randint(low=0, high=self.population_size, size=2)
+        # while i == j:
+        #     j = np.random.randint(low=0, high=self.population_size, size=None)
         i = 0
         j = 0
         self.agent_names = []
