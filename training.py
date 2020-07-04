@@ -136,8 +136,8 @@ def training_team(params):
             "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
-            # "metrics_smoothing_episodes": 1000,
-            "log_level": "WARN",
+            "metrics_smoothing_episodes": 1000,
+            "log_level": "ERROR",
             "framework": "torch"
         }
     )
