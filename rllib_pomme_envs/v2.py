@@ -41,7 +41,7 @@ class RllibPomme(v0.RllibPomme):
         _obs, _reward, _done, _info = self.env.step(actions)
 
         for id in self.prev_obs[0]['alive']:
-            if _done or self.is_done(id - 10, _obs[0]['alive']):
+            if _done or id not in _obs[id - 10]['alive']:
                 dones[self.agent_names[id - 10]] = True
                 infos[self.agent_names[id - 10]]["metrics"] = self.stat[id - 10]
 
@@ -78,16 +78,14 @@ class RllibPomme(v0.RllibPomme):
 
         reward += self.immediate_reward(action, prev_obs, current_obs, stat)
 
-        if id in prev_obs['alive'] and id not in current_obs['alive']:
+        if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:
             reward += -1
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     reward += 0.5
-        elif info['result'] == constants.Result.Win:
+        elif info['result'] == constants.Result.Win or info['result'] == constants.Result.Tie:
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     reward += 0.5
-        # elif info['result'] == constants.Result.Tie:
-        #     reward += 0
 
         return reward

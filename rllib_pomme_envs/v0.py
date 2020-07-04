@@ -80,8 +80,8 @@ class RllibPomme(MultiAgentEnv):
 
         return obs, rewards, dones, infos
 
-    def is_done(self, id, current_alive):
-        return (id + 10) in self.alive_agents and (id + 10) not in current_alive
+    def is_done(self, id, prev_obs, current_alive):
+        return (id + 10) in prev_obs and (id + 10) not in current_alive
 
     def is_agent_alive(self, id, alive_agents):
         return (id + 10) in alive_agents
