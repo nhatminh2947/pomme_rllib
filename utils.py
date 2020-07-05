@@ -1,6 +1,7 @@
 from typing import Dict
 
 import numpy as np
+import ray
 from pommerman import constants
 from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.env import BaseEnv
@@ -119,6 +120,9 @@ class PommeCallbacks(DefaultCallbacks):
             episode.custom_metrics["team_0_win"] = 0
             episode.custom_metrics["team_1_win"] = 1
 
+        g_helper = ray.util.get_actor("g_helper")
+        g_helper.set_agent_names.remote()
+
 
 def limit_gamma_explore(config):
     config["gamma"] = min(config["gamma"], 0.999)
@@ -128,7 +132,9 @@ def limit_gamma_explore(config):
 def policy_mapping(agent_id):
     # agent_id pattern training/opponent_policy-id_agent-num
     # print("Calling to policy mapping {}".format(agent_id))
-    name = agent_id.split("_")
-    if name[0] == "opponent":
-        return "static"
-    return "policy_{}".format(name[1])
+    parts = agent_id.split("_")
+    team = int(parts[1])
+
+    if team == 0:
+        return "policy_0"
+    return "static"

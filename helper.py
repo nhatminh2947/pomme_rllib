@@ -1,6 +1,5 @@
-import numpy as np
-
 import ray
+import numpy as np
 
 
 @ray.remote(num_cpus=0.25, num_gpus=0)
@@ -12,17 +11,13 @@ class Helper:
         self._is_init = False
 
     def set_agent_names(self):
-        # i, j = np.random.randint(low=0, high=self.population_size, size=2)
-        # while i == j:
-        #     j = np.random.randint(low=0, high=self.population_size, size=None)
-        i = 0
-        j = 0
         self.agent_names = []
         for k in range(4):
-            if k % 2 == 0:
-                self.agent_names.append("training_{}_{}".format(i, k))
-            else:
-                self.agent_names.append("opponent_{}_{}".format(j, k))
+            self.agent_names.append("training_{}_{}".format(k % 2, k))
+
+        if np.random.random() > 0.5:
+            self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+            self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
 
         print("called set_agent_names")
         print(self.agent_names)

@@ -10,9 +10,11 @@ import utils
 from utils import policy_mapping
 from memory import Memory
 from models import one_vs_one_model
-from models import third_model
+from models import third_model, fourth_model
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
+from policies.simple_policy import SimplePolicy
+
 from rllib_pomme_envs import v0, v2
 from utils import featurize
 
@@ -28,9 +30,8 @@ def gen_policy():
     config = {
         "model": {
             "custom_model": "torch_conv_0",
-            "custom_options": {
-                "in_channels": utils.NUM_FEATURES,
-                "feature_dim": 512
+            "custom_model_config": {
+                "in_channels": utils.NUM_FEATURES
             },
             "no_final_linear": True,
         },
@@ -45,6 +46,7 @@ policies = {
 policies["opponent"] = gen_policy()
 policies["random"] = (RandomPolicy, obs_space, act_space, {})
 policies["static"] = (StaticPolicy, obs_space, act_space, {})
+policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
 env_config = {
     "env_id": env_id,
@@ -52,7 +54,7 @@ env_config = {
     "game_state_file": None
 }
 
-ModelCatalog.register_custom_model("torch_conv_0", third_model.ActorCriticModel)
+ModelCatalog.register_custom_model("torch_conv_0", fourth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
 
 ppo_agent = PPOTrainer(config={
@@ -68,8 +70,8 @@ ppo_agent = PPOTrainer(config={
 }, env=v2.RllibPomme)
 
 # fdb733b6
-checkpoint = 400
-checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-06-29_15-38-45iow9_yax"
+checkpoint = 1300
+checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-07-05_03-13-39moap1_1t"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
