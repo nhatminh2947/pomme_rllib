@@ -1,3 +1,6 @@
+from pommerman import constants
+
+from metrics import Metrics
 from rllib_pomme_envs import v0
 from utils import featurize
 
@@ -15,6 +18,8 @@ class RllibPomme(v0.RllibPomme):
         for id in range(self.num_agents):
             if self.agent_names[id] in action_dict:
                 actions.append(int(action_dict[self.agent_names[id]]))
+                if action_dict[self.agent_names[id]] == constants.Action.Bomb.value and self.prev_obs[id]['ammo'] > 0:
+                    self.stat[id][Metrics.RealBombs.name] += 1
             else:
                 actions.append(0)
 
