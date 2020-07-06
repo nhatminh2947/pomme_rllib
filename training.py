@@ -18,9 +18,9 @@ from utils import PommeCallbacks, policy_mapping
 
 
 def initialize(params):
-    env_id = "PommeTeamCompetition-v0"
+    # env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
-    # env_id = "OneVsOne-v0"
+    env_id = "OneVsOne-v0"
     # env_id = "PommeRadioCompetition-v2"
 
     env_config = {
@@ -45,7 +45,7 @@ def initialize(params):
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "fourth_model",
+                "custom_model": params["custom_model"],
                 "custom_options": {
                     "in_channels": utils.NUM_FEATURES
                 },
@@ -64,7 +64,7 @@ def initialize(params):
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
-    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies)
+    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies, params['env_v'])
     g_helper.set_agent_names.remote()
 
     print("Training policies:", policies.keys())
@@ -136,7 +136,7 @@ def training_team(params):
             "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
-            "metrics_smoothing_episodes": 1000,
+            "metrics_smoothing_episodes": 100,
             "log_level": "ERROR",
             "use_pytorch": True
         }

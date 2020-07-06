@@ -94,4 +94,9 @@ class RllibPomme(v0.RllibPomme):
             if info['result'] == constants.Result.Tie:
                 reward += -1
 
+        if action == constants.Action.Bomb.value:
+            stat[Metrics.ActionBombs.name] += 1
+            if prev_obs['ammo'] > 0:
+                stat[Metrics.RealBombs.name] += 1
+
         return reward

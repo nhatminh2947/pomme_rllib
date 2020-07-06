@@ -9,10 +9,11 @@ class Memory:
     def init_memory(self, obs):
         self.obs = obs
 
-        self.obs['board'][1, 1] = 10
-        self.obs['board'][9, 1] = 11
-        self.obs['board'][9, 9] = 12
-        self.obs['board'][1, 9] = 13
+        if obs['board'].shape[0] == 11:
+            self.obs['board'][1, 1] = 10
+            self.obs['board'][9, 1] = 11
+            self.obs['board'][9, 9] = 12
+            self.obs['board'][1, 9] = 13
 
     # Note: add memory of enemy position of some previous steps
     def update_memory(self, obs):

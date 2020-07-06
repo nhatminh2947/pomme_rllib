@@ -3,8 +3,9 @@ import ray
 from gym import spaces
 from pommerman import agents
 from pommerman import constants
-from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from pommerman import utility
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
+
 import utils
 from metrics import Metrics
 from utils import featurize
@@ -93,7 +94,7 @@ class RllibPomme(MultiAgentEnv):
         g_helper = ray.util.get_actor("g_helper")
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
         for i in range(self.num_agents):
-            if self.is_agent_alive(i):
+            if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 obs[self.agent_names[i]] = featurize(self.prev_obs[i])
 
         return obs
@@ -102,14 +103,14 @@ class RllibPomme(MultiAgentEnv):
         reward = 0
         reward += self.immediate_reward(action, prev_obs, current_obs, stat)
 
-        for i in range(10, 14):
-            if i in self.prev_obs['alive'] and i not in current_obs['alive']:
+        for i in range(10, 10 + self.num_agents):
+            if i in prev_obs['alive'] and i not in current_obs['alive']:
                 if constants.Item(value=i) in current_obs['enemies']:
                     reward += 0.75
-                    self.stat[Metrics.EnemyDeath.name] += 1
+                    stat[Metrics.EnemyDeath.name] += 1
                 elif i - 10 == id:
                     reward += -1
-                    self.stat[Metrics.DeadOrSuicide.name] += 1
+                    stat[Metrics.DeadOrSuicide.name] += 1
                 else:
                     reward += -0.5
 
@@ -143,7 +144,7 @@ class RllibPomme(MultiAgentEnv):
                 for j in range(1, prev_obs['blast_strength']):
                     row = pos[0] + j * dx[i]
                     col = pos[1] + j * dy[i]
-                    if 0 <= row < 11 and 0 <= col < 11:
+                    if 0 <= row < current_obs['board'].shape[0] and 0 <= col < current_obs['board'].shape[0]:
                         if current_obs['board'][row, col] != constants.Item.Passage.value:
                             if current_obs['board'][row, col] == constants.Item.Wood.value:
                                 # reward += 0.01

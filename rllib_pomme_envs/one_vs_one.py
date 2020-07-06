@@ -1,9 +1,9 @@
-from rllib_pomme_envs import v0
-from utils import featurize
+from rllib_pomme_envs import v2
+import utils
 
 
 # Note: change team for training agents
-class RllibPomme(v0.RllibPomme):
+class RllibPomme(v2.RllibPomme):
     def __init__(self, config):
         super().__init__(config)
 
@@ -26,16 +26,17 @@ class RllibPomme(v0.RllibPomme):
         _obs, _reward, _done, _info = self.env.step(actions)
 
         for id in self.prev_obs[0]['alive']:
-            if _done or self.is_done(id - 10, _obs[0]['alive']):
+            if _done or id not in _obs[id - 10]['alive']:
                 dones[self.agent_names[id - 10]] = True
                 infos[self.agent_names[id - 10]]["metrics"] = self.stat[id - 10]
 
         dones["__all__"] = _done
 
         for id in range(self.num_agents):
-            if self.is_agent_alive(id):
-                obs[self.agent_names[id]] = featurize(_obs[id])
-                rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
+            if self.is_agent_alive(id, self.prev_obs[id]['alive']):
+                obs[self.agent_names[id]] = utils.featurize_for_rms(_obs[id])
+                rewards[self.agent_names[id]] = self.reward(id, actions[id], self.prev_obs[id],
+                                                            _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs
