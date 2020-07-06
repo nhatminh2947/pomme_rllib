@@ -46,7 +46,7 @@ def initialize(params):
         config = {
             "model": {
                 "custom_model": "fourth_model",
-                "custom_model_config": {
+                "custom_options": {
                     "in_channels": utils.NUM_FEATURES
                 },
                 "no_final_linear": True,
@@ -131,14 +131,14 @@ def training_team(params):
             "multiagent": {
                 "policies": policies,
                 "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0"],
+                "policies_to_train": ["policy_0", "policy_1"],
             },
             "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "metrics_smoothing_episodes": 1000,
             "log_level": "ERROR",
-            "framework": "torch"
+            "use_pytorch": True
         }
     )
 
@@ -172,7 +172,7 @@ def validate(params):
             "multiagent": {
                 "policies": policies,
                 "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0"],
+                "policies_to_train": ["policy_0", "policy_1"],
             },
             # "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],

@@ -11,7 +11,7 @@ from ray.rllib.policy import Policy
 from metrics import Metrics
 
 # NUM_FEATURES = 20
-NUM_FEATURES = 22
+NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
             "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
@@ -35,8 +35,6 @@ def featurize(obs):
 
     for item in board_items:
         features.append(board == item.value)
-
-    features.append(obs['fog'])
 
     # Set walkable feature plan for extrabomb, incrange, kick and bomb if can kick
     for i in range(11):
@@ -135,6 +133,6 @@ def policy_mapping(agent_id):
     parts = agent_id.split("_")
     team = int(parts[1])
 
-    if team == 0:
-        return "policy_0"
+    if parts[0] == "training":
+        return "policy_{}".format(team)
     return "static"

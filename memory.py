@@ -10,7 +10,6 @@ class Memory:
 
     def init_memory(self, obs):
         self.obs = obs
-        self.obs['fog'] = np.asarray(obs['board'] == constants.Item.Fog.value, dtype=float)
 
         self.obs['board'][1, 1] = 10
         self.obs['board'][9, 1] = 11
@@ -25,7 +24,6 @@ class Memory:
         self.obs['blast_strength'] = obs['blast_strength']
         self.obs['can_kick'] = obs['can_kick']
         self.obs['ammo'] = obs['ammo']
-        self.obs['fog'] = obs['board'] == constants.Item.Fog.value
 
         for i in range(11):
             for j in range(11):
