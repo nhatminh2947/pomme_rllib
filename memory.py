@@ -1,10 +1,8 @@
-import numpy as np
 from pommerman import constants
 
 
 class Memory:
     def __init__(self, agent_id):
-        self.team = agent_id % 2
         self.agent_id = agent_id
         self.obs = None
 

@@ -118,6 +118,7 @@ class PommeCallbacks(DefaultCallbacks):
             episode.custom_metrics["team_0_win"] = 0
             episode.custom_metrics["team_1_win"] = 1
 
+    def on_train_result(self, trainer, result: dict, **kwargs):
         g_helper = ray.util.get_actor("g_helper")
         g_helper.set_agent_names.remote()
 
