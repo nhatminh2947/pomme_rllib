@@ -19,7 +19,10 @@ class Helper:
         else:
             self.agent_names = []
             for k in range(4):
-                self.agent_names.append("training_{}_{}".format(k % 2, k))
+                if k % 2:
+                    self.agent_names.append("static_{}_{}".format(k % 2, k))
+                else:
+                    self.agent_names.append("training_{}_{}".format(k % 2, k))
 
             if np.random.random() > 0.5:
                 self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]

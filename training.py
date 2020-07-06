@@ -8,7 +8,7 @@ from ray.rllib.models import ModelCatalog
 import arguments
 import utils
 from helper import Helper
-from models import one_vs_one_model, third_model, fourth_model
+from models import one_vs_one_model, third_model, fourth_model, fifth_model
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.simple_policy import SimplePolicy
@@ -18,9 +18,9 @@ from utils import PommeCallbacks, policy_mapping
 
 
 def initialize(params):
-    # env_id = "PommeTeamCompetition-v0"
+    env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
-    env_id = "OneVsOne-v0"
+    # env_id = "OneVsOne-v0"
     # env_id = "PommeRadioCompetition-v2"
 
     env_config = {
@@ -30,6 +30,7 @@ def initialize(params):
     }
     ModelCatalog.register_custom_model("third_model", third_model.ActorCriticModel)
     ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
@@ -174,7 +175,7 @@ def validate(params):
                 "policy_mapping_fn": policy_mapping,
                 "policies_to_train": ["policy_0", "policy_1"],
             },
-            # "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
+            "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",
