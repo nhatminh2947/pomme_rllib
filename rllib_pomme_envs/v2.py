@@ -69,7 +69,7 @@ class RllibPomme(v0.RllibPomme):
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                obs[self.agent_names[i]] = featurize(self.memory[i].obs)
+                obs[self.agent_names[i]] = featurize_for_rms(self.memory[i].obs)
 
         return obs
 
