@@ -26,8 +26,7 @@ def gen_policy():
         "model": {
             "custom_model": "1vs1",
             "custom_options": {
-                "in_channels": 21,
-                "feature_dim": 512
+                "in_channels": 21
             },
             "no_final_linear": True,
         },
@@ -74,7 +73,7 @@ for agent_id in range(2):
     agent_list.append(agents.StaticAgent())
 env = pommerman.make("OneVsOne-v0", agent_list=agent_list)
 
-for i in range(1):
+for i in range(100):
     obs = env.reset()
 
     done = False
@@ -82,7 +81,7 @@ for i in range(1):
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[1] = ppo_agent.compute_action(observation=featurize_for_rms(obs[1]), policy_id="policy_0")
+        actions[0] = ppo_agent.compute_action(observation=featurize_for_rms(obs[0]), policy_id="policy_0")
         obs, reward, done, info = env.step(actions)
         total_reward += reward[0]
         if done:
