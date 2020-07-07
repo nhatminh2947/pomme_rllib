@@ -2,7 +2,7 @@ from pommerman import constants
 
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize
+from utils import featurize, featurize_for_rms
 
 
 # Note: change team for training agents
@@ -39,7 +39,7 @@ class RllibPomme(v0.RllibPomme):
 
         for id in range(self.num_agents):
             if self.is_agent_alive(id):
-                obs[self.agent_names[id]] = featurize(_obs[id])
+                obs[self.agent_names[id]] = featurize_for_rms(_obs[id])
                 rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
                 infos[self.agent_names[id]].update(_info)
 

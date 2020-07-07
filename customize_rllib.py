@@ -51,9 +51,9 @@ def limit_gamma_explore(config):
 
 
 def policy_mapping(agent_id):
-    # agent_id pattern training/opponent_policy-id_agent-num
-    # print("Calling to policy mapping {}".format(agent_id))
-    name = agent_id.split("_")
-    if name[0] == "opponent":
-        return "static"
-    return "policy_{}".format(name[1])
+    parts = agent_id.split("_")
+    team = int(parts[1])
+
+    if parts[0] == "training":
+        return "policy_{}".format(team)
+    return "static"

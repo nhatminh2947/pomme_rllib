@@ -5,24 +5,29 @@ import ray
 
 @ray.remote(num_cpus=0.25, num_gpus=0)
 class Helper:
-    def __init__(self, population_size, policies):
+    def __init__(self, population_size, policies, env):
         self.population_size = population_size
         self.agent_names = {}
         self.policies = policies
         self._is_init = False
+        self.env = env
 
     def set_agent_names(self):
-        i, j = np.random.randint(low=0, high=self.population_size, size=2)
-        while i == j:
-            j = np.random.randint(low=0, high=self.population_size, size=None)
-        i = 0
-        j = 0
-        self.agent_names = []
-        for k in range(2):
-            if k % 2 == 0:
-                self.agent_names.append("training_{}_{}".format(i, k))
-            else:
-                self.agent_names.append("opponent_{}_{}".format(j, k))
+        if self.env == "1vs1":
+            self.agent_names = ['training_0_0', 'static_0_1']
+            if np.random.random() > 0.5:
+                self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+        else:
+            self.agent_names = []
+            for k in range(4):
+                if k % 2:
+                    self.agent_names.append("static_{}_{}".format(k % 2, k))
+                else:
+                    self.agent_names.append("training_{}_{}".format(k % 2, k))
+
+            if np.random.random() > 0.5:
+                self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+                self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
 
         print("called set_agent_names")
         print(self.agent_names)

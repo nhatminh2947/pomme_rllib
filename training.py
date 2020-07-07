@@ -35,9 +35,9 @@ def initialize(params):
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-1vs1", lambda x: one_vs_one.RllibPomme(env_config))
     if env_id == "OneVsOne-v0":
-        obs_space = spaces.Box(low=0, high=20, shape=(17, 8, 8))
+        obs_space = spaces.Box(low=0, high=20, shape=(21, 8, 8))
     else:
-        obs_space = spaces.Box(low=0, high=20, shape=(17, 11, 11))
+        obs_space = spaces.Box(low=0, high=20, shape=(21, 11, 11))
     act_space = spaces.Discrete(6)
 
     # Policy setting
@@ -46,8 +46,7 @@ def initialize(params):
             "model": {
                 "custom_model": "1vs1",
                 "custom_options": {
-                    "in_channels": 17,
-                    "feature_dim": 512
+                    "in_channels": 21
                 },
                 "no_final_linear": True,
             },
@@ -63,7 +62,7 @@ def initialize(params):
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
-    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies)
+    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies, params["env_v"])
     g_helper.set_agent_names.remote()
 
     print("Training policies:", policies.keys())
@@ -108,7 +107,8 @@ def training_team(params):
             "gamma": params["gamma"],
             "lr": params["lr"],
             "entropy_coeff": params["entropy_coeff"],
-            "kl_coeff": params["kl_coeff"],  # disable KL
+            "kl_coeff": params["kl_coeff"],  # disable KL kl_coeff=0.0
+            # should use complete_episodes
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
             "env": "PommeMultiAgent-{}".format(params["env_v"]),
@@ -132,7 +132,8 @@ def training_team(params):
                 "policy_mapping_fn": policy_mapping,
                 "policies_to_train": ["policy_0"],
             },
-            "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
+            # must use MeanStdFilter
+            "observation_filter": "MeanStdFilter",
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",

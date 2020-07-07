@@ -7,7 +7,7 @@ from pommerman import utility
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 from metrics import Metrics
-from utils import featurize
+from utils import featurize, featurize_for_rms
 
 
 # Note: change team for training agents
@@ -138,7 +138,7 @@ class RllibPomme(MultiAgentEnv):
         # print("self.agent_name:", self.agent_names)
         for i in range(self.num_agents):
             if self.is_agent_alive(i):
-                obs[self.agent_names[i]] = featurize(self.prev_obs[i])
+                obs[self.agent_names[i]] = featurize_for_rms(self.prev_obs[i])
 
         return obs
 
