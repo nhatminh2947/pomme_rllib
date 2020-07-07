@@ -195,3 +195,28 @@ def policy_mapping(agent_id):
     if parts[0] == "training":
         return "policy_{}".format(team)
     return "static"
+
+
+def center(obs):
+    centered_obs = np.copy(obs)
+
+    centered_obs["board"] = np.ones((9, 9), dtype=np.float32)
+    centered_obs["bomb_blast_strength"] = np.ones((9, 9), dtype=np.float32)
+    centered_obs["bomb_life"] = np.ones((9, 9), dtype=np.float32)
+    centered_obs["bomb_moving_direction"] = np.ones((9, 9), dtype=np.float32)
+
+    x, y = obs["position"]
+    centered_obs['board'][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] = obs["board"][
+                                                                                        max(0, x - 4):min(11, x + 5),
+                                                                                        max(0, y - 4):min(11, y + 5)]
+
+    centered_obs["bomb_blast_strength"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
+        = obs["bomb_blast_strength"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+
+    centered_obs["bomb_life"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
+        = obs["bomb_life"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+
+    centered_obs["bomb_moving_direction"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
+        = obs["bomb_life"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+
+    return centered_obs

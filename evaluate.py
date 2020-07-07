@@ -10,13 +10,13 @@ import utils
 from utils import policy_mapping
 from memory import Memory
 from models import one_vs_one_model
-from models import third_model, fourth_model
+from models import third_model, fourth_model, fifth_model
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from policies.simple_policy import SimplePolicy
 
 from rllib_pomme_envs import v0, v2
-from utils import featurize
+from utils import featurize, featurize_for_rms
 
 ray.init()
 env_id = "PommeTeamCompetition-v0"
@@ -29,8 +29,8 @@ act_space = spaces.Discrete(6)
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "torch_conv_0",
-            "custom_model_config": {
+            "custom_model": "fifth_model",
+            "custom_options": {
                 "in_channels": utils.NUM_FEATURES
             },
             "no_final_linear": True,
@@ -54,7 +54,8 @@ env_config = {
     "game_state_file": None
 }
 
-ModelCatalog.register_custom_model("torch_conv_0", fourth_model.ActorCriticModel)
+ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
+ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
 
 ppo_agent = PPOTrainer(config={
@@ -65,13 +66,13 @@ ppo_agent = PPOTrainer(config={
         "policy_mapping_fn": policy_mapping,
         "policies_to_train": ["policy_0"],
     },
-    "observation_filter": "NoFilter",
+    "observation_filter": "MeanStdFilter",
     "use_pytorch": True
 }, env=v2.RllibPomme)
 
 # fdb733b6
-checkpoint = 1300
-checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-07-05_03-13-39moap1_1t"
+checkpoint = 110
+checkpoint_dir = "/home/lucius/ray_results/team_radio_rms/PPO_PommeMultiAgent-v2_0_2020-07-07_14-37-02z24blgqw"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -99,9 +100,9 @@ for i in range(1):
         env.render()
         actions = env.act(obs)
 
-        actions[0] = ppo_agent.compute_action(observation=featurize(memories[0].obs), policy_id="policy_0")
+        actions[0] = ppo_agent.compute_action(observation=featurize_for_rms(memories[0].obs), policy_id="policy_0")
         actions[0] = int(actions[0])
-        actions[2] = ppo_agent.compute_action(observation=featurize(memories[2].obs), policy_id="policy_0")
+        actions[2] = ppo_agent.compute_action(observation=featurize_for_rms(memories[2].obs), policy_id="policy_0")
         actions[2] = int(actions[2])
         obs, reward, done, info = env.step(actions)
 
