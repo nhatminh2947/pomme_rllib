@@ -1,8 +1,9 @@
+import ray
 from pommerman import constants
 
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize, featurize_for_rms
+from utils import featurize_for_rms, featurize
 
 
 # Note: change team for training agents
@@ -39,10 +40,24 @@ class RllibPomme(v0.RllibPomme):
 
         for id in range(self.num_agents):
             if self.is_agent_alive(id):
-                obs[self.agent_names[id]] = featurize_for_rms(_obs[id])
+                obs[self.agent_names[id]] = featurize(_obs[id])
                 rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
                 infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs
 
         return obs, rewards, dones, infos
+
+    def reset(self):
+        self.prev_obs = self.env.reset()
+        obs = {}
+        self.reset_stat()
+        g_helper = ray.util.get_actor("g_helper")
+        self.agent_names = ray.get(g_helper.get_agent_names.remote())
+        # print("Called reset")
+        # print("self.agent_name:", self.agent_names)
+        for i in range(self.num_agents):
+            if self.is_agent_alive(i):
+                obs[self.agent_names[i]] = featurize(self.prev_obs[i])
+
+        return obs

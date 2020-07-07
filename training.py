@@ -9,7 +9,7 @@ import arguments
 from customize_rllib import PommeCallbacks
 from customize_rllib import policy_mapping
 from helper import Helper
-from models import one_vs_one_model
+from models import one_vs_one_model, one_vs_one_bn_model
 from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
@@ -30,6 +30,7 @@ def initialize(params):
     }
     ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("1vs1_bn", one_vs_one_bn_model.ActorCriticModel)
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
@@ -44,7 +45,7 @@ def initialize(params):
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "1vs1",
+                "custom_model": "1vs1_bn",
                 "custom_options": {
                     "in_channels": 21
                 },
@@ -133,7 +134,7 @@ def training_team(params):
                 "policies_to_train": ["policy_0"],
             },
             # must use MeanStdFilter
-            "observation_filter": "MeanStdFilter",
+            "observation_filter": "NoFilter",
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",
