@@ -10,14 +10,14 @@ from models.third_model import ActorCriticModel
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0
-from utils import featurize
+from utils import featurize, featurize_for_rms
 from customize_rllib import policy_mapping
 from models import one_vs_one_model
 ray.init()
 env_id = "OneVsOne-v0"
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(17, 8, 8))
+obs_space = spaces.Box(low=0, high=20, shape=(21, 8, 8))
 act_space = env.action_space
 
 
@@ -26,7 +26,7 @@ def gen_policy():
         "model": {
             "custom_model": "1vs1",
             "custom_options": {
-                "in_channels": 17,
+                "in_channels": 21,
                 "feature_dim": 512
             },
             "no_final_linear": True,
@@ -65,8 +65,8 @@ ppo_agent = PPOTrainer(config={
 }, env=v0.RllibPomme)
 
 # fdb733b6
-checkpoint = 500
-checkpoint_dir = "/home/lucius/ray_results/one_vs_one/PPO_PommeMultiAgent-1vs1_0_2020-06-21_01-16-48xgm6jedn"
+checkpoint = 970
+checkpoint_dir = "/home/lucius/ray_results/1vs1/PPO_PommeMultiAgent-1vs1_0_2020-07-07_02-20-56fsyhi9mq"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -82,7 +82,7 @@ for i in range(1):
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[0] = ppo_agent.compute_action(observation=featurize(obs[0]), policy_id="policy_0")
+        actions[1] = ppo_agent.compute_action(observation=featurize_for_rms(obs[1]), policy_id="policy_0")
         obs, reward, done, info = env.step(actions)
         total_reward += reward[0]
         if done:
