@@ -1,7 +1,10 @@
 import numpy as np
+import torch
 from pommerman import constants
+from torch import nn
 
-NUM_FEATURES = 12
+NUM_FEATURES = 22
+
 
 # Meaning of channels
 # 0 passage             fow
@@ -138,15 +141,13 @@ def featurize_for_rms(obs):
 
 
 def featurize_v1(obs):
-    board = obs['board']
-    features = [obs['board']]
+    board = np.asarray(obs['board'], dtype=np.int)
+    one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
     position = np.zeros(board.shape)
     position[obs["position"]] = 1
-    features.append(position)
-
-    features.append(board == obs["teammate"].value)
-    features.append(np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0))
+    teammate = board == obs["teammate"].value
+    teammate_alive = np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0)
 
     alive_enemies = 0
     enemies = np.zeros(board.shape)
@@ -154,18 +155,20 @@ def featurize_v1(obs):
         enemies[(board == enemy.value)] = 1
         if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
             alive_enemies += 1
-    features.append(enemies)
-    features.append(np.full(board.shape, fill_value=alive_enemies))
 
-    # normal features
-    for feature in ["bomb_life", "bomb_blast_strength", "flame_life"]:
-        features.append(obs[feature])
+    enemies_alive = np.full(board.shape, fill_value=alive_enemies)
 
-    features.append(np.full(board.shape, fill_value=obs["ammo"]))
-    features.append(np.full(board.shape, fill_value=obs["blast_strength"]))
-    features.append(np.full(board.shape, fill_value=1 if obs["can_kick"] else 0))
+    ammo = np.full(board.shape, fill_value=obs["ammo"])
+    blast_strength = np.full(board.shape, fill_value=obs["blast_strength"])
+    can_kick = np.full(board.shape, fill_value=1 if obs["can_kick"] else 0)
 
-    features = np.stack(features, 0)
-    features = np.asarray(features, dtype=np.float)
+    features = np.stack([obs["bomb_life"],
+                         obs["bomb_blast_strength"],
+                         position,
+                         teammate_alive,
+                         enemies_alive,
+                         ammo, blast_strength, can_kick], 0)
+
+    features = np.concatenate([one_hot_board, features], 0)
 
     return features
