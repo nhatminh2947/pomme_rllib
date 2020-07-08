@@ -1,6 +1,7 @@
 import numpy as np
 from pommerman import constants
 
+NUM_FEATURES = 12
 
 # Meaning of channels
 # 0 passage             fow
@@ -121,6 +122,40 @@ def featurize_for_rms(obs):
 
     for i in range(1, 5):
         features.append(obs["bomb_moving_direction"] == i)
+
+    # normal features
+    for feature in ["bomb_life", "bomb_blast_strength", "flame_life"]:
+        features.append(obs[feature])
+
+    features.append(np.full(board.shape, fill_value=obs["ammo"]))
+    features.append(np.full(board.shape, fill_value=obs["blast_strength"]))
+    features.append(np.full(board.shape, fill_value=1 if obs["can_kick"] else 0))
+
+    features = np.stack(features, 0)
+    features = np.asarray(features, dtype=np.float)
+
+    return features
+
+
+def featurize_v1(obs):
+    board = obs['board']
+    features = [obs['board']]
+
+    position = np.zeros(board.shape)
+    position[obs["position"]] = 1
+    features.append(position)
+
+    features.append(board == obs["teammate"].value)
+    features.append(np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0))
+
+    alive_enemies = 0
+    enemies = np.zeros(board.shape)
+    for enemy in obs["enemies"]:
+        enemies[(board == enemy.value)] = 1
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+            alive_enemies += 1
+    features.append(enemies)
+    features.append(np.full(board.shape, fill_value=alive_enemies))
 
     # normal features
     for feature in ["bomb_life", "bomb_blast_strength", "flame_life"]:
