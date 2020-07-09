@@ -1,6 +1,6 @@
 import ray
 from pommerman import constants
-
+import numpy as np
 from metrics import Metrics
 from rllib_pomme_envs import v0
 from utils import featurize_for_rms, featurize, featurize_v1, featurize_v2, featurize_v3, featurize_v4
@@ -57,6 +57,10 @@ class RllibPomme(v0.RllibPomme):
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
         # print("Called reset")
         # print("self.agent_name:", self.agent_names)
+
+        if np.random.random() > 0.5:
+            self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+
         for i in range(self.num_agents):
             if self.is_agent_alive(i):
                 obs[self.agent_names[i]] = featurize_v4(self.prev_obs[i])
