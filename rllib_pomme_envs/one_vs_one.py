@@ -68,19 +68,19 @@ class RllibPomme(v0.RllibPomme):
         if utility._position_is_item(self.prev_obs[id]['board'],
                                      current_obs[id]['position'],
                                      constants.Item.IncrRange):
-            # reward += 0.01
+            reward += 0.01
             self.stat[id][Metrics.IncrRange.name] += 1
 
         if utility._position_is_item(self.prev_obs[id]['board'],
                                      current_obs[id]['position'],
                                      constants.Item.ExtraBomb):
-            # reward += 0.01
+            reward += 0.01
             self.stat[id][Metrics.ExtraBomb.name] += 1
 
         if utility._position_is_item(self.prev_obs[id]['board'],
                                      current_obs[id]['position'],
                                      constants.Item.Kick) and not self.prev_obs[id]['can_kick']:
-            # reward += 0.02
+            reward += 0.02
             self.stat[id][Metrics.Kick.name] = True
 
         for i in range(10, 12):
