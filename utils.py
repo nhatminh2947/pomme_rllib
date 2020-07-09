@@ -175,7 +175,7 @@ def featurize_v1(obs):
     return features
 
 
-# Not working
+# working without switch side
 def featurize_v2(obs):
     board = np.asarray(obs['board'], dtype=np.float)
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
@@ -254,15 +254,20 @@ def featurize_v4(obs):
     agent_id = board[obs["position"]]
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
+
+    if agent_id % 2 == 1:
+        one_hot_board[[10, 11]] = one_hot_board[[11, 10]]
+        one_hot_board[[12, 13]] = one_hot_board[[13, 12]]
+
+    if agent_id - 10 == 2:
+        one_hot_board[[10, 12]] = one_hot_board[[12, 10]]
+
     one_hot_board = np.delete(one_hot_board, 9, 0)
 
-    teammate = board == obs["teammate"].value
     teammate_alive = np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0)
 
     alive_enemies = 0
-    enemies = np.zeros(board.shape)
     for enemy in obs["enemies"]:
-        enemies[(board == enemy.value)] = 1
         if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
             alive_enemies += 1
 
