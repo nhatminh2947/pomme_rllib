@@ -15,8 +15,8 @@ class Helper:
     def set_agent_names(self):
         if self.env == "1vs1":
             self.agent_names = ['training_0_0', 'static_0_1']
-            # if np.random.random() > 0.5:
-            #     self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+            if np.random.random() > 0.5:
+                self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
         else:
             self.agent_names = []
             for k in range(4):
