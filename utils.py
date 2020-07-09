@@ -3,7 +3,7 @@ import torch
 from pommerman import constants
 from torch import nn
 
-NUM_FEATURES = 22
+NUM_FEATURES = 20
 
 
 # Meaning of channels
@@ -139,7 +139,7 @@ def featurize_for_rms(obs):
 
     return features
 
-
+# Working
 def featurize_v1(obs):
     board = np.asarray(obs['board'], dtype=np.int)
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
@@ -165,6 +165,78 @@ def featurize_v1(obs):
     features = np.stack([obs["bomb_life"],
                          obs["bomb_blast_strength"],
                          position,
+                         teammate_alive,
+                         enemies_alive,
+                         ammo, blast_strength, can_kick], 0)
+
+    features = np.concatenate([one_hot_board, features], 0)
+
+    return features
+
+
+# Not working
+def featurize_v2(obs):
+    board = np.asarray(obs['board'], dtype=np.int)
+    one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
+    one_hot_board = one_hot_board[:9]
+
+    position = np.zeros(board.shape)
+    position[obs["position"]] = 1
+    teammate = board == obs["teammate"].value
+    teammate_alive = np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0)
+
+    alive_enemies = 0
+    enemies = np.zeros(board.shape)
+    for enemy in obs["enemies"]:
+        enemies[(board == enemy.value)] = 1
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+            alive_enemies += 1
+
+    enemies_alive = np.full(board.shape, fill_value=alive_enemies)
+
+    ammo = np.full(board.shape, fill_value=obs["ammo"])
+    blast_strength = np.full(board.shape, fill_value=obs["blast_strength"])
+    can_kick = np.full(board.shape, fill_value=1 if obs["can_kick"] else 0)
+
+    features = np.stack([obs["bomb_life"],
+                         obs["bomb_blast_strength"],
+                         position,
+                         teammate_alive,
+                         teammate,
+                         enemies_alive,
+                         enemies,
+                         ammo, blast_strength, can_kick], 0)
+
+    features = np.concatenate([one_hot_board, features], 0)
+
+    return features
+
+
+def featurize_v3(obs):
+    board = np.asarray(obs['board'], dtype=np.int)
+    one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
+    one_hot_board = np.delete(one_hot_board, 9, 0)
+
+    position = np.zeros(board.shape)
+    position[obs["position"]] = 1
+    teammate = board == obs["teammate"].value
+    teammate_alive = np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0)
+
+    alive_enemies = 0
+    enemies = np.zeros(board.shape)
+    for enemy in obs["enemies"]:
+        enemies[(board == enemy.value)] = 1
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+            alive_enemies += 1
+
+    enemies_alive = np.full(board.shape, fill_value=alive_enemies)
+
+    ammo = np.full(board.shape, fill_value=obs["ammo"])
+    blast_strength = np.full(board.shape, fill_value=obs["blast_strength"])
+    can_kick = np.full(board.shape, fill_value=1 if obs["can_kick"] else 0)
+
+    features = np.stack([obs["bomb_life"],
+                         obs["bomb_blast_strength"],
                          teammate_alive,
                          enemies_alive,
                          ammo, blast_strength, can_kick], 0)
