@@ -53,25 +53,6 @@ class ActorCriticModel(nn.Module, TorchModelV2):
 
         self._shared_layer_out = None
 
-        for p in self.modules():
-            if isinstance(p, nn.Conv2d):
-                nn.init.orthogonal_(p.weight, np.sqrt(2))
-                p.bias.data.zero_()
-
-            if isinstance(p, nn.Linear):
-                nn.init.orthogonal_(p.weight, np.sqrt(2))
-                p.bias.data.zero_()
-
-        for i in range(len(self.actor_layers)):
-            if type(self.actor_layers[i]) == nn.Linear:
-                nn.init.orthogonal_(self.actor_layers[i].weight, 0.01)
-                self.actor_layers[i].bias.data.zero_()
-
-        for i in range(len(self.critic_layers)):
-            if type(self.critic_layers[i]) == nn.Linear:
-                nn.init.orthogonal_(self.critic_layers[i].weight, 0.1)
-                self.critic_layers[i].bias.data.zero_()
-
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]
         self._shared_layer_out = self.shared_layers(x)
