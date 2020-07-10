@@ -2,10 +2,10 @@ import numpy as np
 
 
 class EloRatingSystem:
-    def __init__(self):
+    def __init__(self, k=16):
         self.population = 0
         self.rating = {}
-        self.k = 16
+        self.k = k
 
     def add_player(self, name, elo=1000):
         self.rating[name] = elo
@@ -19,7 +19,7 @@ class EloRatingSystem:
 
     def list_elo_rating(self):
         for i in self.rating:
-            print('Player: {} rating: {}'.format(i, self.rating[i]))
+            print('Player: {} - rating: {}'.format(i, self.rating[i]))
 
 
 if __name__ == '__main__':

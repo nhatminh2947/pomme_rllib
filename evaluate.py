@@ -6,27 +6,32 @@ from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
-from models.third_model import ActorCriticModel
+import utils
+from utils import policy_mapping
+from memory import Memory
+from models import one_vs_one_model
+from models import third_model, fourth_model, fifth_model
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
-from rllib_pomme_envs import v0
+from policies.simple_policy import SimplePolicy
+
+from rllib_pomme_envs import v0, v2
 from utils import featurize, featurize_for_rms
-from customize_rllib import policy_mapping
-from models import one_vs_one_model
+
 ray.init()
-env_id = "OneVsOne-v0"
+env_id = "PommeTeamCompetition-v0"
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(21, 8, 8))
-act_space = env.action_space
+obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
+act_space = spaces.Discrete(6)
 
 
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "1vs1",
+            "custom_model": "fifth_model",
             "custom_options": {
-                "in_channels": 21
+                "in_channels": utils.NUM_FEATURES
             },
             "no_final_linear": True,
         },
@@ -41,6 +46,7 @@ policies = {
 policies["opponent"] = gen_policy()
 policies["random"] = (RandomPolicy, obs_space, act_space, {})
 policies["static"] = (StaticPolicy, obs_space, act_space, {})
+policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
 env_config = {
     "env_id": env_id,
@@ -48,7 +54,8 @@ env_config = {
     "game_state_file": None
 }
 
-# ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
+ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
+ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
 
 ppo_agent = PPOTrainer(config={
@@ -61,28 +68,46 @@ ppo_agent = PPOTrainer(config={
     },
     "observation_filter": "MeanStdFilter",
     "use_pytorch": True
-}, env=v0.RllibPomme)
+}, env=v2.RllibPomme)
 
 # fdb733b6
-checkpoint = 970
-checkpoint_dir = "/home/lucius/ray_results/1vs1/PPO_PommeMultiAgent-1vs1_0_2020-07-07_02-20-56fsyhi9mq"
+checkpoint = 110
+checkpoint_dir = "/home/lucius/ray_results/team_radio_rms/PPO_PommeMultiAgent-v2_0_2020-07-07_14-37-02z24blgqw"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
-for agent_id in range(2):
+for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
-env = pommerman.make("OneVsOne-v0", agent_list=agent_list)
+env = pommerman.make(env_id, agent_list=agent_list)
 
-for i in range(100):
+memories = [
+    Memory(0),
+    Memory(1),
+    Memory(2),
+    Memory(2),
+]
+
+policy = ppo_agent.get_policy("policy_0")
+weights = policy.get_weights()
+for i in range(1):
     obs = env.reset()
+    for i, memory in enumerate(memories):
+        memory.init_memory(obs[i])
 
     done = False
     total_reward = 0
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[0] = ppo_agent.compute_action(observation=featurize_for_rms(obs[0]), policy_id="policy_0")
+
+        actions[0] = ppo_agent.compute_action(observation=featurize_for_rms(memories[0].obs), policy_id="policy_0")
+        actions[0] = int(actions[0])
+        actions[2] = ppo_agent.compute_action(observation=featurize_for_rms(memories[2].obs), policy_id="policy_0")
+        actions[2] = int(actions[2])
         obs, reward, done, info = env.step(actions)
+
+        memories[0].update_memory(obs[0])
+        memories[2].update_memory(obs[2])
         total_reward += reward[0]
         if done:
             print("info:", info)

@@ -6,21 +6,21 @@ from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
 import arguments
-from customize_rllib import PommeCallbacks
-from customize_rllib import policy_mapping
+import utils
 from helper import Helper
-from models import one_vs_one_model, one_vs_one_bn_model
-from models.third_model import ActorCriticModel
+from models import one_vs_one_model, third_model, fourth_model, fifth_model
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
+from policies.simple_policy import SimplePolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v1, v2, one_vs_one
-import utils
+from utils import PommeCallbacks, policy_mapping
+
 
 def initialize(params):
-    # env_id = "PommeTeamCompetition-v0"
+    env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeFFACompetitionFast-v0"
-    env_id = "OneVsOne-v0"
+    # env_id = "OneVsOne-v0"
     # env_id = "PommeRadioCompetition-v2"
 
     env_config = {
@@ -28,9 +28,10 @@ def initialize(params):
         "render": params["render"],
         "game_state_file": params["game_state_file"]
     }
-    ModelCatalog.register_custom_model("torch_conv_0", ActorCriticModel)
+    ModelCatalog.register_custom_model("third_model", third_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("1vs1_bn", one_vs_one_bn_model.ActorCriticModel)
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
@@ -45,7 +46,7 @@ def initialize(params):
     def gen_policy():
         config = {
             "model": {
-                "custom_model": "1vs1",
+                "custom_model": params["custom_model"],
                 "custom_options": {
                     "in_channels": utils.NUM_FEATURES
                 },
@@ -62,8 +63,9 @@ def initialize(params):
     policies["opponent"] = gen_policy()
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
+    policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
-    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies, params["env_v"])
+    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies)
     g_helper.set_agent_names.remote()
 
     print("Training policies:", policies.keys())
@@ -99,7 +101,7 @@ def training_team(params):
         queue_trials=params["queue_trials"],
         stop={
             # "training_iteration": params["training_iteration"],
-            "timesteps_total": 1000000000
+            "timesteps_total": params["timesteps_total"]
         },
         checkpoint_freq=params["checkpoint_freq"],
         checkpoint_at_end=True,
@@ -108,8 +110,7 @@ def training_team(params):
             "gamma": params["gamma"],
             "lr": params["lr"],
             "entropy_coeff": params["entropy_coeff"],
-            "kl_coeff": params["kl_coeff"],  # disable KL kl_coeff=0.0
-            # should use complete_episodes
+            "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
             "env": "PommeMultiAgent-{}".format(params["env_v"]),
@@ -131,13 +132,13 @@ def training_team(params):
             "multiagent": {
                 "policies": policies,
                 "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0"],
+                "policies_to_train": ["policy_0", "policy_1"],
             },
-            # must use MeanStdFilter
-            "observation_filter": "NoFilter",
+            "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
-            "log_level": "WARN",
+            "metrics_smoothing_episodes": 100,
+            "log_level": "ERROR",
             "use_pytorch": True
         }
     )
@@ -172,9 +173,9 @@ def validate(params):
             "multiagent": {
                 "policies": policies,
                 "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0"],
+                "policies_to_train": ["policy_0", "policy_1"],
             },
-            # "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
+            "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "log_level": "WARN",

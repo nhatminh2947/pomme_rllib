@@ -6,7 +6,7 @@ torch, nn = try_import_torch()
 
 
 class ActorCriticModel(nn.Module, TorchModelV2):
-    def __init__(self, obs_space, action_space, num_outputs, model_config, name, in_channels, feature_dim):
+    def __init__(self, obs_space, action_space, num_outputs, model_config, name, in_channels):
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs, model_config, name)
         nn.Module.__init__(self)
 
@@ -45,10 +45,14 @@ class ActorCriticModel(nn.Module, TorchModelV2):
         )
 
         self.actor_layers = nn.Sequential(
+            nn.Linear(128, 128),
+            nn.ReLU(),
             nn.Linear(128, action_space.n)
         )
 
         self.critic_layers = nn.Sequential(
+            nn.Linear(128, 128),
+            nn.ReLU(),
             nn.Linear(128, 1),
         )
 
@@ -61,17 +65,7 @@ class ActorCriticModel(nn.Module, TorchModelV2):
 
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]
-        if torch.sum(torch.isnan(x)):
-            print("There is NaN in x = \n{}".format(x))
-        if torch.sum(torch.isinf(x)):
-            print("There is Inf in x = \n{}".format(x))
-
         self._shared_layer_out = self.shared_layers(x)
-        if torch.sum(torch.isnan(self._shared_layer_out)):
-            print("There is NaN in self._shared_layer_out = \n{}".format(self._shared_layer_out))
-        if torch.sum(torch.isinf(self._shared_layer_out)):
-            print("There is Inf in self._shared_layer_out = \n{}".format(self._shared_layer_out))
-
         logits = self.actor_layers(self._shared_layer_out)
 
         return logits, state

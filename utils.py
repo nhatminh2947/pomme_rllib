@@ -1,28 +1,28 @@
+from typing import Dict
+
 import numpy as np
+import ray
 import torch
-from pommerman import constants
 from torch import nn
+from pommerman import constants
+from ray.rllib.agents.callbacks import DefaultCallbacks
+from ray.rllib.env import BaseEnv
+from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
+from ray.rllib.policy import Policy
 
-NUM_FEATURES = 20
+from metrics import Metrics
+
+# NUM_FEATURES = 20
+NUM_FEATURES = 21
+
+agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
+            "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
+            "nips19-inspir-ai.inspir"]
+agents_2 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.2", "navocado", "skynet955",
+            "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
+            "nips19-inspir-ai.inspir"]
 
 
-# Meaning of channels
-# 0 passage             fow
-# 1 Rigid               fow
-# 2 Wood                fow
-# 3 ExtraBomb           fow
-# 4 IncrRange           fow
-# 5 Kick                fow
-# 6 FlameLife           fow
-# 7 BombLife            fow
-# 8 BombBlastStrength   fow
-# 9 Fog
-# 10 Position
-# 11 Teammate
-# 12 Enemies
-# 13 Ammo
-# 14 BlastStrength
-# 15 CanKick
 def featurize(obs):
     board = obs['board']
     features = []
@@ -286,3 +286,79 @@ def featurize_v4(obs):
     features = np.concatenate([one_hot_board, features], 0)
 
     return features
+
+class PommeCallbacks(DefaultCallbacks):
+    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
+                       episode: MultiAgentEpisode, **kwargs):
+        winners = None
+
+        for k, v in episode.agent_rewards.items():
+            agent_name = k[0]
+            name = agent_name.split("_")
+            if name[0] == "opponent":
+                continue
+            # print(episode.last_info_for(agent_name))
+            info = episode.last_info_for(agent_name)
+
+            if "winners" in info:
+                winners = info["winners"]
+
+            agent_stat = info["metrics"]
+
+            for key in Metrics:
+                episode.custom_metrics["agent_{}/{}".format(agent_name, key.name)] = agent_stat[key.name]
+
+        if winners is None:
+            episode.custom_metrics["Tie"] = 1
+        elif winners == [0, 2]:
+            episode.custom_metrics["team_0_win"] = 1
+            episode.custom_metrics["team_1_win"] = 0
+        else:
+            episode.custom_metrics["team_0_win"] = 0
+            episode.custom_metrics["team_1_win"] = 1
+
+    def on_train_result(self, trainer, result: dict, **kwargs):
+        g_helper = ray.util.get_actor("g_helper")
+        g_helper.set_agent_names.remote()
+
+
+def limit_gamma_explore(config):
+    config["gamma"] = min(config["gamma"], 0.999)
+    return config
+
+
+def policy_mapping(agent_id):
+    # agent_id pattern training/opponent_policy-id_agent-num
+    # print("Calling to policy mapping {}".format(agent_id))
+    parts = agent_id.split("_")
+    team = int(parts[1])
+
+    if parts[0] == "training":
+        return "policy_{}".format(team)
+    return "static"
+
+
+def center(obs):
+    centered_obs = np.copy(obs)
+
+    centered_obs["board"] = np.ones((9, 9), dtype=np.float32)
+    centered_obs["bomb_blast_strength"] = np.ones((9, 9), dtype=np.float32)
+    centered_obs["bomb_life"] = np.ones((9, 9), dtype=np.float32)
+    centered_obs["bomb_moving_direction"] = np.ones((9, 9), dtype=np.float32)
+
+    x, y = obs["position"]
+    centered_obs['board'][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] = obs["board"][
+                                                                                        max(0, x - 4):min(11, x + 5),
+                                                                                        max(0, y - 4):min(11, y + 5)]
+
+    centered_obs["bomb_blast_strength"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
+        = obs["bomb_blast_strength"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+
+    centered_obs["bomb_life"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
+        = obs["bomb_life"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+
+    centered_obs["bomb_moving_direction"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
+        = obs["bomb_life"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+
+    return centered_obs
+

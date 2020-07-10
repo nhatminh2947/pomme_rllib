@@ -3,22 +3,17 @@ import argparse
 import logging
 
 from power_check.ranking_champions import ranking
+from utils import agents_1, agents_2
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--i", type=int, default=-1, help="first agent")
 parser.add_argument("--j", type=int, default=-1, help="second agent")
-parser.add_argument("--port", type=int, default=0, help="start port for agents")
 parser.add_argument("--first_half", type=int, default=50, help="number of first half matches to play")
 parser.add_argument("--second_half", type=int, default=50, help="number of second half matches to play")
 parser.add_argument("--log", action="store_true")
 parser.add_argument("--render", action="store_true")
 args = parser.parse_args()
 params = vars(args)
-
-agents_1 = ["hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955", "nips19-gorogm.gorogm",
-            "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics", "nips19-inspir-ai.inspir"]
-agents_2 = ["hakozakijunctions", "eisenach", "dypm.2", "navocado", "skynet955", "nips19-gorogm.gorogm",
-            "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics", "nips19-inspir-ai.inspir"]
 
 
 def main():
@@ -51,8 +46,8 @@ def main():
         logger.removeHandler(fh)
         logger.removeHandler(ch)
     else:
-        for i in [2]:
-            for j in [7, 8]:
+        for i in [0]:
+            for j in range(8, 10):
                 agent_names = [agents_1[i], agents_1[j], agents_2[i], agents_2[j]]
                 file_name = "power_check/logs/{}_vs_{}.txt".format(agents_1[i], agents_1[j])
 

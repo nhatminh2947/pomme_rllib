@@ -27,7 +27,10 @@ def ranking(port, agent_names, params):
         print("First half")
         agent_list = []
         for i in range(4):
-            agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + i))
+            if agent_names[i] == "cinjon-simpleagent":
+                agent_list.append(agents.SimpleAgent())
+            else:
+                agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + i))
         print("agent_list", agent_list)
         env = pommerman.make('PommeRadioCompetition-v2', agent_list)
 
@@ -60,7 +63,10 @@ def ranking(port, agent_names, params):
     logger.debug("a second half: {}".format(agent_names))
     agent_list = []
     for i in range(4):
-        agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + 4 + i))
+        if agent_names[i] == "cinjon-simpleagent":
+            agent_list.append(agents.SimpleAgent())
+        else:
+            agent_list.append(agents.DockerAgent("multiagentlearning/{}".format(agent_names[i]), port=port + 4 + i))
     print("agent_list", agent_list)
     logger.debug("second half: {}".format(agent_names))
     env = pommerman.make('PommeRadioCompetition-v2', agent_list)

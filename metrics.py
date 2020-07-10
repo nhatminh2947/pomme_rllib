@@ -10,3 +10,4 @@ class Metrics(Enum):
     ExtraBomb = 5
     Kick = 6
     ExplodeWood = 7
+
