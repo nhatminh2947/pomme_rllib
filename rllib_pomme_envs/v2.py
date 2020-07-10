@@ -1,10 +1,11 @@
+import numpy as np
 import ray
 from pommerman import constants
 
 from memory import Memory
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize, featurize_for_rms
+from utils import featurize_v4
 
 
 # Note: change team for training agents
@@ -50,7 +51,7 @@ class RllibPomme(v0.RllibPomme):
         for id in range(self.num_agents):
             if self.is_agent_alive(id, self.prev_obs[id]['alive']):
                 self.memory[id].update_memory(_obs[id])
-                obs[self.agent_names[id]] = featurize_for_rms(self.memory[id].obs)
+                obs[self.agent_names[id]] = featurize_v4(self.memory[id].obs)
                 rewards[self.agent_names[id]] = self.reward(id, actions[id], self.prev_obs[id],
                                                             _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]].update(_info)
@@ -66,10 +67,14 @@ class RllibPomme(v0.RllibPomme):
         g_helper = ray.util.get_actor("g_helper")
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
 
+        if np.random.random() > 0.5:
+            self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+            self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
+
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                obs[self.agent_names[i]] = featurize_for_rms(self.memory[i].obs)
+                obs[self.agent_names[i]] = featurize_v4(self.memory[i].obs)
 
         return obs
 

@@ -65,7 +65,7 @@ def initialize(params):
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
-    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies)
+    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies, params["env"])
     g_helper.set_agent_names.remote()
 
     print("Training policies:", policies.keys())
@@ -113,7 +113,7 @@ def training_team(params):
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
             "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": "PommeMultiAgent-{}".format(params["env_v"]),
+            "env": "PommeMultiAgent-{}".format(params["env"]),
             "env_config": env_config,
             "num_workers": params["num_workers"],
             "num_cpus_per_worker": params["num_cpus_per_worker"],

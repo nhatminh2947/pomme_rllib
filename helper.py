@@ -23,10 +23,6 @@ class Helper:
                 else:
                     self.agent_names.append("training_{}_{}".format(k % 2, k))
 
-            if np.random.random() > 0.5:
-                self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
-                self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
-
         print("called set_agent_names")
         print(self.agent_names)
 
