@@ -12,8 +12,8 @@ from ray.rllib.policy import Policy
 
 from metrics import Metrics
 
-# NUM_FEATURES = 20
-NUM_FEATURES = 21
+NUM_FEATURES = 20
+# NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
             "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",

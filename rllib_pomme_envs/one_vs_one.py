@@ -33,16 +33,17 @@ class RllibPomme(v0.RllibPomme):
         _obs, _reward, _done, _info = self.env.step(actions)
 
         for id in self.prev_obs[0]['alive']:
-            if _done or self.is_done(id - 10, _obs[0]['alive']):
+            if _done or self.is_done(id - 10, self.prev_obs[0]["alive"], _obs[0]['alive']):
                 dones[self.agent_names[id - 10]] = True
                 infos[self.agent_names[id - 10]]["metrics"] = self.stat[id - 10]
 
         dones["__all__"] = _done
 
         for id in range(self.num_agents):
-            if self.is_agent_alive(id):
+            if self.is_agent_alive(id, self.prev_obs[id]["alive"]):
                 obs[self.agent_names[id]] = featurize_v4(_obs[id])
-                rewards[self.agent_names[id]] = self.reward(id, _obs, _info)
+                rewards[self.agent_names[id]] = self.reward(id, actions[id], self.prev_obs[id],
+                                                            _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]].update(_info)
 
         self.prev_obs = _obs
@@ -62,42 +63,7 @@ class RllibPomme(v0.RllibPomme):
             self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
 
         for i in range(self.num_agents):
-            if self.is_agent_alive(i):
+            if self.is_agent_alive(i, self.prev_obs[i]["alive"]):
                 obs[self.agent_names[i]] = featurize_v4(self.prev_obs[i])
 
         return obs
-
-    def reward(self, id, current_obs, info):
-        reward = 0
-
-        if utility._position_is_item(self.prev_obs[id]['board'],
-                                     current_obs[id]['position'],
-                                     constants.Item.IncrRange):
-            reward += 0.01
-            self.stat[id][Metrics.IncrRange.name] += 1
-
-        if utility._position_is_item(self.prev_obs[id]['board'],
-                                     current_obs[id]['position'],
-                                     constants.Item.ExtraBomb):
-            reward += 0.01
-            self.stat[id][Metrics.ExtraBomb.name] += 1
-
-        if utility._position_is_item(self.prev_obs[id]['board'],
-                                     current_obs[id]['position'],
-                                     constants.Item.Kick) and not self.prev_obs[id]['can_kick']:
-            reward += 0.02
-            self.stat[id][Metrics.Kick.name] = True
-
-        for i in range(10, 12):
-            if i in self.alive_agents and i not in current_obs[id]['alive']:
-                if constants.Item(value=i) in current_obs[id]['enemies']:
-                    reward += 1
-                    self.stat[id][Metrics.EnemyDeath.name] += 1
-                elif i - 10 == id:
-                    reward += -1
-                    self.stat[id][Metrics.DeadOrSuicide.name] += 1
-
-        if info['result'] == constants.Result.Tie:
-            reward += -1
-
-        return reward
