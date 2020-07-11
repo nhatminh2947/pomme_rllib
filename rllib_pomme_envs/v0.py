@@ -106,7 +106,7 @@ class RllibPomme(MultiAgentEnv):
         for i in range(10, 10 + self.num_agents):
             if i in prev_obs['alive'] and i not in current_obs['alive']:
                 if constants.Item(value=i) in current_obs['enemies']:
-                    reward += 0.75
+                    reward += 1
                     stat[Metrics.EnemyDeath.name] += 1
                 elif i - 10 == id:
                     reward += -1

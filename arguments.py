@@ -44,5 +44,6 @@ def get_parser():
     parser.add_argument("--timesteps_total", type=int, default=1000000000)
     parser.add_argument("--filter", type=str, default="MeanStdFilter")
     parser.add_argument("--custom_model", type=str)
+    parser.add_argument("--env_id", type=str)
 
     return parser

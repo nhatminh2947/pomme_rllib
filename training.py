@@ -18,13 +18,14 @@ from utils import PommeCallbacks, policy_mapping
 
 
 def initialize(params):
-    env_id = "PommeTeamCompetition-v0"
+    # env_id = "PommeTeamCompetition-v0"
+    # env_id = "PommeTeam-v0"
     # env_id = "PommeFFACompetitionFast-v0"
     # env_id = "OneVsOne-v0"
     # env_id = "PommeRadioCompetition-v2"
 
     env_config = {
-        "env_id": env_id,
+        "env_id": params["env_id"],
         "render": params["render"],
         "game_state_file": params["game_state_file"]
     }
@@ -36,7 +37,7 @@ def initialize(params):
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-1vs1", lambda x: one_vs_one.RllibPomme(env_config))
-    if env_id == "OneVsOne-v0":
+    if params["env_id"] == "OneVsOne-v0":
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
     else:
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))

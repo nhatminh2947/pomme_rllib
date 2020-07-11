@@ -3,12 +3,12 @@ from typing import Dict
 import numpy as np
 import ray
 import torch
-from torch import nn
 from pommerman import constants
 from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.env import BaseEnv
 from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.policy import Policy
+from torch import nn
 
 from metrics import Metrics
 
@@ -287,6 +287,7 @@ def featurize_v4(obs):
 
     return features
 
+
 class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
@@ -361,4 +362,3 @@ def center(obs):
         = obs["bomb_life"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
 
     return centered_obs
-
