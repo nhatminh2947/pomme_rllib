@@ -259,7 +259,7 @@ def featurize_v4(obs):
         one_hot_board[[10, 11]] = one_hot_board[[11, 10]]
         one_hot_board[[12, 13]] = one_hot_board[[13, 12]]
 
-    if agent_id - 10 == 2:
+    if agent_id == 12 or agent_id == 13:
         one_hot_board[[10, 12]] = one_hot_board[[12, 10]]
 
     one_hot_board = np.delete(one_hot_board, 9, 0)
