@@ -147,7 +147,7 @@ class RllibPomme(MultiAgentEnv):
                     if 0 <= row < current_obs['board'].shape[0] and 0 <= col < current_obs['board'].shape[0]:
                         if current_obs['board'][row, col] != constants.Item.Passage.value:
                             if current_obs['board'][row, col] == constants.Item.Wood.value:
-                                # reward += 0.01
+                                reward += 0.01
                                 stat[Metrics.ExplodeWood.name] += 1
                             break
 
