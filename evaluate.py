@@ -10,7 +10,7 @@ import utils
 from utils import policy_mapping
 from memory import Memory
 from models import one_vs_one_model
-from models import third_model, fourth_model, fifth_model
+from models import third_model, fourth_model, fifth_model, eighth_model
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from policies.simple_policy import SimplePolicy
@@ -28,14 +28,14 @@ env_id = "PommeTeam-v0"
 
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
+obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 9, 9))
 act_space = spaces.Discrete(6)
 
 
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "fifth_model",
+            "custom_model": "eighth_model",
             "custom_options": {
                 "in_channels": utils.NUM_FEATURES
             },
@@ -52,14 +52,14 @@ policies = {
 policies["opponent"] = gen_policy()
 policies["random"] = (RandomPolicy, obs_space, act_space, {})
 policies["static"] = (StaticPolicy, obs_space, act_space, {})
-# policies["simple"] = (SimplePolicy, obs_space, act_space, {})
+policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
 env_config = {
     "env_id": env_id,
     "render": False,
     "game_state_file": None
 }
-
+ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
@@ -78,8 +78,8 @@ ppo_agent = PPOTrainer(config={
 }, env=v2.RllibPomme)
 
 # fdb733b6
-checkpoint = 110
-checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-07-12_15-18-06x3uasuq2"
+checkpoint = 150
+checkpoint_dir = "/home/lucius/ray_results/team_radio_lucius/PPO_PommeMultiAgent-v2_0_2020-07-13_20-23-09bym_nv6x"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -108,11 +108,12 @@ for i in range(100):
     done = False
     total_reward = 0
     while not done:
-        # env.render()
+        env.render()
         actions = env.act(obs)
-
-        actions[id] = ppo_agent.compute_action(observation=featurize_v4(obs[id]), policy_id="policy_0", explore=False)
-        actions[id] = int(actions[id])
+        actions[0] = ppo_agent.compute_action(observation=featurize_v4(utils.center(obs[0])), policy_id="policy_0", explore=False)
+        # actions[id] = int(actions[0])
+        actions[2] = ppo_agent.compute_action(observation=featurize_v4(utils.center(obs[2])), policy_id="policy_0", explore=False)
+        # actions[id] = int(actions[2])
 
         obs, reward, done, info = env.step(actions)
 

@@ -14,22 +14,22 @@ class ActorCriticModel(nn.Module, TorchModelV2):
             nn.Conv2d(
                 in_channels=in_channels,
                 out_channels=32,
-                kernel_size=3,
-                padding=1,
+                kernel_size=5,
+                padding=2,
                 stride=1),
             nn.ReLU(),
             nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
-                kernel_size=3,
-                padding=1,
+                kernel_size=5,
+                padding=2,
                 stride=1),
             nn.ReLU(),
             nn.Conv2d(
                 in_channels=64,
                 out_channels=128,
-                kernel_size=3,
-                padding=1,
+                kernel_size=5,
+                padding=2,
                 stride=1),
             nn.ReLU(),
             nn.Flatten(),
@@ -52,11 +52,6 @@ class ActorCriticModel(nn.Module, TorchModelV2):
         )
 
         self._shared_layer_out = None
-
-        for p in self.modules():
-            if isinstance(p, nn.Conv2d) or isinstance(p, nn.Linear):
-                nn.init.orthogonal_(p.weight, np.sqrt(2))
-                p.bias.data.zero_()
 
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]
