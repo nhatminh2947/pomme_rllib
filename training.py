@@ -29,10 +29,13 @@ def initialize(params):
         "render": params["render"],
         "game_state_file": params["game_state_file"]
     }
+
+    ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
     ModelCatalog.register_custom_model("third_model", third_model.ActorCriticModel)
     ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("sixth_model", fifth_model.ActorCriticModel)
+
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
