@@ -8,7 +8,7 @@ from ray.rllib.models import ModelCatalog
 import arguments
 import utils
 from helper import Helper
-from models import one_vs_one_model, third_model, fourth_model, fifth_model
+from models import one_vs_one_model, third_model, fourth_model, fifth_model, sixth_model, eighth_model
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.simple_policy import SimplePolicy
@@ -34,7 +34,8 @@ def initialize(params):
     ModelCatalog.register_custom_model("third_model", third_model.ActorCriticModel)
     ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("sixth_model", fifth_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("sixth_model", sixth_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
 
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
@@ -43,7 +44,7 @@ def initialize(params):
     if params["env_id"] == "OneVsOne-v0":
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
     else:
-        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
+        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 9, 9))
     act_space = spaces.Discrete(6)
 
     # Policy setting

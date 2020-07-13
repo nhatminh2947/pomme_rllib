@@ -251,7 +251,7 @@ def featurize_v3(obs):
 
 def featurize_v4(obs):
     board = np.asarray(obs['board'], dtype=np.int)
-    agent_id = board[obs["position"]]
+    # agent_id = board[obs["position"]]
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
@@ -340,7 +340,7 @@ def policy_mapping(agent_id):
 
 
 def center(obs):
-    centered_obs = np.copy(obs)
+    centered_obs = obs.copy()
 
     centered_obs["board"] = np.ones((9, 9), dtype=np.float32)
     centered_obs["bomb_blast_strength"] = np.ones((9, 9), dtype=np.float32)
