@@ -13,6 +13,13 @@ class ActorCriticModel(nn.Module, TorchModelV2):
         self.shared_layers = nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
+                out_channels=32,
+                kernel_size=3,
+                padding=1,
+                stride=1),
+            nn.ReLU(),
+            nn.Conv2d(
+                in_channels=32,
                 out_channels=64,
                 kernel_size=3,
                 padding=1,
@@ -32,28 +39,21 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 padding=1,
                 stride=1),
             nn.ReLU(),
-            nn.Conv2d(
-                in_channels=256,
-                out_channels=512,
-                kernel_size=3,
-                padding=1,
-                stride=1),
-            nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(11 * 11 * 512, 1024),
+            nn.Linear(11 * 11 * 256, 512),
             nn.ReLU(),
-            nn.Linear(1024, 1024),
+            nn.Linear(512, 512),
             nn.ReLU()
         )
 
         self.actor_layers = nn.Sequential(
-            nn.Linear(1024, 512),
+            nn.Linear(512, 256),
             nn.ReLU(),
             nn.Linear(256, action_space.n)
         )
 
         self.critic_layers = nn.Sequential(
-            nn.Linear(1024, 512),
+            nn.Linear(512, 512),
             nn.ReLU(),
             nn.Linear(512, 1)
         )

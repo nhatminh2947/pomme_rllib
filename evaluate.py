@@ -20,7 +20,12 @@ from utils import featurize, featurize_for_rms, featurize_v4
 from pommerman import constants
 
 ray.init()
-env_id = "OneVsOne-v0"
+# env_id = "PommeTeamCompetition-v0"
+env_id = "PommeTeam-v0"
+# env_id = "PommeFFACompetitionFast-v0"
+# env_id = "OneVsOne-v0"
+# env_id = "PommeRadioCompetition-v2"
+
 env = pommerman.make(env_id, [])
 
 obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
@@ -30,7 +35,7 @@ act_space = spaces.Discrete(6)
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "1vs1",
+            "custom_model": "fifth_model",
             "custom_options": {
                 "in_channels": utils.NUM_FEATURES
             },
@@ -55,6 +60,7 @@ env_config = {
     "game_state_file": None
 }
 
+ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
@@ -72,12 +78,12 @@ ppo_agent = PPOTrainer(config={
 }, env=v2.RllibPomme)
 
 # fdb733b6
-checkpoint = 4720
-checkpoint_dir = "/home/lucius/ray_results/1vs1/PPO_PommeMultiAgent-1vs1_0_2020-07-10_01-25-02aopw99ck"
+checkpoint = 110
+checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v2_0_2020-07-12_15-18-06x3uasuq2"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
-for agent_id in range(2):
+for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
 env = pommerman.make(env_id, agent_list=agent_list)
 
