@@ -44,7 +44,7 @@ def initialize(params):
     if params["env_id"] == "OneVsOne-v0":
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
     else:
-        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 9, 9))
+        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
     act_space = spaces.Discrete(6)
 
     # Policy setting
