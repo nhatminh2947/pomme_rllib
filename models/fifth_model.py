@@ -32,17 +32,11 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 padding=1,
                 stride=1),
             nn.ReLU(),
-            nn.Conv2d(
-                in_channels=128,
-                out_channels=256,
-                kernel_size=3,
-                padding=1,
-                stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(11 * 11 * 256, 512),
+            nn.Linear(11 * 11 * 128, 256),
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.Linear(256, 512),
             nn.ReLU()
         )
 
