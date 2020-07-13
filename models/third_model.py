@@ -54,11 +54,6 @@ class ActorCriticModel(nn.Module, TorchModelV2):
 
         self._shared_layer_out = None
 
-        for p in self.modules():
-            if isinstance(p, nn.Conv2d) or isinstance(p, nn.Linear):
-                nn.init.orthogonal_(p.weight, np.sqrt(2))
-                p.bias.data.zero_()
-
     def forward(self, input_dict, state, seq_lens):
         x = input_dict["obs"]
         if torch.sum(torch.isnan(x)):
