@@ -43,6 +43,8 @@ def initialize(params):
     tune.register_env("PommeMultiAgent-1vs1", lambda x: one_vs_one.RllibPomme(env_config))
     if params["env_id"] == "OneVsOne-v0":
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
+    elif params["custom_model"] == "eighth_model":
+        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 9, 9))
     else:
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
     act_space = spaces.Discrete(6)

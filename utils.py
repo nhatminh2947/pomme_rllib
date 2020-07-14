@@ -249,9 +249,14 @@ def featurize_v3(obs):
     return features
 
 
-def featurize_v4(obs):
-    board = np.asarray(obs['board'], dtype=np.int)
-    agent_id = board[obs["position"]]
+def featurize_v4(obs, centering=False):
+    agent_id = obs['board'][obs["position"]]
+
+    preprocessed_obs = obs.copy()
+    if centering:
+        preprocessed_obs = center(obs)
+
+    board = np.asarray(preprocessed_obs['board'], dtype=np.int)
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
@@ -264,21 +269,22 @@ def featurize_v4(obs):
 
     one_hot_board = np.delete(one_hot_board, 9, 0)
 
-    teammate_alive = np.full(board.shape, fill_value=1 if obs["teammate"].value in obs["alive"] else 0)
+    teammate_alive = np.full(board.shape,
+                             fill_value=1 if preprocessed_obs["teammate"].value in preprocessed_obs["alive"] else 0)
 
     alive_enemies = 0
-    for enemy in obs["enemies"]:
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+    for enemy in preprocessed_obs["enemies"]:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs['alive']:
             alive_enemies += 1
 
     enemies_alive = np.full(board.shape, fill_value=alive_enemies)
 
-    ammo = np.full(board.shape, fill_value=obs["ammo"])
-    blast_strength = np.full(board.shape, fill_value=obs["blast_strength"])
-    can_kick = np.full(board.shape, fill_value=1 if obs["can_kick"] else 0)
+    ammo = np.full(board.shape, fill_value=preprocessed_obs["ammo"])
+    blast_strength = np.full(board.shape, fill_value=preprocessed_obs["blast_strength"])
+    can_kick = np.full(board.shape, fill_value=1 if preprocessed_obs["can_kick"] else 0)
 
-    features = np.stack([obs["bomb_life"],
-                         obs["bomb_blast_strength"],
+    features = np.stack([preprocessed_obs["bomb_life"],
+                         preprocessed_obs["bomb_blast_strength"],
                          teammate_alive,
                          enemies_alive,
                          ammo, blast_strength, can_kick], 0)
