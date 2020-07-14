@@ -349,9 +349,9 @@ def center(obs):
     centered_obs = obs.copy()
 
     centered_obs["board"] = np.ones((9, 9), dtype=np.float32)
-    centered_obs["bomb_blast_strength"] = np.ones((9, 9), dtype=np.float32)
-    centered_obs["bomb_life"] = np.ones((9, 9), dtype=np.float32)
-    centered_obs["bomb_moving_direction"] = np.ones((9, 9), dtype=np.float32)
+    centered_obs["bomb_blast_strength"] = np.zeros((9, 9), dtype=np.float32)
+    centered_obs["bomb_life"] = np.zeros((9, 9), dtype=np.float32)
+    centered_obs["bomb_moving_direction"] = np.zeros((9, 9), dtype=np.float32)
 
     x, y = obs["position"]
     centered_obs['board'][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] = obs["board"][
