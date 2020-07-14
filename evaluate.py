@@ -1,27 +1,27 @@
+import numpy as np
 import pommerman
 import ray
+from ray import tune
 from gym import spaces
 from pommerman import agents
+from pommerman import constants
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
-import numpy as np
-import utils
-from utils import policy_mapping
-from memory import Memory
-from models import one_vs_one_model
-from models import third_model, fourth_model, fifth_model, eighth_model
-from policies.random_policy import RandomPolicy
-from policies.static_policy import StaticPolicy
-from policies.simple_policy import SimplePolicy
 
-from rllib_pomme_envs import v0, v2
-from utils import featurize, featurize_for_rms, featurize_v4
-from pommerman import constants
+import utils
+from models import fourth_model, fifth_model, eighth_model
+from models import one_vs_one_model
+from policies.random_policy import RandomPolicy
+from policies.simple_policy import SimplePolicy
+from policies.static_policy import StaticPolicy
+from rllib_pomme_envs import v2
+from utils import featurize_v4
+from utils import policy_mapping
 
 ray.init()
-# env_id = "PommeTeamCompetition-v0"
-env_id = "PommeTeam-v0"
+env_id = "PommeTeamCompetition-v0"
+# env_id = "PommeTeam-v0"
 # env_id = "PommeFFACompetitionFast-v0"
 # env_id = "OneVsOne-v0"
 # env_id = "PommeRadioCompetition-v2"
@@ -64,6 +64,7 @@ ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
+tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 
 ppo_agent = PPOTrainer(config={
     "env_config": env_config,
@@ -73,13 +74,13 @@ ppo_agent = PPOTrainer(config={
         "policy_mapping_fn": policy_mapping,
         "policies_to_train": ["policy_0"],
     },
-    "observation_filter": "NoFilter",
+    "observation_filter": "MeanStdFilter",
     "use_pytorch": True
-}, env=v2.RllibPomme)
+}, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 150
-checkpoint_dir = "/home/lucius/ray_results/team_radio_lucius/PPO_PommeMultiAgent-v2_0_2020-07-13_20-23-09bym_nv6x"
+checkpoint = 180
+checkpoint_dir = "/home/lucius/ray_results/2vs2_center_obs/PPO_PommeMultiAgent-v2_0_2020-07-14_20-37-52uc9tjyot"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -110,9 +111,11 @@ for i in range(100):
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[0] = ppo_agent.compute_action(observation=featurize_v4(utils.center(obs[0])), policy_id="policy_0", explore=False)
+        actions[0] = ppo_agent.compute_action(observation=featurize_v4(obs[0], True), policy_id="policy_0",
+                                              explore=True)
         # actions[id] = int(actions[0])
-        actions[2] = ppo_agent.compute_action(observation=featurize_v4(utils.center(obs[2])), policy_id="policy_0", explore=False)
+        actions[2] = ppo_agent.compute_action(observation=featurize_v4(obs[2], True), policy_id="policy_0",
+                                              explore=True)
         # actions[id] = int(actions[2])
 
         obs, reward, done, info = env.step(actions)
