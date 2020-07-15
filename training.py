@@ -27,7 +27,8 @@ def initialize(params):
     env_config = {
         "env_id": params["env_id"],
         "render": params["render"],
-        "game_state_file": params["game_state_file"]
+        "game_state_file": params["game_state_file"],
+        "center": params["center"]
     }
 
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)

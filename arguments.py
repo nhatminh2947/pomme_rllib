@@ -45,5 +45,6 @@ def get_parser():
     parser.add_argument("--filter", type=str, default="MeanStdFilter")
     parser.add_argument("--custom_model", type=str)
     parser.add_argument("--env_id", type=str)
+    parser.add_argument("--center", action="store_true")
 
     return parser
