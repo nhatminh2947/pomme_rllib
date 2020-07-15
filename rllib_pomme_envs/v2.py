@@ -5,7 +5,7 @@ from pommerman import constants
 from memory import Memory
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize_v4, featurize_v5
+from utils import featurize_v5
 
 
 # Note: change team for training agents
@@ -84,21 +84,29 @@ class RllibPomme(v0.RllibPomme):
 
         reward += self.immediate_reward(action, prev_obs, current_obs, stat)
 
-        if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:
+        if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
             reward += -1
             stat[Metrics.DeadOrSuicide.name] += 1
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     reward += 0.5
                     stat[Metrics.EnemyDeath.name] += 1
-        elif info['result'] == constants.Result.Win or info['result'] == constants.Result.Tie:
+        elif info['result'] == constants.Result.Win:
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     reward += 0.5
                     stat[Metrics.EnemyDeath.name] += 1
+        elif info['result'] == constants.Result.Tie:
+            temp_reward = 0
+            for i in range(10, 14):
+                if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
+                    temp_reward += 0.5
+                    stat[Metrics.EnemyDeath.name] += 1
 
-            if info['result'] == constants.Result.Tie:
-                reward += -1
+            if temp_reward == 0:
+                reward = -1
+            else:
+                reward += temp_reward
 
         if action == constants.Action.Bomb.value:
             stat[Metrics.ActionBombs.name] += 1
