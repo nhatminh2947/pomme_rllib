@@ -104,7 +104,7 @@ class RllibPomme(v0.RllibPomme):
                     stat[Metrics.EnemyDeath.name] += 1
 
             if temp_reward == 0:
-                reward = -1
+                reward += -1
             else:
                 reward += temp_reward
 
