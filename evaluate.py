@@ -57,7 +57,8 @@ policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 env_config = {
     "env_id": env_id,
     "render": False,
-    "game_state_file": None
+    "game_state_file": None,
+    "center": True
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)

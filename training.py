@@ -8,7 +8,8 @@ from ray.rllib.models import ModelCatalog
 import arguments
 import utils
 from helper import Helper
-from models import one_vs_one_model, third_model, fourth_model, fifth_model, sixth_model, eighth_model
+from models import one_vs_one_model, third_model, fourth_model, fifth_model, sixth_model, seventh_model, eighth_model, \
+    nineth_model
 from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.simple_policy import SimplePolicy
@@ -36,7 +37,9 @@ def initialize(params):
     ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("sixth_model", sixth_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("seventh_model", seventh_model.ActorCriticModel)
     ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
+    ModelCatalog.register_custom_model("nineth_model", nineth_model.ActorCriticModel)
 
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
