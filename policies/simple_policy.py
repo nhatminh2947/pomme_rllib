@@ -22,7 +22,7 @@ class SimplePolicy(Policy):
         obs_dict = {}
 
         id = 0
-        board_size = self.config["board_size"]
+        board_size = 11
 
         obs_dict["board"] = obs[:board_size ** 2].reshape((board_size, board_size))
 

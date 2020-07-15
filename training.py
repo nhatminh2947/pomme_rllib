@@ -67,10 +67,22 @@ def initialize(params):
         "policy_{}".format(i): gen_policy() for i in range(params["populations"])
     }
 
+    simple_space = spaces.Dict({
+        "board": spaces.Box(low=0, high=14, shape=(11, 11)),
+        "bomb_blast_strength": spaces.Box(low=0, high=10, shape=(11, 11)),
+        "bomb_life": spaces.Box(low=0, high=10, shape=(11, 11)),
+        "position": spaces.Tuple((spaces.Discrete(11), spaces.Discrete(11))),
+        "ammo": spaces.Discrete(10),
+        "blast_strength": spaces.Discrete(10),
+        "can_kick": spaces.Discrete(2),
+        "teammate": spaces.Discrete(14),
+        "enemies": spaces.Tuple((spaces.Discrete(14), spaces.Discrete(14), spaces.Discrete(14))),
+    })
+
     policies["opponent"] = gen_policy()
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
-    policies["simple"] = (SimplePolicy, obs_space, act_space, {})
+    policies["simple"] = (SimplePolicy, simple_space, act_space, {})
 
     g_helper = Helper.options(name="g_helper").remote(params["populations"], policies, params["env"])
     g_helper.set_agent_names.remote()

@@ -17,7 +17,7 @@ class Helper:
             self.agent_names = []
             for k in range(4):
                 if k % 2 == 1:
-                    self.agent_names.append("static_{}_{}".format(k % 2, k))
+                    self.agent_names.append("simple_{}_{}".format(k % 2, k))
                 else:
                     self.agent_names.append("training_{}_{}".format(k % 2, k))
 

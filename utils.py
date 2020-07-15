@@ -249,7 +249,7 @@ def featurize_v3(obs):
     return features
 
 
-def featurize_v4(obs, centering=False):
+def training_featurize(obs, centering=False):
     agent_id = obs['board'][obs["position"]]
 
     preprocessed_obs = obs.copy()
@@ -292,6 +292,29 @@ def featurize_v4(obs, centering=False):
     features = np.concatenate([one_hot_board, features], 0)
 
     return features
+
+
+def simple_featurize(obs):
+    featurized_obs = {}
+
+    featurized_obs["board"] = obs["board"]
+    featurized_obs["bomb_blast_strength"] = obs["bomb_blast_strength"]
+    featurized_obs["bomb_life"] = obs["bomb_life"]
+    featurized_obs["ammo"] = obs["ammo"]
+    featurized_obs["position"] = obs["position"]
+    featurized_obs["blast_strength"] = obs["blast_strength"]
+    featurized_obs["can_kick"] = 1 if obs["can_kick"] else 0
+    featurized_obs["teammate"] = obs["teammate"].value
+    featurized_obs["enemies"] = [agent.value for agent in obs["enemies"]]
+
+    return featurized_obs
+
+
+def featurize_v4(agent_name, obs, centering=False):
+    if "training" in agent_name:
+        return training_featurize(obs, centering)
+    elif "simple" in agent_name:
+        return simple_featurize(obs)
 
 
 class PommeCallbacks(DefaultCallbacks):
@@ -342,6 +365,10 @@ def policy_mapping(agent_id):
 
     if parts[0] == "training":
         return "policy_{}".format(team)
+    if parts[0] == "static":
+        return "static"
+    if parts[0] == "simple":
+        return "simple"
     return "static"
 
 
