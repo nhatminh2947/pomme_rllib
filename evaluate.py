@@ -1,10 +1,12 @@
+import time
+
 import numpy as np
 import pommerman
 import ray
-from ray import tune
 from gym import spaces
 from pommerman import agents
 from pommerman import constants
+from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
@@ -80,8 +82,8 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 180
-checkpoint_dir = "/home/lucius/ray_results/2vs2_center_obs/PPO_PommeMultiAgent-v2_0_2020-07-14_20-37-52uc9tjyot"
+checkpoint = 744
+checkpoint_dir = "/home/lucius/ray_results/2vs2_center_obs/PPO_PommeMultiAgent-v2_0_2020-07-15_02-49-18fvueztxx"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -105,18 +107,18 @@ tie = 0
 
 for i in range(100):
     obs = env.reset()
-    id = np.random.randint(2)
+    id = i % 2
 
     done = False
     total_reward = 0
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[0] = ppo_agent.compute_action(observation=featurize_v4(obs[0], True), policy_id="policy_0",
-                                              explore=True)
+        actions[id] = ppo_agent.compute_action(observation=featurize_v4(obs[id], True), policy_id="policy_0",
+                                               explore=False)
         # actions[id] = int(actions[0])
-        actions[2] = ppo_agent.compute_action(observation=featurize_v4(obs[2], True), policy_id="policy_0",
-                                              explore=True)
+        actions[id + 2] = ppo_agent.compute_action(observation=featurize_v4(obs[id + 2], True), policy_id="policy_0",
+                                                   explore=False)
         # actions[id] = int(actions[2])
 
         obs, reward, done, info = env.step(actions)
@@ -135,6 +137,7 @@ for i in range(100):
             print("info:", info)
             print("reward:", total_reward)
             print("=========")
+            time.sleep(5)
     env.render(close=True)
     # env.close()
 

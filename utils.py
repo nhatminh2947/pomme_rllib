@@ -12,7 +12,7 @@ from torch import nn
 
 from metrics import Metrics
 
-NUM_FEATURES = 19
+NUM_FEATURES = 20
 # NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
