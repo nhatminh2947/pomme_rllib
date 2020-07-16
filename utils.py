@@ -12,7 +12,7 @@ from torch import nn
 
 from metrics import Metrics
 
-NUM_FEATURES = 20
+NUM_FEATURES = 19
 # NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
@@ -254,7 +254,7 @@ def featurize_v4(obs, centering=False):
 
     preprocessed_obs = obs.copy()
     if centering:
-        preprocessed_obs = center(obs)
+        preprocessed_obs = center(obs, size=11)
 
     board = np.asarray(preprocessed_obs['board'], dtype=np.int)
 
@@ -294,12 +294,12 @@ def featurize_v4(obs, centering=False):
     return features
 
 
-def featurize_v5(obs, centering=False):
+def featurize_v5(obs, centering=False, view_range=9):
     agent_id = obs['board'][obs["position"]]
 
     preprocessed_obs = obs.copy()
     if centering:
-        preprocessed_obs = center(obs)
+        preprocessed_obs = center(obs, view_range)
 
     board = np.asarray(preprocessed_obs['board'], dtype=np.int)
 
@@ -392,26 +392,29 @@ def policy_mapping(agent_id):
     return "static"
 
 
-def center(obs):
+def center(obs, size=9):
     centered_obs = obs.copy()
 
-    centered_obs["board"] = np.ones((9, 9), dtype=np.float32)
-    centered_obs["bomb_blast_strength"] = np.zeros((9, 9), dtype=np.float32)
-    centered_obs["bomb_life"] = np.zeros((9, 9), dtype=np.float32)
-    centered_obs["bomb_moving_direction"] = np.zeros((9, 9), dtype=np.float32)
+    centered_obs["board"] = np.ones((size, size), dtype=np.float32)
+    centered_obs["bomb_blast_strength"] = np.zeros((size, size), dtype=np.float32)
+    centered_obs["bomb_life"] = np.zeros((size, size), dtype=np.float32)
+    centered_obs["bomb_moving_direction"] = np.zeros((size, size), dtype=np.float32)
 
     x, y = obs["position"]
-    centered_obs['board'][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] = obs["board"][
-                                                                                        max(0, x - 4):min(11, x + 5),
-                                                                                        max(0, y - 4):min(11, y + 5)]
 
-    centered_obs["bomb_blast_strength"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
-        = obs["bomb_blast_strength"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+    u = size // 2
+    v = 11 + u
 
-    centered_obs["bomb_life"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
-        = obs["bomb_life"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+    centered_obs['board'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+        = obs["board"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
 
-    centered_obs["bomb_moving_direction"][max(0, 4 - x):min(9, 15 - x), max(0, 4 - y):min(9, 15 - y)] \
-        = obs["bomb_life"].astype(np.float32)[max(0, x - 4):min(11, x + 5), max(0, y - 4):min(11, y + 5)]
+    centered_obs['bomb_blast_strength'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+        = obs["bomb_blast_strength"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
+
+    centered_obs['bomb_life'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+        = obs["bomb_life"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
+
+    centered_obs['bomb_moving_direction'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+        = obs["bomb_moving_direction"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
 
     return centered_obs
