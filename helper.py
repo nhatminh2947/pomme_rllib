@@ -3,12 +3,13 @@ import ray
 
 @ray.remote(num_cpus=0.25, num_gpus=0)
 class Helper:
-    def __init__(self, population_size, policies, env):
+    def __init__(self, population_size, policies, env, enemy="static"):
         self.population_size = population_size
         self.agent_names = {}
         self.policies = policies
         self._is_init = False
         self.env = env
+        self.enemy = enemy
 
     def set_agent_names(self):
         if self.env == "1vs1":
@@ -17,7 +18,7 @@ class Helper:
             self.agent_names = []
             for k in range(4):
                 if k % 2 == 1:
-                    self.agent_names.append("static_{}_{}".format(k % 2, k))
+                    self.agent_names.append("{}_{}_{}".format(self.enemy, k % 2, k))
                 else:
                     self.agent_names.append("training_{}_{}".format(k % 2, k))
 

@@ -20,21 +20,12 @@ class RandomPolicy(Policy):
                         **kwargs):
         # Alternatively, a numpy array would work here as well.
         # e.g.: np.array([random.choice([0, 1])] * len(obs_batch))
-        return [0 for _ in obs_batch], [], {}
+        return [np.random.randint(5) for _ in obs_batch], [], {}
 
     @override(Policy)
     def learn_on_batch(self, samples):
         """No learning."""
         return {}
-
-    @override(Policy)
-    def compute_log_likelihoods(self,
-                                actions,
-                                obs_batch,
-                                state_batches=None,
-                                prev_action_batch=None,
-                                prev_reward_batch=None):
-        return np.array([random.random()] * len(obs_batch))
 
     def get_weights(self):
         pass

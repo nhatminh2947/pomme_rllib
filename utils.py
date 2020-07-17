@@ -12,7 +12,7 @@ from torch import nn
 
 from metrics import Metrics
 
-NUM_FEATURES = 20
+NUM_FEATURES = 19
 # NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
@@ -351,6 +351,10 @@ def featurize_v6(obs, centering=False, view_range=9):
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
+    one_hot_board[0] = one_hot_board[0] + one_hot_board[6] + one_hot_board[7] + one_hot_board[8]
+    if obs['can_kick']:
+        one_hot_board[0] += one_hot_board[3]
+
     if agent_id % 2 == 1:
         one_hot_board[[10, 11]] = one_hot_board[[11, 10]]
         one_hot_board[[12, 13]] = one_hot_board[[13, 12]]
@@ -359,7 +363,6 @@ def featurize_v6(obs, centering=False, view_range=9):
         one_hot_board[[10, 12]] = one_hot_board[[12, 10]]
 
     one_hot_board[13] = one_hot_board[11] + one_hot_board[13]
-    one_hot_board[1] = one_hot_board[1] + one_hot_board[12]
 
     one_hot_board = np.delete(one_hot_board, [9, 11], 0)
 
@@ -383,7 +386,7 @@ def featurize_v6(obs, centering=False, view_range=9):
                          enemies_alive,
                          ammo, blast_strength, can_kick], 0)
 
-    features = np.concatenate([one_hot_board, features, np.ones((1, len(board), len(board)))], 0)
+    features = np.concatenate([one_hot_board, features], 0)
 
     return features
 
@@ -436,7 +439,7 @@ def policy_mapping(agent_id):
 
     if parts[0] == "training":
         return "policy_{}".format(team)
-    return "static"
+    return parts[0]
 
 
 def center(obs, size=9):
