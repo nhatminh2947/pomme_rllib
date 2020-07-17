@@ -351,10 +351,6 @@ def featurize_v6(obs, centering=False, view_range=9):
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
-    one_hot_board[0] = one_hot_board[0] + one_hot_board[6] + one_hot_board[7] + one_hot_board[8]
-    if obs['can_kick']:
-        one_hot_board[0] += one_hot_board[3]
-
     if agent_id % 2 == 1:
         one_hot_board[[10, 11]] = one_hot_board[[11, 10]]
         one_hot_board[[12, 13]] = one_hot_board[[13, 12]]
