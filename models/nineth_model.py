@@ -28,7 +28,7 @@ class ActorCriticModel(nn.Module, TorchModelV2):
         in_channels = 11 * 11 * out_channel
         out_channel = 1024
 
-        for i in range(0, 2):
+        for i in range(0, 3):
             self.shared_layers.add_module(
                 "linear_{}".format(i),
                 nn.Linear(in_features=in_channels, out_features=out_channel)
@@ -38,9 +38,9 @@ class ActorCriticModel(nn.Module, TorchModelV2):
             out_channel = out_channel // 2
 
         self.actor_layers = nn.Sequential(
-            nn.Linear(in_channels, in_channels // 2),
+            nn.Linear(in_channels, in_channels),
             nn.ReLU(),
-            nn.Linear(in_channels // 2, action_space.n)
+            nn.Linear(in_channels, action_space.n)
         )
 
         self.critic_layers = nn.Sequential(
