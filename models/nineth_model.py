@@ -9,30 +9,33 @@ class ActorCriticModel(nn.Module, TorchModelV2):
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs, model_config, name)
         nn.Module.__init__(self)
         self.shared_layers = nn.Sequential()
-        out_channel = 32
-        for i in range(5):
+        out_channel = 64
+        for i in range(8):
             self.shared_layers.add_module(
                 "conv_{}".format(i),
                 nn.Conv2d(
                     in_channels=in_channels,
                     out_channels=out_channel,
                     kernel_size=3,
+                    padding=1,
                     stride=1
                 )
             )
             self.shared_layers.add_module("conv_relu_{}".format(i), nn.ReLU())
             in_channels = out_channel
-            out_channel *= 2
 
         self.shared_layers.add_module("flatten", nn.Flatten())
+        in_channels = 11 * 11 * out_channel
+        out_channel = 1024
 
-        for i in range(2):
+        for i in range(0, 2):
             self.shared_layers.add_module(
                 "linear_{}".format(i),
-                nn.Linear(in_features=in_channels, out_features=in_channels // 2)
+                nn.Linear(in_features=in_channels, out_features=out_channel)
             )
             self.shared_layers.add_module("fc_relu_{}".format(i), nn.ReLU())
-            in_channels //= 2
+            in_channels = out_channel
+            out_channel = out_channel // 2
 
         self.actor_layers = nn.Sequential(
             nn.Linear(in_channels, in_channels // 2),

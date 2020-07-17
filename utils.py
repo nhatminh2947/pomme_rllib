@@ -313,7 +313,6 @@ def featurize_v5(obs, centering=False, view_range=9):
         one_hot_board[[10, 12]] = one_hot_board[[12, 10]]
 
     one_hot_board[13] = one_hot_board[11] + one_hot_board[13]
-
     one_hot_board = np.delete(one_hot_board, [9, 11], 0)
 
     teammate_alive = np.full(board.shape,
@@ -360,6 +359,7 @@ def featurize_v6(obs, centering=False, view_range=9):
         one_hot_board[[10, 12]] = one_hot_board[[12, 10]]
 
     one_hot_board[13] = one_hot_board[11] + one_hot_board[13]
+    one_hot_board[1] = one_hot_board[1] + one_hot_board[12]
 
     one_hot_board = np.delete(one_hot_board, [9, 11], 0)
 
