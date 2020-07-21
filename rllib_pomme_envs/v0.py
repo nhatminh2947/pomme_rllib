@@ -136,7 +136,7 @@ class RllibPomme(MultiAgentEnv):
             stat[Metrics.Kick.name] = True
 
         pos = current_obs['position']
-        if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value:
+        if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
             dx = [-1, 0, 0, 1]
             dy = [0, -1, 1, 0]
             reward += 0.005
