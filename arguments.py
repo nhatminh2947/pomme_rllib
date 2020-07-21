@@ -29,7 +29,7 @@ def get_parser():
     parser.add_argument("--local_mode", action="store_true")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--restore", type=str, default=None)
-    parser.add_argument("--num_samples", type=int, default=4)
+    parser.add_argument("--num_samples", type=int, default=1)
     parser.add_argument("--perturbation_interval", type=int, default=10)
     parser.add_argument("--evaluation_num_episodes", type=int, default=10)
     parser.add_argument("--evaluation_interval", type=int, default=None)

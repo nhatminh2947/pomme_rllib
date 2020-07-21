@@ -112,6 +112,7 @@ def training_team(params):
         restore=params["restore"],
         resume=params["resume"],
         name=params["name"],
+        num_samples=params['num_samples'],
         queue_trials=params["queue_trials"],
         stop={
             # "training_iteration": params["training_iteration"],
