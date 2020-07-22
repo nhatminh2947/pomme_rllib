@@ -54,7 +54,8 @@ class RllibPomme(v0.RllibPomme):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 self.memory[i].update_memory(_obs[i])
 
-                obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering, input_size=self._input_size)
+                obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering,
+                                                        input_size=self._input_size)
                 rewards[self.agent_names[i]] = self.reward(i, actions[i], self.prev_obs[i],
                                                            _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
@@ -127,4 +128,4 @@ class RllibPomme(v0.RllibPomme):
         g_helper = ray.util.get_actor("g_helper")
         alpha = ray.get(g_helper.get_alpha.remote())
 
-        return (1 - alpha) * game_reward + alpha * self.exploration_reward(action, prev_obs, current_obs, stat)
+        return alpha * game_reward + (1 - alpha) * self.exploration_reward(action, prev_obs, current_obs, stat)

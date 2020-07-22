@@ -79,7 +79,11 @@ def initialize(params):
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
-    g_helper = Helper.options(name="g_helper").remote(params["populations"], policies, params["env"])
+    g_helper = Helper.options(name="g_helper").remote(params["populations"],
+                                                      policies,
+                                                      params["alpha_coeff"],
+                                                      params["env"])
+
     g_helper.set_agent_names.remote()
 
     print("Training policies:", policies.keys())

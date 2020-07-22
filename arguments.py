@@ -48,5 +48,6 @@ def get_parser():
     parser.add_argument("--center", action="store_true")
     parser.add_argument("--input_size", type=int, default=11)
     parser.add_argument("--enemy", type=str, default="static")
+    parser.add_argument("--alpha_coeff", type=float, default=1.2)
 
     return parser
