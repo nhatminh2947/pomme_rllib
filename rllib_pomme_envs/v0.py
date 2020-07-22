@@ -101,7 +101,7 @@ class RllibPomme(MultiAgentEnv):
 
     def reward(self, id, action, prev_obs, current_obs, info, stat):
         reward = 0
-        reward += self.immediate_reward(action, prev_obs, current_obs, stat)
+        reward += self.exploration_reward(action, prev_obs, current_obs, stat)
 
         for i in range(10, 10 + self.num_agents):
             if i in prev_obs['alive'] and i not in current_obs['alive']:
@@ -119,7 +119,7 @@ class RllibPomme(MultiAgentEnv):
 
         return reward
 
-    def immediate_reward(self, action, prev_obs, current_obs, stat):
+    def exploration_reward(self, action, prev_obs, current_obs, stat):
         reward = 0
         if prev_obs['blast_strength'] < current_obs['blast_strength']:
             reward += 0.01
