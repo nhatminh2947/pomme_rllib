@@ -412,23 +412,21 @@ class PommeCallbacks(DefaultCallbacks):
 
         if training_result == constants.Result.Tie:
             episode.custom_metrics["win"] = 0
-            episode.custom_metrics["loss"] = 0
             episode.custom_metrics["tie"] = 1
         elif training_result == constants.Result.Win:
             episode.custom_metrics["win"] = 1
-            episode.custom_metrics["loss"] = 0
-            episode.custom_metrics["tie"] = 0
-        else:
-            episode.custom_metrics["win"] = 0
-            episode.custom_metrics["loss"] = 1
             episode.custom_metrics["tie"] = 0
 
     def on_train_result(self, trainer, result: dict, **kwargs):
         g_helper = ray.util.get_actor("g_helper")
-        g_helper.set_agent_names.remote()
+        agent_names = ray.get(g_helper.get_agent_names.remote())
 
-        if "win_mean" in result["custom_metrics"]:
-            g_helper.update_alpha.remote(result["custom_metrics"]["win_mean"])
+        enemy_death_mean = 0.0
+        if result["custom_metrics"]:
+            for agent_name in agent_names:
+                if "training" not in agent_name:
+                    enemy_death_mean += result["custom_metrics"]["agent_{}/DeadOrSuicide_mean".format(agent_name)]
+        g_helper.update_alpha.remote(enemy_death_mean)
 
 
 def limit_gamma_explore(config):

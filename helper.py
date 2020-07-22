@@ -13,8 +13,8 @@ class Helper:
         self.enemy = enemy
         self.alpha = 1.0
 
-    def update_alpha(self, win_rate):
-        self.alpha = np.exp(-3 * win_rate)
+    def update_alpha(self, enemy_death_mean):
+        self.alpha = np.exp(-2 * enemy_death_mean)
 
     def get_alpha(self):
         return self.alpha
