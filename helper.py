@@ -1,3 +1,4 @@
+import numpy as np
 import ray
 
 
@@ -10,6 +11,13 @@ class Helper:
         self._is_init = False
         self.env = env
         self.enemy = enemy
+        self.alpha = 1.0
+
+    def update_alpha(self, win_rate):
+        self.alpha = np.exp(-3 * win_rate)
+
+    def get_alpha(self):
+        return self.alpha
 
     def set_agent_names(self):
         if self.env == "1vs1":
