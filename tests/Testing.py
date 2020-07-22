@@ -48,7 +48,7 @@ class TestEnvironment(unittest.TestCase):
                 "model": {
                     "custom_model": "torch_conv_0",
                     "custom_options": {
-                        "in_channels": 17,
+                        "in_channels": 23,
                         "feature_dim": 512
                     },
                     "no_final_linear": True,
@@ -65,13 +65,15 @@ class TestEnvironment(unittest.TestCase):
         policies["random"] = (RandomPolicy, obs_space, act_space, {})
         policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
-        g_helper = Helper.options(name="g_helper").remote(2, policies)
-        g_helper.set_agent_names.remote()
         env_id = "PommeTeamCompetition-v0"
+        g_helper = Helper.options(name="g_helper").remote(2, policies, env_id, 1.2)
+        g_helper.set_agent_names.remote()
 
         env_config = {
             "env_id": env_id,
             "render": False,
+            "center": False,
+            "input_size": 11,
             "game_state_file": "000.json"
         }
         shutil.rmtree("./pngs")
@@ -148,13 +150,15 @@ class TestEnvironment(unittest.TestCase):
                    constants.Action.Stop.value,
                    constants.Action.Stop.value,
                    constants.Action.Down.value,
-                   constants.Action.Down.value,
-                   constants.Action.Down.value,
-                   constants.Action.Down.value,
-                   constants.Action.Down.value,
-                   constants.Action.Down.value,
-                   constants.Action.Down.value,
                    constants.Action.Bomb.value,
+                   constants.Action.Up.value,
+                   constants.Action.Down.value,
+                   constants.Action.Down.value,
+                   constants.Action.Down.value,
+                   constants.Action.Down.value,
+                   constants.Action.Down.value,
+                   constants.Action.Up.value,
+                   constants.Action.Up.value,
                    constants.Action.Up.value,
                    constants.Action.Up.value,
                    constants.Action.Up.value,

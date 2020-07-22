@@ -12,7 +12,7 @@ from torch import nn
 
 from metrics import Metrics
 
-NUM_FEATURES = 19
+NUM_FEATURES = 23
 # NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
@@ -366,6 +366,12 @@ def featurize_v6(obs, centering=False, input_size=9):
 
     one_hot_board = np.delete(one_hot_board, [9, 11], 0)
 
+    one_hot_bomb_moving_direction = \
+        nn.functional.one_hot(torch.tensor(np.asarray(obs["bomb_moving_direction"], dtype=np.int)),
+                              num_classes=5).transpose(0, 2).transpose(1, 2).numpy()
+
+    one_hot_bomb_moving_direction = np.delete(one_hot_bomb_moving_direction, [0], 0)
+
     teammate_alive = np.full(board.shape,
                              fill_value=1 if preprocessed_obs["teammate"].value in preprocessed_obs["alive"] else 0)
 
@@ -386,7 +392,7 @@ def featurize_v6(obs, centering=False, input_size=9):
                          enemies_alive,
                          ammo, blast_strength, can_kick], 0)
 
-    features = np.concatenate([one_hot_board, features], 0)
+    features = np.concatenate([one_hot_board, one_hot_bomb_moving_direction, features], 0)
 
     return features
 
