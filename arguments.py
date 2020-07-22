@@ -46,7 +46,7 @@ def get_parser():
     parser.add_argument("--custom_model", type=str)
     parser.add_argument("--env_id", type=str)
     parser.add_argument("--center", action="store_true")
-    parser.add_argument("--view_range", type=int, default=9)
+    parser.add_argument("--input_size", type=int, default=11)
     parser.add_argument("--enemy", type=str, default="static")
 
     return parser

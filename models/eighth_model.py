@@ -6,7 +6,7 @@ torch, nn = try_import_torch()
 
 
 class ActorCriticModel(nn.Module, TorchModelV2):
-    def __init__(self, obs_space, action_space, num_outputs, model_config, name, in_channels, view_range):
+    def __init__(self, obs_space, action_space, num_outputs, model_config, name, in_channels, input_size):
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs, model_config, name)
         nn.Module.__init__(self)
 
@@ -33,7 +33,7 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(view_range * view_range * 128, 256),
+            nn.Linear(input_size * input_size * 128, 256),
             nn.ReLU(),
             nn.Linear(256, 512),
             nn.ReLU()
