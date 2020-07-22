@@ -52,8 +52,9 @@ class RllibPomme(v0.RllibPomme):
 
         for i in range(self.num_agents):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                # self.memory[id].update_memory(_obs[id])
-                obs[self.agent_names[i]] = featurize_v6(_obs[i], centering=self._centering, input_size=self._input_size)
+                self.memory[i].update_memory(_obs[i])
+
+                obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering, input_size=self._input_size)
                 rewards[self.agent_names[i]] = self.reward(i, actions[i], self.prev_obs[i],
                                                            _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
@@ -84,7 +85,7 @@ class RllibPomme(v0.RllibPomme):
             self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
 
         for i in range(self.num_agents):
-            # self.memory[i].init_memory(self.prev_obs[i])
+            self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 obs[self.agent_names[i]] = featurize_v6(self.prev_obs[i], centering=self._centering,
                                                         input_size=self._input_size)

@@ -33,9 +33,9 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(input_size * input_size * 128, 256),
+            nn.Linear(input_size * input_size * 128, 1024),
             nn.ReLU(),
-            nn.Linear(256, 512),
+            nn.Linear(1024, 512),
             nn.ReLU()
         )
 
