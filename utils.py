@@ -413,9 +413,15 @@ class PommeCallbacks(DefaultCallbacks):
         if training_result == constants.Result.Tie:
             episode.custom_metrics["win"] = 0
             episode.custom_metrics["tie"] = 1
+            episode.custom_metrics["loss"] = 0
         elif training_result == constants.Result.Win:
             episode.custom_metrics["win"] = 1
             episode.custom_metrics["tie"] = 0
+            episode.custom_metrics["loss"] = 0
+        else:
+            episode.custom_metrics["win"] = 0
+            episode.custom_metrics["tie"] = 0
+            episode.custom_metrics["loss"] = 1
 
     def on_train_result(self, trainer, result: dict, **kwargs):
         g_helper = ray.util.get_actor("g_helper")
