@@ -30,7 +30,7 @@ def initialize(params):
         "render": params["render"],
         "game_state_file": params["game_state_file"],
         "center": params["center"],
-        "view_range": params["view_range"]
+        "input_size": params["input_size"]
     }
 
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
@@ -50,7 +50,7 @@ def initialize(params):
     if params["env_id"] == "OneVsOne-v0":
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
     elif params["custom_model"] == "eighth_model":
-        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, params["view_range"], params["view_range"]))
+        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, params["input_size"], params["input_size"]))
     else:
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
     act_space = spaces.Discrete(6)
@@ -62,7 +62,7 @@ def initialize(params):
                 "custom_model": params["custom_model"],
                 "custom_options": {
                     "in_channels": utils.NUM_FEATURES,
-                    "view_range": params["view_range"]
+                    "input_size": params["input_size"]
                 },
                 "no_final_linear": True,
             },
