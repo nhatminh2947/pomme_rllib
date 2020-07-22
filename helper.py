@@ -15,7 +15,7 @@ class Helper:
         self.alpha_coeff = alpha_coeff
 
     def update_alpha(self, enemy_death_mean):
-        self.alpha = np.tanh(self.alpha_coeff * enemy_death_mean)
+        self.alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
 
     def get_alpha(self):
         return self.alpha

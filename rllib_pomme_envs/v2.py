@@ -128,4 +128,4 @@ class RllibPomme(v0.RllibPomme):
         g_helper = ray.util.get_actor("g_helper")
         alpha = ray.get(g_helper.get_alpha.remote())
 
-        return alpha * game_reward + (1 - alpha) * self.exploration_reward(action, prev_obs, current_obs, stat)
+        return (1 - alpha) * game_reward + alpha * self.exploration_reward(action, prev_obs, current_obs, stat)
