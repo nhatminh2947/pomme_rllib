@@ -24,7 +24,7 @@ agents_2 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.2", "na
 
 
 def featurize(obs):
-    board = obs['board']
+    board = obs["board"]
     features = []
 
     # binary features
@@ -45,7 +45,7 @@ def featurize(obs):
                                constants.Item.IncrRange.value,
                                constants.Item.Kick.value]:
                 features[0][i, j] = 1
-            if obs['can_kick'] and board[i, j] == constants.Item.Bomb.value:
+            if obs["can_kick"] and board[i, j] == constants.Item.Bomb.value:
                 features[0][i, j] = 1
 
     position = np.zeros(board.shape)
@@ -59,7 +59,7 @@ def featurize(obs):
     enemies = np.zeros(board.shape)
     for enemy in obs["enemies"]:
         enemies[(board == enemy.value)] = 1
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs["alive"]:
             alive_enemies += 1
     features.append(enemies)
     features.append(np.full(board.shape, fill_value=alive_enemies / 2))
@@ -83,7 +83,7 @@ def featurize(obs):
 
 
 def featurize_for_rms(obs):
-    board = obs['board']
+    board = obs["board"]
     features = []
 
     # binary features
@@ -104,7 +104,7 @@ def featurize_for_rms(obs):
                                constants.Item.IncrRange.value,
                                constants.Item.Kick.value]:
                 features[0][i, j] = 1
-            if obs['can_kick'] and board[i, j] == constants.Item.Bomb.value:
+            if obs["can_kick"] and board[i, j] == constants.Item.Bomb.value:
                 features[0][i, j] = 1
 
     position = np.zeros(board.shape)
@@ -118,7 +118,7 @@ def featurize_for_rms(obs):
     enemies = np.zeros(board.shape)
     for enemy in obs["enemies"]:
         enemies[(board == enemy.value)] = 1
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs["alive"]:
             alive_enemies += 1
     features.append(enemies)
     features.append(np.full(board.shape, fill_value=alive_enemies))
@@ -142,7 +142,7 @@ def featurize_for_rms(obs):
 
 # Working
 def featurize_v1(obs):
-    board = np.asarray(obs['board'], dtype=np.int)
+    board = np.asarray(obs["board"], dtype=np.int)
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
     position = np.zeros(board.shape)
@@ -154,7 +154,7 @@ def featurize_v1(obs):
     enemies = np.zeros(board.shape)
     for enemy in obs["enemies"]:
         enemies[(board == enemy.value)] = 1
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs["alive"]:
             alive_enemies += 1
 
     enemies_alive = np.full(board.shape, fill_value=alive_enemies)
@@ -177,7 +177,7 @@ def featurize_v1(obs):
 
 # working without switch side
 def featurize_v2(obs):
-    board = np.asarray(obs['board'], dtype=np.float)
+    board = np.asarray(obs["board"], dtype=np.float)
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
     one_hot_board = one_hot_board[:9]
 
@@ -192,7 +192,7 @@ def featurize_v2(obs):
     enemies = np.zeros(board.shape, dtype=np.float)
     for enemy in obs["enemies"]:
         enemies[(board == enemy.value)] = 1
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs["alive"]:
             alive_enemies += 1
 
     enemies_alive = np.full(board.shape, fill_value=alive_enemies, dtype=np.float)
@@ -216,7 +216,7 @@ def featurize_v2(obs):
 
 
 def featurize_v3(obs):
-    board = np.asarray(obs['board'], dtype=np.int)
+    board = np.asarray(obs["board"], dtype=np.int)
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
     one_hot_board = np.delete(one_hot_board, 9, 0)
 
@@ -229,7 +229,7 @@ def featurize_v3(obs):
     enemies = np.zeros(board.shape)
     for enemy in obs["enemies"]:
         enemies[(board == enemy.value)] = 1
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in obs["alive"]:
             alive_enemies += 1
 
     enemies_alive = np.full(board.shape, fill_value=alive_enemies)
@@ -250,13 +250,13 @@ def featurize_v3(obs):
 
 
 def featurize_v4(obs, centering=False):
-    agent_id = obs['board'][obs["position"]]
+    agent_id = obs["board"][obs["position"]]
 
     preprocessed_obs = obs.copy()
     if centering:
         preprocessed_obs = center(obs, size=11)
 
-    board = np.asarray(preprocessed_obs['board'], dtype=np.int)
+    board = np.asarray(preprocessed_obs["board"], dtype=np.int)
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
@@ -274,7 +274,7 @@ def featurize_v4(obs, centering=False):
 
     alive_enemies = 0
     for enemy in preprocessed_obs["enemies"]:
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs["alive"]:
             alive_enemies += 1
 
     enemies_alive = np.full(board.shape, fill_value=alive_enemies)
@@ -294,14 +294,14 @@ def featurize_v4(obs, centering=False):
     return features
 
 
-def featurize_v5(obs, centering=False, view_range=9):
-    agent_id = obs['board'][obs["position"]]
+def featurize_v5(obs, centering=False, input_size=9):
+    agent_id = obs["board"][obs["position"]]
 
     preprocessed_obs = obs.copy()
     if centering:
-        preprocessed_obs = center(obs, view_range)
+        preprocessed_obs = center(obs, input_size)
 
-    board = np.asarray(preprocessed_obs['board'], dtype=np.int)
+    board = np.asarray(preprocessed_obs["board"], dtype=np.int)
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
@@ -320,7 +320,7 @@ def featurize_v5(obs, centering=False, view_range=9):
 
     alive_enemies = 0
     for enemy in preprocessed_obs["enemies"]:
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs["alive"]:
             alive_enemies += 1
 
     enemies_alive = np.full(board.shape, fill_value=alive_enemies)
@@ -340,19 +340,19 @@ def featurize_v5(obs, centering=False, view_range=9):
     return features
 
 
-def featurize_v6(obs, centering=False, view_range=9):
-    agent_id = obs['board'][obs["position"]]
+def featurize_v6(obs, centering=False, input_size=9):
+    agent_id = obs["board"][obs["position"]]
 
     preprocessed_obs = obs.copy()
     if centering:
-        preprocessed_obs = center(obs, view_range)
+        preprocessed_obs = center(obs, input_size)
 
-    board = np.asarray(preprocessed_obs['board'], dtype=np.int)
+    board = np.asarray(preprocessed_obs["board"], dtype=np.int)
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
     one_hot_board[0] = one_hot_board[0] + one_hot_board[6] + one_hot_board[7] + one_hot_board[8]
-    if obs['can_kick']:
+    if obs["can_kick"]:
         one_hot_board[0] += one_hot_board[3]
 
     if agent_id % 2 == 1:
@@ -371,7 +371,7 @@ def featurize_v6(obs, centering=False, view_range=9):
 
     alive_enemies = 0
     for enemy in preprocessed_obs["enemies"]:
-        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs['alive']:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs["alive"]:
             alive_enemies += 1
 
     enemies_alive = np.full(board.shape, fill_value=alive_enemies)
@@ -394,36 +394,41 @@ def featurize_v6(obs, centering=False, view_range=9):
 class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
-        winners = None
+        training_result = None
 
         for k, v in episode.agent_rewards.items():
             agent_name = k[0]
-            name = agent_name.split("_")
-            if name[0] == "opponent":
-                continue
+            name = agent_name.split("_")[0]
             # print(episode.last_info_for(agent_name))
             info = episode.last_info_for(agent_name)
 
-            if "winners" in info:
-                winners = info["winners"]
+            if name == "training" and "training_result" in info:
+                training_result = info["training_result"]
 
             agent_stat = info["metrics"]
 
             for key in Metrics:
                 episode.custom_metrics["agent_{}/{}".format(agent_name, key.name)] = agent_stat[key.name]
 
-        if winners is None:
-            episode.custom_metrics["Tie"] = 1
-        elif winners == [0, 2]:
-            episode.custom_metrics["team_0_win"] = 1
-            episode.custom_metrics["team_1_win"] = 0
+        if training_result == constants.Result.Tie:
+            episode.custom_metrics["win"] = 0
+            episode.custom_metrics["loss"] = 0
+            episode.custom_metrics["tie"] = 1
+        elif training_result == constants.Result.Win:
+            episode.custom_metrics["win"] = 1
+            episode.custom_metrics["loss"] = 0
+            episode.custom_metrics["tie"] = 0
         else:
-            episode.custom_metrics["team_0_win"] = 0
-            episode.custom_metrics["team_1_win"] = 1
+            episode.custom_metrics["win"] = 0
+            episode.custom_metrics["loss"] = 1
+            episode.custom_metrics["tie"] = 0
 
     def on_train_result(self, trainer, result: dict, **kwargs):
         g_helper = ray.util.get_actor("g_helper")
         g_helper.set_agent_names.remote()
+
+        if "win_mean" in result["custom_metrics"]:
+            g_helper.update_alpha.remote(result["custom_metrics"]["win_mean"])
 
 
 def limit_gamma_explore(config):
@@ -455,16 +460,16 @@ def center(obs, size=9):
     u = size // 2
     v = 11 + u
 
-    centered_obs['board'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+    centered_obs["board"][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
         = obs["board"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
 
-    centered_obs['bomb_blast_strength'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+    centered_obs["bomb_blast_strength"][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
         = obs["bomb_blast_strength"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
 
-    centered_obs['bomb_life'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+    centered_obs["bomb_life"][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
         = obs["bomb_life"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
 
-    centered_obs['bomb_moving_direction'][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
+    centered_obs["bomb_moving_direction"][max(0, u - x):min(size, v - x), max(0, u - y):min(size, v - y)] \
         = obs["bomb_moving_direction"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
 
     return centered_obs
