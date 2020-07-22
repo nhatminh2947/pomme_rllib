@@ -1,6 +1,5 @@
 import time
 
-import numpy as np
 import pommerman
 import ray
 from gym import spaces
@@ -18,19 +17,19 @@ from policies.random_policy import RandomPolicy
 from policies.simple_policy import SimplePolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
-from utils import featurize_v4
+from utils import featurize_v6
 from utils import policy_mapping
 
 ray.init()
-env_id = "PommeTeamCompetition-v0"
-# env_id = "PommeTeam-v0"
+# env_id = "PommeTeamCompetition-v0"
+env_id = "PommeTeam-v0"
 # env_id = "PommeFFACompetitionFast-v0"
 # env_id = "OneVsOne-v0"
 # env_id = "PommeRadioCompetition-v2"
 
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 9, 9))
+obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
 act_space = spaces.Discrete(6)
 
 
@@ -39,7 +38,8 @@ def gen_policy():
         "model": {
             "custom_model": "eighth_model",
             "custom_options": {
-                "in_channels": utils.NUM_FEATURES
+                "in_channels": utils.NUM_FEATURES,
+                "input_size": 11
             },
             "no_final_linear": True,
         },
@@ -60,7 +60,8 @@ env_config = {
     "env_id": env_id,
     "render": False,
     "game_state_file": None,
-    "center": True
+    "center": True,
+    "input_size": 11
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
@@ -71,7 +72,7 @@ tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 
 ppo_agent = PPOTrainer(config={
     "env_config": env_config,
-    "num_workers": 0,
+    "num_workers": 2,
     "multiagent": {
         "policies": policies,
         "policy_mapping_fn": policy_mapping,
@@ -82,8 +83,8 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 744
-checkpoint_dir = "/home/lucius/ray_results/2vs2_center_obs/PPO_PommeMultiAgent-v2_0_2020-07-15_02-49-18fvueztxx"
+checkpoint = 600
+checkpoint_dir = "/home/lucius/ray_results/2vs2/PPO_PommeMultiAgent-v2_0_2020-07-22_03-47-34jqnnx1nn"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -114,10 +115,12 @@ for i in range(100):
     while not done:
         env.render()
         actions = env.act(obs)
-        actions[id] = ppo_agent.compute_action(observation=featurize_v4(obs[id], True), policy_id="policy_0",
+        actions[id] = ppo_agent.compute_action(observation=featurize_v6(obs[id], False, 11),
+                                               policy_id="policy_0",
                                                explore=False)
         # actions[id] = int(actions[0])
-        actions[id + 2] = ppo_agent.compute_action(observation=featurize_v4(obs[id + 2], True), policy_id="policy_0",
+        actions[id + 2] = ppo_agent.compute_action(observation=featurize_v6(obs[id + 2], False, 11),
+                                                   policy_id="policy_0",
                                                    explore=False)
         # actions[id] = int(actions[2])
 
