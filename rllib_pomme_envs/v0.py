@@ -139,7 +139,7 @@ class RllibPomme(MultiAgentEnv):
         if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
             dx = [-1, 0, 0, 1]
             dy = [0, -1, 1, 0]
-            reward += 0.005
+            reward += 0.001
             for i in range(4):
                 for j in range(1, prev_obs['blast_strength']):
                     row = pos[0] + j * dx[i]
