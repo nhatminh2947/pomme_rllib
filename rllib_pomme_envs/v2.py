@@ -81,9 +81,9 @@ class RllibPomme(v0.RllibPomme):
         g_helper = ray.util.get_actor("g_helper")
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
 
-        # if np.random.random() > 0.5:
-        #     self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
-        #     self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
+        if np.random.random() > 0.5:
+            self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+            self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
 
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
