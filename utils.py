@@ -440,7 +440,7 @@ class PommeCallbacks(DefaultCallbacks):
                     enemy_death_mean += result["custom_metrics"]["agent_{}/DeadOrSuicide_mean".format(agent_name)]
 
         g_helper.update_alpha.remote(enemy_death_mean)
-        result["custom_metrics"]["alpha_coeff"] = ray.get(g_helper.get_alpha.remote())
+        result["custom_metrics"]["alpha"] = ray.get(g_helper.get_alpha.remote())
 
 
 def limit_gamma_explore(config):

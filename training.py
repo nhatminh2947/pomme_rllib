@@ -81,8 +81,8 @@ def initialize(params):
 
     g_helper = Helper.options(name="g_helper").remote(params["populations"],
                                                       policies,
-                                                      params["alpha_coeff"],
-                                                      params["env"])
+                                                      params["env"],
+                                                      params["alpha_coeff"])
 
     g_helper.set_agent_names.remote()
 
