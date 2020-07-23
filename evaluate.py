@@ -4,21 +4,19 @@ import pommerman
 import ray
 from gym import spaces
 from pommerman import agents
-from pommerman import constants
 from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
 
 import utils
-from memory import Memory
+from helper import Helper
 from models import fourth_model, fifth_model, eighth_model
 from models import one_vs_one_model
 from policies.random_policy import RandomPolicy
 from policies.simple_policy import SimplePolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
-from utils import featurize_v6
 from utils import policy_mapping
 
 ray.init()
@@ -91,14 +89,10 @@ ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkp
 agent_list = []
 for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
-env = pommerman.make(env_id, agent_list=agent_list)
 
-memories = [
-    Memory(0),
-    Memory(1),
-    Memory(2),
-    Memory(2),
-]
+g_helper = Helper.options(name="g_helper").remote(2, policies, env_id, 1.2)
+g_helper.set_agent_names.remote()
+env = v2.RllibPomme(env_config)
 
 policy = ppo_agent.get_policy("policy_0")
 weights = policy.get_weights()
@@ -107,47 +101,36 @@ win = 0
 loss = 0
 tie = 0
 
+agent_names = ray.get(g_helper.get_agent_names.remote())
+
 for i in range(100):
     obs = env.reset()
 
-    for j in range(4):
-        memories[j].init_memory(obs[j])
+    id = 0
 
-    id = i % 2
-
-    done = False
     total_reward = 0
-    while not done:
+    while True:
         env.render()
-        actions = [0, 0, 0, 0]
+        actions = {agent_name: 0 for agent_name in agent_names}
 
-        actions[id] = ppo_agent.compute_action(observation=featurize_v6(memories[id].obs, False, 11),
+        actions[agent_names[id]] = ppo_agent.compute_action(observation=obs[agent_names[id]],
                                                policy_id="policy_0",
                                                explore=True)
-        # actions[id] = int(actions[0])
-        actions[id + 2] = ppo_agent.compute_action(observation=featurize_v6(memories[id + 2].obs, False, 11),
+        # # actions[id] = int(actions[0])
+        actions[agent_names[id + 2]] = ppo_agent.compute_action(observation=obs[agent_names[id + 2]],
                                                    policy_id="policy_0",
                                                    explore=True)
         # actions[id] = int(actions[2])
 
         obs, reward, done, info = env.step(actions)
 
-        memories[0].update_memory(obs[0])
-        memories[2].update_memory(obs[2])
-        total_reward += reward[id]
-        if done:
-            if reward[id] == 1:
-                win += 1
-            elif info["result"] == constants.Result.Tie:
-                tie += 1
-            else:
-                loss += 1
-
+        if done["__all__"]:
             print("info:", info)
             print("reward:", total_reward)
             print("=========")
             time.sleep(5)
-    env.render(close=True)
+            break
+    # env.render(close=True)
     # env.close()
 
 print("Win/loss/tie: {}/{}/{}".format(win, loss, tie))

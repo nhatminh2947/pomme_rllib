@@ -65,7 +65,7 @@ class TestEnvironment(unittest.TestCase):
         policies["random"] = (RandomPolicy, obs_space, act_space, {})
         policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
-        env_id = "PommeTeamCompetition-v0"
+        env_id = "PommeTeam-v0"
         g_helper = Helper.options(name="g_helper").remote(2, policies, env_id, 1.2)
         g_helper.set_agent_names.remote()
 
@@ -261,19 +261,3 @@ class TestEnvironment(unittest.TestCase):
                 break
 
         self.logger.info("total reward: {}".format(total_reward))
-
-    def test_position(self):
-        obs = self.env.reset()
-
-        team_1_enemies = np.zeros((11, 11))
-        team_1_enemies[9, 1] = 1
-        team_1_enemies[1, 9] = 1
-
-        team_2_enemies = np.zeros((11, 11))
-        team_2_enemies[1, 1] = 1
-        team_2_enemies[9, 9] = 1
-
-        assert obs["training_0_0"][8].all() == team_1_enemies.all()
-        assert obs["opponent_0_1"][8].all() == team_2_enemies.all()
-        assert obs["training_0_2"][8].all() == team_1_enemies.all()
-        assert obs["opponent_0_3"][8].all() == team_2_enemies.all()

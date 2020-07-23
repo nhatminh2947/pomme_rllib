@@ -97,7 +97,7 @@ class RllibPomme(v0.RllibPomme):
         game_reward = 0
 
         if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
-            game_reward += -1
+            game_reward += -1.0
             stat[Metrics.DeadOrSuicide.name] += 1
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
@@ -116,7 +116,7 @@ class RllibPomme(v0.RllibPomme):
                     stat[Metrics.EnemyDeath.name] += 1
 
             if temp_reward == 0:
-                game_reward += -1
+                game_reward += -1.0
             else:
                 game_reward += temp_reward
 
@@ -128,4 +128,8 @@ class RllibPomme(v0.RllibPomme):
         g_helper = ray.util.get_actor("g_helper")
         alpha = ray.get(g_helper.get_alpha.remote())
 
-        return (1 - alpha) * game_reward + alpha * self.exploration_reward(action, prev_obs, current_obs, stat)
+        exploration_reward = self.exploration_reward(action, prev_obs, current_obs, stat)
+        stat[Metrics.ExplorationReward.name] += exploration_reward
+        stat[Metrics.GameReward.name] += game_reward
+
+        return (1 - alpha) * game_reward + alpha * exploration_reward
