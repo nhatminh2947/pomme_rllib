@@ -139,7 +139,7 @@ class RllibPomme(MultiAgentEnv):
         if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
             dx = [-1, 0, 0, 1]
             dy = [0, -1, 1, 0]
-            reward += 0.001
+            # reward += 0.001
             for i in range(4):
                 for j in range(1, prev_obs['blast_strength']):
                     row = pos[0] + j * dx[i]
@@ -147,7 +147,7 @@ class RllibPomme(MultiAgentEnv):
                     if 0 <= row < current_obs['board'].shape[0] and 0 <= col < current_obs['board'].shape[0]:
                         if current_obs['board'][row, col] != constants.Item.Passage.value \
                                 and current_obs['board'][row, col] == constants.Item.Wood.value:
-                            reward += 0.01
+                            # reward += 0.01
                             stat[Metrics.ExplodeWood.name] += 1
                             break
 
