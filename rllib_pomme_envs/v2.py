@@ -1,4 +1,3 @@
-import numpy as np
 import ray
 from pommerman import constants
 
@@ -98,7 +97,7 @@ class RllibPomme(v0.RllibPomme):
         if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
             stat[Metrics.DeadOrSuicide.name] += 1
 
-        if info['result'] == constants.Result.Win:
+        if info['result'] == constants.Result.Win and id + 10 in info["winners"]:
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     game_reward += 0.5
