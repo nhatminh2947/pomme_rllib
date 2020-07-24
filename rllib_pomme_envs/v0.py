@@ -122,24 +122,24 @@ class RllibPomme(MultiAgentEnv):
     def exploration_reward(self, action, prev_obs, current_obs, stat):
         reward = 0
         if prev_obs['blast_strength'] < current_obs['blast_strength']:
-            reward += 0.01
+            reward += 0.1
             stat[Metrics.IncrRange.name] += 1
 
         if utility._position_is_item(prev_obs['board'],
                                      current_obs['position'],
                                      constants.Item.ExtraBomb):
-            reward += 0.01
+            reward += 0.1
             stat[Metrics.ExtraBomb.name] += 1
 
         if not prev_obs['can_kick'] and current_obs['can_kick']:
-            reward += 0.02
+            reward += 0.2
             stat[Metrics.Kick.name] = True
 
         pos = current_obs['position']
         if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
             dx = [-1, 0, 0, 1]
             dy = [0, -1, 1, 0]
-            # reward += 0.001
+            reward += 0.005
             for i in range(4):
                 for j in range(1, prev_obs['blast_strength']):
                     row = pos[0] + j * dx[i]
