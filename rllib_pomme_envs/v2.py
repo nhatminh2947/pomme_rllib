@@ -64,8 +64,7 @@ class RllibPomme(v0.RllibPomme):
                     if _info['result'] == constants.Result.Tie:
                         infos[self.agent_names[i]]['training_result'] = constants.Result.Tie
                     else:
-                        id = self.agent_names[i].split('_')[2]
-                        if id in _info['winners']:
+                        if i in _info['winners']:
                             infos[self.agent_names[i]]['training_result'] = constants.Result.Win
                         else:
                             infos[self.agent_names[i]]['training_result'] = constants.Result.Loss
