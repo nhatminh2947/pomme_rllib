@@ -20,8 +20,8 @@ from rllib_pomme_envs import v2
 from utils import policy_mapping
 
 ray.init()
-env_id = "PommeTeamCompetition-v0"
-# env_id = "PommeTeam-v0"
+# env_id = "PommeTeamCompetition-v0"
+env_id = "PommeTeam-v0"
 # env_id = "PommeFFACompetitionFast-v0"
 # env_id = "OneVsOne-v0"
 # env_id = "PommeRadioCompetition-v2"
@@ -83,7 +83,7 @@ ppo_agent = PPOTrainer(config={
 
 # fdb733b6
 checkpoint = 860
-checkpoint_dir = "/home/lucius/ray_results/2vs2/PPO_PommeMultiAgent-v2_0_2020-07-23_02-06-525z7mdvlu"
+checkpoint_dir = "/home/lucius/ray_results/2vs2/successful_team_fullboard_POoff_switch_side"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []

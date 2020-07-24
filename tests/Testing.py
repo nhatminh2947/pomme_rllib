@@ -3,7 +3,6 @@ import os
 import shutil
 import unittest
 
-import numpy as np
 import ray
 from gym import spaces
 from pommerman import agents, constants
@@ -66,7 +65,7 @@ class TestEnvironment(unittest.TestCase):
         policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
         env_id = "PommeTeam-v0"
-        g_helper = Helper.options(name="g_helper").remote(2, policies, env_id, 1.2)
+        g_helper = Helper.options(name="g_helper").remote(2, policies, env_id, k=1.2, alpha=0)
         g_helper.set_agent_names.remote()
 
         env_config = {
@@ -223,11 +222,11 @@ class TestEnvironment(unittest.TestCase):
                    constants.Action.Bomb.value,
                    constants.Action.Left.value,
                    constants.Action.Left.value,
-                   constants.Action.Left.value,
-                   constants.Action.Left.value,
-                   constants.Action.Left.value,
-                   constants.Action.Left.value,
-                   constants.Action.Left.value,
+                   constants.Action.Stop.value,
+                   constants.Action.Stop.value,
+                   constants.Action.Stop.value,
+                   constants.Action.Stop.value,
+                   constants.Action.Stop.value,
                    constants.Action.Stop.value,
                    constants.Action.Stop.value,
                    constants.Action.Stop.value,

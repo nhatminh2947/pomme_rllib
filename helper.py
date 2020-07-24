@@ -4,18 +4,18 @@ import ray
 
 @ray.remote(num_cpus=0.25, num_gpus=0)
 class Helper:
-    def __init__(self, population_size, policies, env, alpha_coeff, enemy="static"):
+    def __init__(self, population_size, policies, env, k=1.2, alpha=1.0, enemy="static"):
         self.population_size = population_size
         self.agent_names = {}
         self.policies = policies
         self._is_init = False
         self.env = env
         self.enemy = enemy
-        self.alpha = 1.0
-        self.alpha_coeff = alpha_coeff
+        self.alpha = alpha
+        self.k = k
 
     def update_alpha(self, enemy_death_mean):
-        self.alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
+        self.alpha = 1 - np.tanh(self.k * enemy_death_mean)
 
     def get_alpha(self):
         return self.alpha

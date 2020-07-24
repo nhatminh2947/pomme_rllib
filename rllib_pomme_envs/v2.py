@@ -80,9 +80,9 @@ class RllibPomme(v0.RllibPomme):
         g_helper = ray.util.get_actor("g_helper")
         self.agent_names = ray.get(g_helper.get_agent_names.remote())
 
-        if np.random.random() > 0.5:
-            self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
-            self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
+        # if np.random.random() > 0.5:
+        #     self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
+        #     self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
 
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
@@ -94,6 +94,9 @@ class RllibPomme(v0.RllibPomme):
 
     def reward(self, id, action, prev_obs, current_obs, info, stat):
         game_reward = 0
+
+        if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
+            stat[Metrics.DeadOrSuicide.name] += 1
 
         if info['result'] == constants.Result.Win:
             for i in range(10, 14):
@@ -113,7 +116,6 @@ class RllibPomme(v0.RllibPomme):
                 game_reward += temp_reward
         elif id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
             game_reward += -1.0
-            stat[Metrics.DeadOrSuicide.name] += 1
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     game_reward += 0.5
