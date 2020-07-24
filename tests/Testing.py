@@ -249,9 +249,9 @@ class TestEnvironment(unittest.TestCase):
                 self.logger.info("id: {} feature: {}\n{}".format(i, feature, obs["training_0_0"][i, :, :]))
 
             self.logger.info("  actions: {}".format(action))
-            actions_dict = {"training_0_0": 5,
+            actions_dict = {"training_0_0": action,
                             "opponent_0_1": 0,
-                            "training_0_2": 5,
+                            "training_0_2": 0,
                             "opponent_0_3": 0}
             obs, rewards, done, _info = self.env.step(actions_dict)
             total_reward += rewards["training_0_0"]
