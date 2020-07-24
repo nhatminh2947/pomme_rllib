@@ -95,14 +95,7 @@ class RllibPomme(v0.RllibPomme):
     def reward(self, id, action, prev_obs, current_obs, info, stat):
         game_reward = 0
 
-        if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
-            game_reward += -1.0
-            stat[Metrics.DeadOrSuicide.name] += 1
-            for i in range(10, 14):
-                if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
-                    game_reward += 0.5
-                    stat[Metrics.EnemyDeath.name] += 1
-        elif info['result'] == constants.Result.Win:
+        if info['result'] == constants.Result.Win:
             for i in range(10, 14):
                 if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
                     game_reward += 0.5
@@ -118,6 +111,13 @@ class RllibPomme(v0.RllibPomme):
                 game_reward += -1.0
             else:
                 game_reward += temp_reward
+        elif id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
+            game_reward += -1.0
+            stat[Metrics.DeadOrSuicide.name] += 1
+            for i in range(10, 14):
+                if constants.Item(value=i) in current_obs['enemies'] and i not in current_obs['alive']:
+                    game_reward += 0.5
+                    stat[Metrics.EnemyDeath.name] += 1
 
         if action == constants.Action.Bomb.value:
             stat[Metrics.ActionBombs.name] += 1
