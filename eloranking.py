@@ -16,6 +16,7 @@ class EloRatingSystem:
 
     def update_rating(self, player_a, expected_score, actual_score):
         self.rating[player_a] = self.rating[player_a] + self.k * (actual_score - expected_score)
+        return self.rating[player_a]
 
     def list_elo_rating(self):
         for i in self.rating:

@@ -54,8 +54,8 @@ class RllibPomme(v0.RllibPomme):
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        g_helper = ray.util.get_actor("g_helper")
-        self.agent_names = ray.get(g_helper.get_agent_names.remote())
+        helper = ray.util.get_actor("helper")
+        self.agent_names = ray.get(helper.get_training_policies.remote())
         # print("Called reset")
         # print("self.agent_name:", self.agent_names)
 

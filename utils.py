@@ -400,47 +400,69 @@ def featurize_v6(obs, centering=False, input_size=9):
 class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
-        training_result = None
+        winning_policy = None
+        losing_policy = None
+        info = None
+        helper = ray.util.get_actor("helper")
 
-        for k, v in episode.agent_rewards.items():
-            agent_name = k[0]
-            name = agent_name.split("_")[0]
-            # print(episode.last_info_for(agent_name))
+        for (agent_name, policy), v in episode.agent_rewards.items():
             info = episode.last_info_for(agent_name)
 
-            if name == "training" and "training_result" in info:
-                training_result = info["training_result"]
-
             agent_stat = info["metrics"]
+            helper.update_num_steps.remote(policy, info["num_steps"])
 
             for key in Metrics:
                 episode.custom_metrics["agent_{}/{}".format(agent_name, key.name)] = agent_stat[key.name]
 
-        if training_result == constants.Result.Tie:
-            episode.custom_metrics["win"] = 0
-            episode.custom_metrics["tie"] = 1
-            episode.custom_metrics["loss"] = 0
-        elif training_result == constants.Result.Win:
-            episode.custom_metrics["win"] = 1
-            episode.custom_metrics["tie"] = 0
-            episode.custom_metrics["loss"] = 0
-        else:
-            episode.custom_metrics["win"] = 0
-            episode.custom_metrics["tie"] = 0
-            episode.custom_metrics["loss"] = 1
+            if info["result"] == constants.Result.Win:
+                _, _, agent_id = agent_name.split("_")
+
+                if int(agent_id) in info["winners"]:
+                    winning_policy = policy
+                else:
+                    losing_policy = policy
+
+        helper = ray.util.get_actor("helper")
+
+        if info["result"] == constants.Result.Tie:
+            training_policies = ray.get(helper.get_training_policies.remote())
+
+            expected_score = ray.get(helper.get_expected_score.remote(training_policies[0], training_policies[1]))
+            rating_0 = ray.get(helper.update_rating.remote(training_policies[0], expected_score, 0.5))
+            expected_score = ray.get(helper.get_expected_score.remote(training_policies[1], training_policies[0]))
+            rating_1 = ray.get(helper.update_rating.remote(training_policies[1], expected_score, 0.5))
+
+            episode.custom_metrics["{}/tie_rate".format(training_policies[0])] = 1
+            episode.custom_metrics["{}/tie_rate".format(training_policies[1])] = 1
+            episode.custom_metrics["{}/elo_rating".format(training_policies[0])] = rating_0
+            episode.custom_metrics["{}/elo_rating".format(training_policies[1])] = rating_1
+
+        elif winning_policy is not None:
+            expected_score = ray.get(helper.get_expected_score.remote(winning_policy, losing_policy))
+            rating_0 = ray.get(helper.update_rating.remote(winning_policy, expected_score, 1))
+            expected_score = ray.get(helper.get_expected_score.remote(losing_policy, winning_policy))
+            rating_1 = ray.get(helper.update_rating.remote(losing_policy, expected_score, 0))
+
+            episode.custom_metrics["{}/win_rate".format(winning_policy)] = 1
+            episode.custom_metrics["{}/elo_rating".format(winning_policy)] = rating_0
+            episode.custom_metrics["{}/elo_rating".format(losing_policy)] = rating_1
 
     def on_train_result(self, trainer, result: dict, **kwargs):
-        g_helper = ray.util.get_actor("g_helper")
-        agent_names = ray.get(g_helper.get_agent_names.remote())
+        helper = ray.util.get_actor("helper")
+        training_policies = ray.get(helper.get_training_policies.remote())
 
-        enemy_death_mean = 0.0
         if result["custom_metrics"]:
-            for agent_name in agent_names:
-                if "training" not in agent_name:
-                    enemy_death_mean += result["custom_metrics"]["agent_{}/DeadOrSuicide_mean".format(agent_name)]
+            for policy_name in training_policies:
+                enemy_death_mean = 0.0
+                for i in range(4):
+                    metric = "agent_training_{}_{}/DeadOrSuicide_mean".format(policy_name.split("_")[1], i)
+                    if metric in result["custom_metrics"]:
+                        enemy_death_mean += result["custom_metrics"][metric]
 
-        g_helper.update_alpha.remote(enemy_death_mean)
-        result["custom_metrics"]["alpha"] = ray.get(g_helper.get_alpha.remote())
+                result["custom_metrics"]["{}/alpha".format(policy_name)] \
+                    = ray.get(helper.update_alpha.remote(policy_name, enemy_death_mean))
+                result["custom_metrics"]["{}/num_steps".format(policy_name)] \
+                    = ray.get(helper.get_num_steps.remote(policy_name))
 
 
 def limit_gamma_explore(config):

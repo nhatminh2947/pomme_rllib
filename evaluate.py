@@ -20,8 +20,8 @@ from rllib_pomme_envs import v2
 from utils import policy_mapping
 
 ray.init()
-# env_id = "PommeTeamCompetition-v0"
-env_id = "PommeTeam-v0"
+env_id = "PommeTeamCompetition-v0"
+# env_id = "PommeTeam-v0"
 # env_id = "PommeFFACompetitionFast-v0"
 # env_id = "OneVsOne-v0"
 # env_id = "PommeRadioCompetition-v2"
@@ -59,7 +59,7 @@ env_config = {
     "env_id": env_id,
     "render": False,
     "game_state_file": None,
-    "center": True,
+    "center": False,
     "input_size": 11
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
@@ -82,16 +82,16 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 860
-checkpoint_dir = "/home/lucius/ray_results/2vs2/successful_team_fullboard_POoff_switch_side"
+checkpoint = 140
+checkpoint_dir = "/home/lucius/ray_results/2vs2/PPO_PommeMultiAgent-v2_0_2020-07-24_16-36-027wkyeno6"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
 for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
 
-g_helper = Helper.options(name="g_helper").remote(2, policies, env_id, 1.2)
-g_helper.set_agent_names.remote()
+helper = Helper.options(name="helper").remote(2, policies, env_id, 1.2)
+helper.set_agent_names.remote()
 env = v2.RllibPomme(env_config)
 
 policy = ppo_agent.get_policy("policy_0")
@@ -101,25 +101,27 @@ win = 0
 loss = 0
 tie = 0
 
-agent_names = ray.get(g_helper.get_agent_names.remote())
+agent_names = ray.get(helper.get_training_policies.remote())
 
 for i in range(100):
     obs = env.reset()
 
-    id = 0
+    id = i % 2
 
     total_reward = 0
     while True:
         env.render()
         actions = {agent_name: 0 for agent_name in agent_names}
 
-        actions[agent_names[id]] = ppo_agent.compute_action(observation=obs[agent_names[id]],
-                                               policy_id="policy_0",
-                                               explore=True)
+        if agent_names[id] in obs:
+            actions[agent_names[id]] = ppo_agent.compute_action(observation=obs[agent_names[id]],
+                                                                policy_id="policy_0",
+                                                                explore=True)
         # # actions[id] = int(actions[0])
-        actions[agent_names[id + 2]] = ppo_agent.compute_action(observation=obs[agent_names[id + 2]],
-                                                   policy_id="policy_0",
-                                                   explore=True)
+        if agent_names[id + 2] in obs:
+            actions[agent_names[id + 2]] = ppo_agent.compute_action(observation=obs[agent_names[id + 2]],
+                                                                    policy_id="policy_0",
+                                                                    explore=True)
         # actions[id] = int(actions[2])
 
         obs, reward, done, info = env.step(actions)

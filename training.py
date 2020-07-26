@@ -1,3 +1,4 @@
+import numpy as np
 import ray
 from gym import spaces
 from ray import tune
@@ -66,6 +67,8 @@ def initialize(params):
                 },
                 "no_final_linear": True,
             },
+            "lr": np.random.uniform(low=1e-5, high=1e-3),
+            "clip_param": np.random.uniform(low=0.1, high=0.5),
             "use_pytorch": True
         }
         return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
@@ -74,21 +77,21 @@ def initialize(params):
         "policy_{}".format(i): gen_policy() for i in range(params["populations"])
     }
 
+    policies_to_train = list(policies.keys())
+
     policies["opponent"] = gen_policy()
     policies["random"] = (RandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
-    g_helper = Helper.options(name="g_helper").remote(params["populations"],
-                                                      policies,
-                                                      params["env"],
+    helper = Helper.options(name="helper").remote(params["populations"],
                                                       params["alpha_coeff"])
 
-    g_helper.set_agent_names.remote()
+    helper.set_agent_names.remote()
 
     print("Training policies:", policies.keys())
 
-    return env_config, policies
+    return env_config, policies, policies_to_train
 
 
 # How to Implement Self Play with PPO? [rllib]
@@ -105,7 +108,7 @@ def initialize(params):
 
 
 def training_team(params):
-    env_config, policies = initialize(params)
+    env_config, policies, policies_to_train = initialize(params)
 
     trainer = PPOTrainer
     if params['use_rnd']:
@@ -127,7 +130,7 @@ def training_team(params):
         verbose=1,
         config={
             "gamma": params["gamma"],
-            "lr": params["lr"],
+            # "lr": params["lr"],
             "entropy_coeff": params["entropy_coeff"],
             "kl_coeff": params["kl_coeff"],  # disable KL
             "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
@@ -141,7 +144,7 @@ def training_team(params):
             "num_gpus": params["num_gpus"],
             "train_batch_size": params["train_batch_size"],
             "sgd_minibatch_size": params["sgd_minibatch_size"],
-            "clip_param": params["clip_param"],
+            # "clip_param": params["clip_param"],
             "lambda": params["lambda"],
             "num_sgd_iter": params["num_sgd_iter"],
             "vf_share_layers": True,
@@ -151,7 +154,7 @@ def training_team(params):
             "multiagent": {
                 "policies": policies,
                 "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0", "policy_1"],
+                "policies_to_train": policies_to_train,
             },
             "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],

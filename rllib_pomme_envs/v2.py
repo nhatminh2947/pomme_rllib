@@ -17,6 +17,8 @@ class RllibPomme(v0.RllibPomme):
         self.memory = [
             Memory(i) for i in range(self.num_agents)
         ]
+        self.policies = None
+        self.num_steps = 0
 
     def step(self, action_dict):
         if self.is_render:
@@ -43,46 +45,50 @@ class RllibPomme(v0.RllibPomme):
 
         _obs, _reward, _done, _info = self.env.step(actions)
 
+        self.num_steps += 1
+
         for i in self.prev_obs[0]['alive']:
             if _done or i not in _obs[i - 10]['alive']:
                 dones[self.agent_names[i - 10]] = True
                 infos[self.agent_names[i - 10]]["metrics"] = self.stat[i - 10]
+                infos[self.agent_names[i - 10]]["num_steps"] = self.num_steps
 
         dones["__all__"] = _done
 
         for i in range(self.num_agents):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
+                policy_name = "policy_{}".format(self.agent_names[i].split("_")[1])
+
                 self.memory[i].update_memory(_obs[i])
 
                 obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering,
                                                         input_size=self._input_size)
-                rewards[self.agent_names[i]] = self.reward(i, actions[i], self.prev_obs[i],
+                rewards[self.agent_names[i]] = self.reward(policy_name, i, actions[i], self.prev_obs[i],
                                                            _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
-
-                if _done and "training" in self.agent_names[i]:
-                    if _info['result'] == constants.Result.Tie:
-                        infos[self.agent_names[i]]['training_result'] = constants.Result.Tie
-                    else:
-                        if i in _info['winners']:
-                            infos[self.agent_names[i]]['training_result'] = constants.Result.Win
-                        else:
-                            infos[self.agent_names[i]]['training_result'] = constants.Result.Loss
 
         self.prev_obs = _obs
 
         return obs, rewards, dones, infos
 
+    def get_policy_name(self, agent_name):
+        return "policy_{}".format(agent_name.split("_")[1])
+
     def reset(self):
+        self.num_steps = 0
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        g_helper = ray.util.get_actor("g_helper")
-        self.agent_names = ray.get(g_helper.get_agent_names.remote())
+        helper = ray.util.get_actor("helper")
+        self.policies = ray.get(helper.get_training_policies.remote())
+        self.agent_names = []
 
-        if np.random.random() > 0.5:
-            self.agent_names[0], self.agent_names[1] = self.agent_names[1], self.agent_names[0]
-            self.agent_names[2], self.agent_names[3] = self.agent_names[3], self.agent_names[2]
+        if np.random.random() < 0.5:
+            for i in range(4):
+                self.agent_names.append("training_{}_{}".format(self.policies[i % 2].split("_")[1], i))
+        else:
+            for i in range(4):
+                self.agent_names.append("training_{}_{}".format(self.policies[(i + 1) % 2].split("_")[1], i))
 
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
@@ -92,7 +98,7 @@ class RllibPomme(v0.RllibPomme):
 
         return obs
 
-    def reward(self, id, action, prev_obs, current_obs, info, stat):
+    def reward(self, policy_name, id, action, prev_obs, current_obs, info, stat):
         game_reward = 0
 
         if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
@@ -126,8 +132,8 @@ class RllibPomme(v0.RllibPomme):
             if prev_obs['ammo'] > 0:
                 stat[Metrics.RealBombs.name] += 1
 
-        g_helper = ray.util.get_actor("g_helper")
-        alpha = ray.get(g_helper.get_alpha.remote())
+        helper = ray.util.get_actor("helper")
+        alpha = ray.get(helper.get_alpha.remote(policy_name))
 
         exploration_reward = self.exploration_reward(action, prev_obs, current_obs, stat)
         stat[Metrics.ExplorationReward.name] += exploration_reward

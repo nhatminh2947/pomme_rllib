@@ -42,22 +42,22 @@ class ActorCriticModel(nn.Module, TorchModelV2):
                 stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(1 * 1 * 512, 512),
+            nn.Linear(1 * 1 * 512, 256),
             nn.ReLU(),
-            nn.Linear(512, 256),
+            nn.Linear(256, 128),
             nn.ReLU()
         )
 
         self.actor_layers = nn.Sequential(
-            nn.Linear(256, 128),
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(128, action_space.n)
+            nn.Linear(64, action_space.n)
         )
 
         self.critic_layers = nn.Sequential(
-            nn.Linear(256, 256),
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(256, 1)
+            nn.Linear(64, 1)
         )
 
         self._shared_layer_out = None

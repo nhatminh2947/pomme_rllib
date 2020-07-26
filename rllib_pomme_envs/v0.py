@@ -91,15 +91,15 @@ class RllibPomme(MultiAgentEnv):
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        g_helper = ray.util.get_actor("g_helper")
-        self.agent_names = ray.get(g_helper.get_agent_names.remote())
+        helper = ray.util.get_actor("helper")
+        self.agent_names = ray.get(helper.get_training_policies.remote())
         for i in range(self.num_agents):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 obs[self.agent_names[i]] = featurize(self.prev_obs[i])
 
         return obs
 
-    def reward(self, id, action, prev_obs, current_obs, info, stat):
+    def reward(self, policy_id, id, action, prev_obs, current_obs, info, stat):
         reward = 0
         reward += self.exploration_reward(action, prev_obs, current_obs, stat)
 

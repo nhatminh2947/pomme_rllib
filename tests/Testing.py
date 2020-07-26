@@ -65,8 +65,8 @@ class TestEnvironment(unittest.TestCase):
         policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
         env_id = "PommeTeam-v0"
-        g_helper = Helper.options(name="g_helper").remote(2, policies, env_id, k=1.2, alpha=0)
-        g_helper.set_agent_names.remote()
+        helper = Helper.options(name="helper").remote(2, policies, env_id, k=1.2, alpha=0)
+        helper.set_agent_names.remote()
 
         env_config = {
             "env_id": env_id,

@@ -54,9 +54,9 @@ class PBT_MARL:
         agt_i_key = "agt_{}".format(str(pol_i_id))
         agt_j_key = "agt_{}".format(str(pol_j_id))
 
-        g_helper = ray.util.get_actor("g_helper")
-        rating_i = ray.get(g_helper.get_rating.remote(agt_i_key))
-        rating_j = ray.get(g_helper.get_rating.remote(agt_j_key))
+        helper = ray.util.get_actor("helper")
+        rating_i = ray.get(helper.get_rating.remote(agt_i_key))
+        rating_j = ray.get(helper.get_rating.remote(agt_j_key))
 
         s_elo_val = self._s_elo(rating_j, rating_i)
         print("s_elo_val:", s_elo_val)
@@ -126,8 +126,8 @@ class PBT_MARL:
 
         # update hyperparameters in storage
         key = "agt_" + str(pol_i_id)
-        g_helper = ray.util.get_actor("g_helper")
-        ray.get(g_helper.update_hyperparameters.remote(key, pol.config["lr"], pol.config["gamma"]))
+        helper = ray.util.get_actor("helper")
+        ray.get(helper.update_hyperparameters.remote(key, pol.config["lr"], pol.config["gamma"]))
 
     def PBT(self, trainer):
         """
