@@ -167,7 +167,7 @@ def initialize():
                 "no_final_linear": True,
             },
             "lr": 1e-4,
-            "clip_param": np.random.uniform(low=0.1, high=0.5),
+            "clip_param": np.random.uniform(low=0.1, high=0.3),
             "use_pytorch": True
         }
         return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
