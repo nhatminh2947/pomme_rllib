@@ -58,7 +58,7 @@ class PommeCallbacks(DefaultCallbacks):
             for key in Metrics:
                 if "{}/{}".format(policy, key.name) not in episode.custom_metrics:
                     episode.custom_metrics["{}/{}".format(policy, key.name)] = 0
-                episode.custom_metrics["{}/{}".format(policy, key.name)] += agent_stat[key.name]
+                episode.custom_metrics["{}/{}".format(policy, key.name)] += agent_stat[key.name] / 2
 
             if info["result"] == constants.Result.Win:
                 _, _, agent_id = agent_name.split("_")
@@ -110,9 +110,9 @@ class PommeCallbacks(DefaultCallbacks):
                 result["custom_metrics"]["{}/clip_param".format(policy_name)] = \
                 trainer.config["multiagent"]["policies"][policy_name][3]["clip_param"]
 
-                winrate = "{}/win_rate".format(policy_name)
-                if winrate in result["custom_metrics"]:
-                    alpha = ray.get(helper.update_alpha.remote(policy_name, result["custom_metrics"][winrate]))
+                EnemyDeath_mean = "{}/EnemyDeath_mean".format(policy_name)
+                if EnemyDeath_mean in result["custom_metrics"]:
+                    alpha = ray.get(helper.update_alpha.remote(policy_name, result["custom_metrics"][EnemyDeath_mean]))
                     result["custom_metrics"]["{}/alpha".format(policy_name)] = alpha
 
         pbt.run(trainer)

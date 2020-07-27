@@ -30,9 +30,8 @@ class Helper:
     def update_num_steps(self, policy_name, num_steps):
         self.num_steps[policy_name] += num_steps
 
-    def update_alpha(self, policy_name, win_rate):
-        if self.updatable:
-            self.alphas[policy_name] = np.exp(-self.k * win_rate)
+    def update_alpha(self, policy_name, enemy_death_mean):
+        self.alphas[policy_name] = 1 - np.tanh(self.k * enemy_death_mean)
         if self.num_steps[policy_name] >= self.burn_in:
             return 0.0
         return self.alphas[policy_name]
