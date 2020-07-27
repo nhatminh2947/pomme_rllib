@@ -404,6 +404,7 @@ class PommeCallbacks(DefaultCallbacks):
         losing_policy = None
         info = None
         helper = ray.util.get_actor("helper")
+        ers = ray.util.get_actor("ers")
 
         for (agent_name, policy), v in episode.agent_rewards.items():
             info = episode.last_info_for(agent_name)
@@ -422,15 +423,13 @@ class PommeCallbacks(DefaultCallbacks):
                 else:
                     losing_policy = policy
 
-        helper = ray.util.get_actor("helper")
-
         if info["result"] == constants.Result.Tie:
             training_policies = ray.get(helper.get_training_policies.remote())
 
-            expected_score = ray.get(helper.get_expected_score.remote(training_policies[0], training_policies[1]))
-            rating_0 = ray.get(helper.update_rating.remote(training_policies[0], expected_score, 0.5))
-            expected_score = ray.get(helper.get_expected_score.remote(training_policies[1], training_policies[0]))
-            rating_1 = ray.get(helper.update_rating.remote(training_policies[1], expected_score, 0.5))
+            expected_score = ray.get(ers.expected_score.remote(training_policies[0], training_policies[1]))
+            rating_0 = ray.get(ers.update_rating.remote(training_policies[0], expected_score, 0.5))
+            expected_score = ray.get(ers.expected_score.remote(training_policies[1], training_policies[0]))
+            rating_1 = ray.get(ers.update_rating.remote(training_policies[1], expected_score, 0.5))
 
             episode.custom_metrics["{}/tie_rate".format(training_policies[0])] = 1
             episode.custom_metrics["{}/tie_rate".format(training_policies[1])] = 1
@@ -438,10 +437,10 @@ class PommeCallbacks(DefaultCallbacks):
             episode.custom_metrics["{}/elo_rating".format(training_policies[1])] = rating_1
 
         elif winning_policy is not None:
-            expected_score = ray.get(helper.get_expected_score.remote(winning_policy, losing_policy))
-            rating_0 = ray.get(helper.update_rating.remote(winning_policy, expected_score, 1))
-            expected_score = ray.get(helper.get_expected_score.remote(losing_policy, winning_policy))
-            rating_1 = ray.get(helper.update_rating.remote(losing_policy, expected_score, 0))
+            expected_score = ray.get(ers.expected_score.remote(winning_policy, losing_policy))
+            rating_0 = ray.get(ers.update_rating.remote(winning_policy, expected_score, 1))
+            expected_score = ray.get(ers.expected_score.remote(losing_policy, winning_policy))
+            rating_1 = ray.get(ers.update_rating.remote(losing_policy, expected_score, 0))
 
             episode.custom_metrics["{}/win_rate".format(winning_policy)] = 1
             episode.custom_metrics["{}/elo_rating".format(winning_policy)] = rating_0
@@ -463,8 +462,6 @@ class PommeCallbacks(DefaultCallbacks):
                 #     = ray.get(helper.update_alpha.remote(policy_name, enemy_death_mean))
                 result["custom_metrics"]["{}/num_steps".format(policy_name)] \
                     = ray.get(helper.get_num_steps.remote(policy_name))
-        r_trainer = ray.put(trainer)
-        helper.run_pbt.remote(r_trainer)
 
 
 def limit_gamma_explore(config):

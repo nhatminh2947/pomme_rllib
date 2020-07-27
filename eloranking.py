@@ -1,11 +1,15 @@
 import numpy as np
+import ray
 
 
+@ray.remote(num_cpus=0.1, num_gpus=0)
 class EloRatingSystem:
-    def __init__(self, k=16):
-        self.population = 0
+    def __init__(self, policy_names, k=16):
+        self.population = len(policy_names)
         self.rating = {}
         self.k = k
+        for policy_name in policy_names:
+            self.add_player(policy_name)
 
     def add_player(self, name, elo=1000):
         self.rating[name] = elo

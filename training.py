@@ -8,6 +8,8 @@ from ray.rllib.models import ModelCatalog
 
 import arguments
 import utils
+from PopulationBasedTraining import PopulationBasedTraining
+from eloranking import EloRatingSystem
 from helper import Helper
 from models import one_vs_one_model, third_model, fourth_model, fifth_model, sixth_model, seventh_model, eighth_model, \
     nineth_model, tenth_model
@@ -85,9 +87,11 @@ def initialize(params):
     policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
     helper = Helper.options(name="helper").remote(params["populations"],
-                                                      params["alpha_coeff"])
+                                                  params["alpha_coeff"])
 
     helper.set_agent_names.remote()
+
+    ers = EloRatingSystem.options(name="ers").remote(policy_names=policies_to_train, k=1)
 
     print("Training policies:", policies.keys())
 
@@ -106,6 +110,15 @@ def initialize(params):
 # 4. Update the weights of the non-trainable policies by sampling from the list of "prior selves" weights.
 # 5. Back to step 2. Continue process until agent is satisfactorily trained.
 
+def train(config, reporter):
+    trainer = PPOTrainer(config=config, env="PommeMultiAgent-v2")
+
+    pbt = PopulationBasedTraining(config["multiagent"]["policies_to_train"])
+
+    while True:
+        result = trainer.train()
+        reporter(**result)
+
 
 def training_team(params):
     env_config, policies, policies_to_train = initialize(params)
@@ -115,7 +128,7 @@ def training_team(params):
         trainer = RNDTrainer
 
     trials = tune.run(
-        trainer,
+        train,
         restore=params["restore"],
         resume=params["resume"],
         name=params["name"],
