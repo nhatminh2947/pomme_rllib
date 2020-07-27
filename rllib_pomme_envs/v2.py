@@ -139,4 +139,5 @@ class RllibPomme(v0.RllibPomme):
         stat[Metrics.ExplorationReward.name] += exploration_reward
         stat[Metrics.GameReward.name] += game_reward
 
-        return (1 - alpha) * game_reward + alpha * exploration_reward
+        # return (1 - alpha) * game_reward + alpha * exploration_reward
+        return game_reward + exploration_reward

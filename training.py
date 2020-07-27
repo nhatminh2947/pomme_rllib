@@ -166,45 +166,6 @@ def training_team(params):
     )
 
 
-def validate(params):
-    env_config, policies = initialize(params)
-    trainer = PPOTrainer(
-        config={
-            "gamma": params["gamma"],
-            "lr": params["lr"],
-            "entropy_coeff": params["entropy_coeff"],
-            "kl_coeff": params["kl_coeff"],  # disable KL
-            "kl_target": params["kl_target"],
-            "batch_mode": "complete_episodes" if params["complete_episodes"] else "truncate_episodes",
-            "rollout_fragment_length": params["rollout_fragment_length"],
-            "env": params["env"],
-            "env_config": env_config,
-            "num_workers": params["num_workers"],
-            "num_envs_per_worker": params["num_envs_per_worker"],
-            "num_gpus_per_worker": params["num_gpus_per_worker"],
-            "num_gpus": params["num_gpus"],
-            "train_batch_size": params["train_batch_size"],
-            "sgd_minibatch_size": params["sgd_minibatch_size"],
-            "clip_param": params["clip_param"],
-            "lambda": params["lambda"],
-            "num_sgd_iter": params["num_sgd_iter"],
-            "vf_share_layers": True,
-            "vf_loss_coeff": params["vf_loss_coeff"],
-            "vf_clip_param": params["vf_clip_param"],
-            "callbacks": PommeCallbacks,
-            "multiagent": {
-                "policies": policies,
-                "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0", "policy_1"],
-            },
-            "observation_filter": "MeanStdFilter",  # should use MeanStdFilter
-            "evaluation_num_episodes": params["evaluation_num_episodes"],
-            "evaluation_interval": params["evaluation_interval"],
-            "log_level": "WARN",
-            "use_pytorch": True
-        }, env="CartPole-v0")
-
-
 if __name__ == "__main__":
     parser = arguments.get_parser()
     args = parser.parse_args()
@@ -214,7 +175,4 @@ if __name__ == "__main__":
     ray.shutdown()
     ray.init(local_mode=params["local_mode"], memory=52428800, object_store_memory=4e10)
 
-    if params["validate"]:
-        validate(params)
-    else:
-        training_team(params)
+    training_team(params)

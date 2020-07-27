@@ -8,7 +8,7 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 import utils
 from metrics import Metrics
-from utils import featurize, featurize_for_rms
+from utils import featurize
 
 
 # Note: change team for training agents
@@ -122,17 +122,17 @@ class RllibPomme(MultiAgentEnv):
     def exploration_reward(self, action, prev_obs, current_obs, stat):
         reward = 0
         if prev_obs['blast_strength'] < current_obs['blast_strength']:
-            reward += 0.1
+            reward += 0.01
             stat[Metrics.IncrRange.name] += 1
 
         if utility._position_is_item(prev_obs['board'],
                                      current_obs['position'],
                                      constants.Item.ExtraBomb):
-            reward += 0.1
+            reward += 0.01
             stat[Metrics.ExtraBomb.name] += 1
 
         if not prev_obs['can_kick'] and current_obs['can_kick']:
-            reward += 0.2
+            reward += 0.02
             stat[Metrics.Kick.name] = True
 
         pos = current_obs['position']

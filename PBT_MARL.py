@@ -141,6 +141,5 @@ class PBT_MARL:
                 # pol_j_id = self._select_agt_j(pol_i_id, self.population_size, store, self.T_select)
                 pol_j_id = self._select_agt_j(pol_i_id, self.population_size, self.T_select)
                 if pol_j_id is not None:
-                    if self._is_parent(pol_j_id):
-                        self._inherit(trainer, pol_i_id, pol_j_id)
-                        self._mutate(trainer, pol_i_id)
+                    self._inherit(trainer, pol_i_id, pol_j_id)
+                    self._mutate(trainer, pol_i_id)

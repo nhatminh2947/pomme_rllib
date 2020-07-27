@@ -453,16 +453,18 @@ class PommeCallbacks(DefaultCallbacks):
 
         if result["custom_metrics"]:
             for policy_name in training_policies:
-                enemy_death_mean = 0.0
-                for i in range(4):
-                    metric = "agent_training_{}_{}/DeadOrSuicide_mean".format(policy_name.split("_")[1], i)
-                    if metric in result["custom_metrics"]:
-                        enemy_death_mean += result["custom_metrics"][metric]
-
-                result["custom_metrics"]["{}/alpha".format(policy_name)] \
-                    = ray.get(helper.update_alpha.remote(policy_name, enemy_death_mean))
+                # enemy_death_mean = 0.0
+                # for i in range(4):
+                #     metric = "agent_training_{}_{}/DeadOrSuicide_mean".format(policy_name.split("_")[1], i)
+                #     if metric in result["custom_metrics"]:
+                #         enemy_death_mean += result["custom_metrics"][metric]
+                #
+                # result["custom_metrics"]["{}/alpha".format(policy_name)] \
+                #     = ray.get(helper.update_alpha.remote(policy_name, enemy_death_mean))
                 result["custom_metrics"]["{}/num_steps".format(policy_name)] \
                     = ray.get(helper.get_num_steps.remote(policy_name))
+        r_trainer = ray.put(trainer)
+        helper.run_pbt.remote(r_trainer)
 
 
 def limit_gamma_explore(config):
