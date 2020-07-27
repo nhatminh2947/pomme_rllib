@@ -47,7 +47,7 @@ class PommeCallbacks(DefaultCallbacks):
         training_policies = list(set([policy for _, policy in episode.agent_rewards]))
 
         for (agent_name, policy), v in episode.agent_rewards.items():
-            if policy == "random":
+            if "static" in policy:
                 continue
 
             info = episode.last_info_for(agent_name)
@@ -107,7 +107,8 @@ class PommeCallbacks(DefaultCallbacks):
                 num_steps = ray.get(helper.get_num_steps.remote(policy_name))
 
                 result["custom_metrics"]["{}/num_steps".format(policy_name)] = num_steps
-                result["custom_metrics"]["{}/clip_param".format(policy_name)] = trainer.config["clip_param"]
+                result["custom_metrics"]["{}/clip_param".format(policy_name)] = \
+                trainer.config["multiagent"]["policies"][policy_name][3]["clip_param"]
 
                 winrate = "{}/win_rate".format(policy_name)
                 if winrate in result["custom_metrics"]:
@@ -209,21 +210,6 @@ def initialize():
 # 3. Update a list of "prior selves" weights that can be sampled from to update each of the non-trainable policies.
 # 4. Update the weights of the non-trainable policies by sampling from the list of "prior selves" weights.
 # 5. Back to step 2. Continue process until agent is satisfactorily trained.
-
-def train(config, reporter):
-    print("INIT TRAIN FUNC")
-    trainer = PPOTrainer(config=config, env=config["env"])
-
-    pbt = PopulationBasedTraining(config["multiagent"]["policies_to_train"], burn_in=params["burn_in"],
-                                  ready_num_steps=params["ready_num_steps"])
-
-    for i in range(10):
-        print("i = {}".format(i))
-
-        result = trainer.train()
-        pbt.run(trainer)
-        reporter(**result)
-        print("i = {}".format(i))
 
 
 def training_team():

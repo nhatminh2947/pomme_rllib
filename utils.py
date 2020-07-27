@@ -397,10 +397,10 @@ def policy_mapping(agent_id):
     # agent_id pattern training/opponent_policy-id_agent-num
     # print("Calling to policy mapping {}".format(agent_id))
     parts = agent_id.split("_")
-    team = int(parts[1])
+    id = int(parts[1])
 
-    if parts[0] == "training":
-        return "policy_{}".format(team)
+    if parts[0] == "policy":
+        return "policy_{}".format(id)
     return parts[0]
 
 
