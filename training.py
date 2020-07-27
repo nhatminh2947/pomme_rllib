@@ -20,8 +20,12 @@ from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v1, v2, one_vs_one
 from utils import PommeCallbacks, policy_mapping
 
+parser = arguments.get_parser()
+args = parser.parse_args()
+params = vars(args)
 
-def initialize(params):
+
+def initialize():
     # env_id = "PommeTeamCompetition-v0"
     # env_id = "PommeTeam-v0"
     # env_id = "PommeFFACompetitionFast-v0"
@@ -69,7 +73,7 @@ def initialize(params):
                 },
                 "no_final_linear": True,
             },
-            "lr": np.random.uniform(low=1e-5, high=1e-3),
+            "lr": np.random.uniform(low=1e-5, high=1e-1),
             "clip_param": np.random.uniform(low=0.1, high=0.5),
             "use_pytorch": True
         }
@@ -86,12 +90,9 @@ def initialize(params):
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
-    helper = Helper.options(name="helper").remote(params["populations"],
-                                                  params["alpha_coeff"])
+    Helper.options(name="helper").remote(params["populations"], params["alpha_coeff"])
 
-    helper.set_agent_names.remote()
-
-    ers = EloRatingSystem.options(name="ers").remote(policy_names=policies_to_train, k=1)
+    EloRatingSystem.options(name="ers").remote(policy_names=policies_to_train, k=1)
 
     print("Training policies:", policies.keys())
 
@@ -113,15 +114,20 @@ def initialize(params):
 def train(config, reporter):
     trainer = PPOTrainer(config=config, env="PommeMultiAgent-v2")
 
-    pbt = PopulationBasedTraining(config["multiagent"]["policies_to_train"])
+    pbt = PopulationBasedTraining(config["multiagent"]["policies_to_train"], burn_in=params["burn_in"],
+                                  ready_num_steps=params["ready_num_steps"])
 
     while True:
+        helper = ray.util.get_actor("helper")
+        helper.set_agent_names.remote()
+
         result = trainer.train()
+        pbt.run(trainer)
         reporter(**result)
 
 
-def training_team(params):
-    env_config, policies, policies_to_train = initialize(params)
+def training_team():
+    env_config, policies, policies_to_train = initialize()
 
     trainer = PPOTrainer
     if params['use_rnd']:
@@ -180,12 +186,9 @@ def training_team(params):
 
 
 if __name__ == "__main__":
-    parser = arguments.get_parser()
-    args = parser.parse_args()
-    params = vars(args)
     print(params)
 
     ray.shutdown()
     ray.init(local_mode=params["local_mode"], memory=52428800, object_store_memory=4e10)
 
-    training_team(params)
+    training_team()

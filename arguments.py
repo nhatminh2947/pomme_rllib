@@ -49,5 +49,8 @@ def get_parser():
     parser.add_argument("--input_size", type=int, default=11)
     parser.add_argument("--enemy", type=str, default="static")
     parser.add_argument("--alpha_coeff", type=float, default=1.2)
+    parser.add_argument("--ready_num_steps", type=int, default=1e8)
+    parser.add_argument("--burn_in", type=int, default=1e8)
+
 
     return parser
