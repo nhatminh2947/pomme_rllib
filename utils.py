@@ -1,16 +1,7 @@
-from typing import Dict
-
 import numpy as np
-import ray
 import torch
 from pommerman import constants
-from ray.rllib.agents.callbacks import DefaultCallbacks
-from ray.rllib.env import BaseEnv
-from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
-from ray.rllib.policy import Policy
 from torch import nn
-
-from metrics import Metrics
 
 NUM_FEATURES = 23
 # NUM_FEATURES = 21
@@ -395,73 +386,6 @@ def featurize_v6(obs, centering=False, input_size=9):
     features = np.concatenate([one_hot_board, one_hot_bomb_moving_direction, features], 0)
 
     return features
-
-
-class PommeCallbacks(DefaultCallbacks):
-    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
-                       episode: MultiAgentEpisode, **kwargs):
-        winning_policy = None
-        losing_policy = None
-        info = None
-        helper = ray.util.get_actor("helper")
-        ers = ray.util.get_actor("ers")
-
-        for (agent_name, policy), v in episode.agent_rewards.items():
-            info = episode.last_info_for(agent_name)
-
-            agent_stat = info["metrics"]
-            helper.update_num_steps.remote(policy, info["num_steps"])
-
-            for key in Metrics:
-                episode.custom_metrics["agent_{}/{}".format(agent_name, key.name)] = agent_stat[key.name]
-
-            if info["result"] == constants.Result.Win:
-                _, _, agent_id = agent_name.split("_")
-
-                if int(agent_id) in info["winners"]:
-                    winning_policy = policy
-                else:
-                    losing_policy = policy
-
-        if info["result"] == constants.Result.Tie:
-            training_policies = ray.get(helper.get_training_policies.remote())
-
-            expected_score = ray.get(ers.expected_score.remote(training_policies[0], training_policies[1]))
-            rating_0 = ray.get(ers.update_rating.remote(training_policies[0], expected_score, 0.5))
-            expected_score = ray.get(ers.expected_score.remote(training_policies[1], training_policies[0]))
-            rating_1 = ray.get(ers.update_rating.remote(training_policies[1], expected_score, 0.5))
-
-            episode.custom_metrics["{}/tie_rate".format(training_policies[0])] = 1
-            episode.custom_metrics["{}/tie_rate".format(training_policies[1])] = 1
-            episode.custom_metrics["{}/elo_rating".format(training_policies[0])] = rating_0
-            episode.custom_metrics["{}/elo_rating".format(training_policies[1])] = rating_1
-
-        elif winning_policy is not None:
-            expected_score = ray.get(ers.expected_score.remote(winning_policy, losing_policy))
-            rating_0 = ray.get(ers.update_rating.remote(winning_policy, expected_score, 1))
-            expected_score = ray.get(ers.expected_score.remote(losing_policy, winning_policy))
-            rating_1 = ray.get(ers.update_rating.remote(losing_policy, expected_score, 0))
-
-            episode.custom_metrics["{}/win_rate".format(winning_policy)] = 1
-            episode.custom_metrics["{}/elo_rating".format(winning_policy)] = rating_0
-            episode.custom_metrics["{}/elo_rating".format(losing_policy)] = rating_1
-
-    def on_train_result(self, trainer, result: dict, **kwargs):
-        helper = ray.util.get_actor("helper")
-        training_policies = ray.get(helper.get_training_policies.remote())
-
-        if result["custom_metrics"]:
-            for policy_name in training_policies:
-                # enemy_death_mean = 0.0
-                # for i in range(4):
-                #     metric = "agent_training_{}_{}/DeadOrSuicide_mean".format(policy_name.split("_")[1], i)
-                #     if metric in result["custom_metrics"]:
-                #         enemy_death_mean += result["custom_metrics"][metric]
-                #
-                # result["custom_metrics"]["{}/alpha".format(policy_name)] \
-                #     = ray.get(helper.update_alpha.remote(policy_name, enemy_death_mean))
-                result["custom_metrics"]["{}/num_steps".format(policy_name)] \
-                    = ray.get(helper.get_num_steps.remote(policy_name))
 
 
 def limit_gamma_explore(config):

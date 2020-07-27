@@ -66,7 +66,7 @@ class TestEnvironment(unittest.TestCase):
 
         env_id = "PommeTeamCompetition-v0"
         helper = Helper.options(name="helper").remote(2, policies, env_id, 0)
-        helper.set_agent_names.remote()
+        helper.set_policy_names.remote()
 
         env_config = {
             "env_id": env_id,

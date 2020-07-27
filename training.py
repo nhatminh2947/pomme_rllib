@@ -1,16 +1,24 @@
+from typing import Dict
+
 import numpy as np
 import ray
 from gym import spaces
+from pommerman import constants
 from ray import tune
+from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
+from ray.rllib.env import BaseEnv
+from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.models import ModelCatalog
+from ray.rllib.policy import Policy
 
 import arguments
 import utils
 from PopulationBasedTraining import PopulationBasedTraining
 from eloranking import EloRatingSystem
 from helper import Helper
+from metrics import Metrics
 from models import one_vs_one_model, third_model, fourth_model, fifth_model, sixth_model, seventh_model, eighth_model, \
     nineth_model, tenth_model
 from policies.random_policy import RandomPolicy
@@ -18,11 +26,95 @@ from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.simple_policy import SimplePolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v1, v2, one_vs_one
-from utils import PommeCallbacks, policy_mapping
+from utils import policy_mapping
 
 parser = arguments.get_parser()
 args = parser.parse_args()
 params = vars(args)
+
+pbt = None
+
+
+class PommeCallbacks(DefaultCallbacks):
+    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
+                       episode: MultiAgentEpisode, **kwargs):
+        winning_policy = None
+        losing_policy = None
+        info = None
+        helper = ray.util.get_actor("helper")
+        ers = ray.util.get_actor("ers")
+
+        training_policies = list(set([policy for _, policy in episode.agent_rewards]))
+
+        for (agent_name, policy), v in episode.agent_rewards.items():
+            if policy == "random":
+                continue
+
+            info = episode.last_info_for(agent_name)
+
+            agent_stat = info["metrics"]
+            helper.update_num_steps.remote(policy, info["num_steps"])
+
+            for key in Metrics:
+                if "{}/{}".format(policy, key.name) not in episode.custom_metrics:
+                    episode.custom_metrics["{}/{}".format(policy, key.name)] = 0
+                episode.custom_metrics["{}/{}".format(policy, key.name)] += agent_stat[key.name]
+
+            if info["result"] == constants.Result.Win:
+                _, _, agent_id = agent_name.split("_")
+
+                if int(agent_id) in info["winners"]:
+                    winning_policy = policy
+                else:
+                    losing_policy = policy
+
+        if not ray.get(helper.is_updatable.remote()):
+            return
+
+        if info["result"] == constants.Result.Tie:
+            expected_score = ray.get(ers.expected_score.remote(training_policies[0], training_policies[1]))
+            rating_0 = ray.get(ers.update_rating.remote(training_policies[0], expected_score, 0.5))
+            expected_score = ray.get(ers.expected_score.remote(training_policies[1], training_policies[0]))
+            rating_1 = ray.get(ers.update_rating.remote(training_policies[1], expected_score, 0.5))
+
+            episode.custom_metrics["{}/tie_rate".format(training_policies[0])] = 1
+            episode.custom_metrics["{}/tie_rate".format(training_policies[1])] = 1
+            episode.custom_metrics["{}/win_rate".format(training_policies[0])] = 0
+            episode.custom_metrics["{}/win_rate".format(training_policies[1])] = 0
+
+            episode.custom_metrics["{}/elo_rating".format(training_policies[0])] = rating_0
+            episode.custom_metrics["{}/elo_rating".format(training_policies[1])] = rating_1
+
+        elif winning_policy is not None:
+            expected_score = ray.get(ers.expected_score.remote(winning_policy, losing_policy))
+            rating_0 = ray.get(ers.update_rating.remote(winning_policy, expected_score, 1))
+            expected_score = ray.get(ers.expected_score.remote(losing_policy, winning_policy))
+            rating_1 = ray.get(ers.update_rating.remote(losing_policy, expected_score, 0))
+
+            episode.custom_metrics["{}/win_rate".format(winning_policy)] = 1
+            episode.custom_metrics["{}/win_rate".format(losing_policy)] = 0
+            episode.custom_metrics["{}/tie_rate".format(winning_policy)] = 0
+            episode.custom_metrics["{}/tie_rate".format(losing_policy)] = 0
+
+            episode.custom_metrics["{}/elo_rating".format(winning_policy)] = rating_0
+            episode.custom_metrics["{}/elo_rating".format(losing_policy)] = rating_1
+
+    def on_train_result(self, trainer, result: dict, **kwargs):
+        helper = ray.util.get_actor("helper")
+
+        if result["custom_metrics"]:
+            for policy_name in trainer.config["multiagent"]["policies_to_train"]:
+                num_steps = ray.get(helper.get_num_steps.remote(policy_name))
+
+                result["custom_metrics"]["{}/num_steps".format(policy_name)] = num_steps
+                result["custom_metrics"]["{}/clip_param".format(policy_name)] = trainer.config["clip_param"]
+
+                winrate = "{}/win_rate".format(policy_name)
+                if winrate in result["custom_metrics"]:
+                    alpha = ray.get(helper.update_alpha.remote(policy_name, result["custom_metrics"][winrate]))
+                    result["custom_metrics"]["{}/alpha".format(policy_name)] = alpha
+
+        pbt.run(trainer)
 
 
 def initialize():
@@ -73,7 +165,7 @@ def initialize():
                 },
                 "no_final_linear": True,
             },
-            "lr": np.random.uniform(low=1e-5, high=1e-1),
+            "lr": 1e-4,
             "clip_param": np.random.uniform(low=0.1, high=0.5),
             "use_pytorch": True
         }
@@ -90,9 +182,16 @@ def initialize():
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     policies["simple"] = (SimplePolicy, obs_space, act_space, {})
 
-    Helper.options(name="helper").remote(params["populations"], params["alpha_coeff"])
+    helper = Helper.options(name="helper").remote(population_size=params["populations"],
+                                                  burn_in=params["burn_in"],
+                                                  exploration_steps=params["exploration_steps"],
+                                                  k=params["alpha_coeff"])
 
-    EloRatingSystem.options(name="ers").remote(policy_names=policies_to_train, k=1)
+    ers = EloRatingSystem.options(name="ers").remote(policy_names=policies_to_train, k=0.1)
+
+    global pbt
+    pbt = PopulationBasedTraining(policies_to_train, burn_in=params["burn_in"],
+                                  ready_num_steps=params["ready_num_steps"])
 
     print("Training policies:", policies.keys())
 
@@ -112,18 +211,19 @@ def initialize():
 # 5. Back to step 2. Continue process until agent is satisfactorily trained.
 
 def train(config, reporter):
-    trainer = PPOTrainer(config=config, env="PommeMultiAgent-v2")
+    print("INIT TRAIN FUNC")
+    trainer = PPOTrainer(config=config, env=config["env"])
 
     pbt = PopulationBasedTraining(config["multiagent"]["policies_to_train"], burn_in=params["burn_in"],
                                   ready_num_steps=params["ready_num_steps"])
 
-    while True:
-        helper = ray.util.get_actor("helper")
-        helper.set_agent_names.remote()
+    for i in range(10):
+        print("i = {}".format(i))
 
         result = trainer.train()
         pbt.run(trainer)
         reporter(**result)
+        print("i = {}".format(i))
 
 
 def training_team():
@@ -134,7 +234,7 @@ def training_team():
         trainer = RNDTrainer
 
     trials = tune.run(
-        train,
+        trainer,
         restore=params["restore"],
         resume=params["resume"],
         name=params["name"],

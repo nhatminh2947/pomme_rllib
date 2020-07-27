@@ -75,20 +75,22 @@ class RllibPomme(v0.RllibPomme):
         return "policy_{}".format(agent_name.split("_")[1])
 
     def reset(self):
+        helper = ray.util.get_actor("helper")
+        helper.set_policy_names.remote()
+
         self.num_steps = 0
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        helper = ray.util.get_actor("helper")
         self.policies = ray.get(helper.get_training_policies.remote())
         self.agent_names = []
 
         if np.random.random() < 0.5:
             for i in range(4):
-                self.agent_names.append("training_{}_{}".format(self.policies[i % 2].split("_")[1], i))
+                self.agent_names.append("{}_{}".format(self.policies[i % 2], i))
         else:
             for i in range(4):
-                self.agent_names.append("training_{}_{}".format(self.policies[(i + 1) % 2].split("_")[1], i))
+                self.agent_names.append("{}_{}".format(self.policies[(i + 1) % 2], i))
 
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
@@ -139,5 +141,5 @@ class RllibPomme(v0.RllibPomme):
         stat[Metrics.ExplorationReward.name] += exploration_reward
         stat[Metrics.GameReward.name] += game_reward
 
-        # return (1 - alpha) * game_reward + alpha * exploration_reward
-        return game_reward + exploration_reward
+        return (1 - alpha) * game_reward + alpha * exploration_reward
+        # return game_reward + exploration_reward

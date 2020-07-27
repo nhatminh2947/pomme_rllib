@@ -91,7 +91,7 @@ for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
 
 helper = Helper.options(name="helper").remote(2, policies, env_id, 1.2)
-helper.set_agent_names.remote()
+helper.set_policy_names.remote()
 env = v2.RllibPomme(env_config)
 
 policy = ppo_agent.get_policy("policy_0")
