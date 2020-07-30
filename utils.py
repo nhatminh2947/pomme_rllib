@@ -14,6 +14,20 @@ agents_2 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.2", "na
             "nips19-inspir-ai.inspir"]
 
 
+def copy_weight(trainer, src, dest):
+    P0key_P1val = {}
+    for (k, v), (k2, v2) in zip(trainer.get_policy(dest).get_weights().items(),
+                                trainer.get_policy(src).get_weights().items()):
+        P0key_P1val[k] = v2
+
+    trainer.set_weights({dest: P0key_P1val,
+                         src: trainer.get_policy(src).get_weights()})
+
+    for (k, v), (k2, v2) in zip(trainer.get_policy(dest).get_weights().items(),
+                                trainer.get_policy(src).get_weights().items()):
+        assert (v == v2).all()
+
+
 def featurize(obs):
     board = obs["board"]
     features = []
@@ -396,12 +410,9 @@ def limit_gamma_explore(config):
 def policy_mapping(agent_id):
     # agent_id pattern training/opponent_policy-id_agent-num
     # print("Calling to policy mapping {}".format(agent_id))
-    parts = agent_id.split("_")
-    id = int(parts[1])
+    name, id, _ = agent_id.split("_")
 
-    if parts[0] == "policy":
-        return "policy_{}".format(id)
-    return parts[0]
+    return "{}_{}".format(name, id)
 
 
 def center(obs, size=9):

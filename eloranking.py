@@ -4,15 +4,20 @@ import ray
 
 @ray.remote(num_cpus=0.1, num_gpus=0)
 class EloRatingSystem:
-    def __init__(self, policy_names, k=16):
-        self.population = len(policy_names)
+    def __init__(self, k=16):
+        self.population = 0
         self.rating = {}
+        self.policy_names = []
         self.k = k
-        for policy_name in policy_names:
-            self.add_player(policy_name)
+        self.capacity = 7
 
-    def add_player(self, name, elo=1000):
-        self.rating[name] = elo
+        self.add_player("policy_0")
+        self.add_player("static_1")
+        self.add_player("random_2")
+
+    def add_player(self, player, elo=1000):
+        self.rating[player] = elo
+        self.policy_names.append(player)
         self.population += 1
 
     def expected_score(self, player_a, player_b):
@@ -25,6 +30,30 @@ class EloRatingSystem:
     def list_elo_rating(self):
         for i in self.rating:
             print('Player: {} - rating: {}'.format(i, self.rating[i]))
+
+    def strong_enough(self):
+        for i in range(max(1, self.population - 4), self.population):
+            if self.expected_score("policy_0", self.policy_names[i]) < 0.6:
+                return False
+
+        return True
+
+    def make_history(self):
+        min_rating = -1
+        weakest_player = None
+
+        if len(self.rating) == 7:
+            for i in range(3, self.capacity):
+                if self.rating["policy_{}".format(i)] < min_rating:
+                    weakest_player = "policy_{}".format(i)
+                    min_rating = self.rating[weakest_player]
+
+        if weakest_player is None:
+            self.add_player("policy_{}".format(self.population), self.rating["policy_0"])
+            return self.policy_names[-1]
+
+        self.rating["policy_{}".format(weakest_player)] = self.rating["policy_0"]
+        return weakest_player
 
 
 if __name__ == '__main__':

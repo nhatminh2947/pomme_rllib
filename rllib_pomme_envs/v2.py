@@ -57,7 +57,8 @@ class RllibPomme(v0.RllibPomme):
 
         for i in range(self.num_agents):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                policy_name = "policy_{}".format(self.agent_names[i].split("_")[1])
+                name, id, _ = self.agent_names[i].split("_")
+                policy_name = "{}_{}".format(name, id)
 
                 self.memory[i].update_memory(_obs[i])
 

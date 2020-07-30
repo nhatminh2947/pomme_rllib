@@ -4,9 +4,9 @@ import ray
 
 @ray.remote(num_cpus=0.25, num_gpus=0)
 class Helper:
-    def __init__(self, population_size, burn_in, exploration_steps, k=1.2, alpha=1.0, enemy="static"):
+    def __init__(self, population_size, policy_names, burn_in, exploration_steps, k=1.2, alpha=1.0, enemy="static"):
         self.population_size = population_size
-        self.policy_names = ["policy_{}".format(i) for i in range(self.population_size)]
+        self.policy_names = policy_names
         self._is_init = False
         self.enemy = enemy
         self.alphas = {policy_name: alpha for policy_name in self.policy_names}
@@ -14,18 +14,12 @@ class Helper:
         self.k = k
         self.burn_in = burn_in
         self.exploration_steps = exploration_steps
-        self.updatable = False
+        self.low = 1
+        self.high = 2
 
-    def is_updatable(self):
-        if self.updatable:
-            return True
-
-        for policy_name, num_steps in self.num_steps.items():
-            if num_steps < self.exploration_steps:
-                return False
-
-        self.updatable = True
-        return True
+    def update_bounding(self):
+        self.high = min(self.high + 1, self.population_size)
+        self.low = max(self.low, self.high - 4)
 
     def update_num_steps(self, policy_name, num_steps):
         self.num_steps[policy_name] += num_steps
@@ -43,12 +37,11 @@ class Helper:
         return self.num_steps[policy_name]
 
     def set_policy_names(self):
-        self.policy_names = np.random.permutation(self.policy_names)
+        # self.policy_names = np.random.permutation(self.policy_names)
+        return
 
     def get_training_policies(self):
-        if self.updatable:
-            return self.policy_names[0:2]
-        return ["static", self.policy_names[0]]
+        return self.policy_names[0], self.policy_names[np.random.randint(self.low, self.high)]
 
     def is_init(self):
         return self._is_init
