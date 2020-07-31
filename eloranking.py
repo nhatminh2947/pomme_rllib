@@ -34,7 +34,7 @@ class EloRatingSystem:
 
     def strong_enough(self):
         for i in range(max(1, self.population - self.n_histories), self.population):
-            if self.expected_score("policy_0", self.policy_names[i]) < 0.4:
+            if self.expected_score("policy_0", self.policy_names[i]) < 0.6:
                 return False
 
         return True

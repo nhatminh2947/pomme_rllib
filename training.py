@@ -63,7 +63,7 @@ class PommeCallbacks(DefaultCallbacks):
 
         if policy_0_win and policies[0] != "policy_0":
             policies[0], policies[1] = policies[1], policies[0]
-        elif policies[0] == "policy_0":
+        elif policy_0_win and policies[0] == "policy_0":
             policies[0], policies[1] = policies[1], policies[0]
 
         score = 1
