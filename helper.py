@@ -4,8 +4,7 @@ import ray
 
 @ray.remote(num_cpus=0.25, num_gpus=0)
 class Helper:
-    def __init__(self, population_size, policy_names, burn_in, exploration_steps, k=1.2, alpha=1.0, enemy="static"):
-        self.population_size = population_size
+    def __init__(self, policy_names, burn_in, k=1.2, alpha=1.0, enemy="static"):
         self.policy_names = policy_names
         self._is_init = False
         self.enemy = enemy
@@ -13,16 +12,16 @@ class Helper:
         self.num_steps = {policy_name: 0 for policy_name in self.policy_names}
         self.k = k
         self.burn_in = burn_in
-        self.exploration_steps = exploration_steps
         self.low = 1
         self.high = 2
 
     def update_bounding(self):
-        self.high = min(self.high + 1, self.population_size)
-        self.low = max(self.low, self.high - 4)
+        self.high = min(self.high + 1, len(self.policy_names))
+        self.low = max(self.low, self.high - self.n_histories)
 
     def update_num_steps(self, policy_name, num_steps):
         self.num_steps[policy_name] += num_steps
+        return self.num_steps[policy_name]
 
     def update_alpha(self, policy_name, enemy_death_mean):
         self.alphas[policy_name] = 1 - np.tanh(self.k * enemy_death_mean)

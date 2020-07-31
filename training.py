@@ -47,10 +47,8 @@ class PommeCallbacks(DefaultCallbacks):
                 info = episode.last_info_for(agent_name)
 
                 agent_stat = info["metrics"]
-                helper.update_num_steps.remote(policy, info["num_steps"])
-                if "policy0/num_steps" not in episode.custom_metrics:
-                    episode.custom_metrics["policy_0/num_steps"] = 0
-                episode.custom_metrics["policy_0/num_steps"] += info["num_steps"]
+                num_steps = ray.get(helper.update_num_steps.remote(policy, info["num_steps"]))
+                episode.custom_metrics["policy_0/num_steps"] = num_steps
 
                 for key in Metrics:
                     if "{}/{}".format(policy, key.name) not in episode.custom_metrics:
@@ -171,13 +169,12 @@ def initialize():
 
     policy_names = list(policies.keys())
 
-    helper = Helper.options(name="helper").remote(population_size=params["populations"],
-                                                  policy_names=policy_names,
+    helper = Helper.options(name="helper").remote(policy_names=policy_names,
                                                   burn_in=params["burn_in"],
-                                                  exploration_steps=params["exploration_steps"],
                                                   k=params["alpha_coeff"])
 
-    ers = EloRatingSystem.options(name="ers").remote(k=0.1)
+    ers = EloRatingSystem.options(name="ers").remote(n_histories=params["n_histories"],
+                                                     k=0.1)
 
     print("Training policies:", policies.keys())
 

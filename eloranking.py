@@ -4,12 +4,13 @@ import ray
 
 @ray.remote(num_cpus=0.1, num_gpus=0)
 class EloRatingSystem:
-    def __init__(self, k=16):
+    def __init__(self, n_histories, k=16):
         self.population = 0
         self.rating = {}
         self.policy_names = []
         self.k = k
-        self.capacity = 7
+        self.n_histories = n_histories
+        self.capacity = n_histories + 3
 
         self.add_player("policy_0")
         self.add_player("static_1")
@@ -32,17 +33,17 @@ class EloRatingSystem:
             print('Player: {} - rating: {}'.format(i, self.rating[i]))
 
     def strong_enough(self):
-        for i in range(max(1, self.population - 4), self.population):
-            if self.expected_score("policy_0", self.policy_names[i]) < 0.6:
+        for i in range(max(1, self.population - self.n_histories), self.population):
+            if self.expected_score("policy_0", self.policy_names[i]) < 0.4:
                 return False
 
         return True
 
     def make_history(self):
-        min_rating = -1
+        min_rating = 10000
         weakest_player = None
 
-        if len(self.rating) == 7:
+        if len(self.rating) == self.capacity:
             for i in range(3, self.capacity):
                 if self.rating["policy_{}".format(i)] < min_rating:
                     weakest_player = "policy_{}".format(i)
@@ -52,7 +53,7 @@ class EloRatingSystem:
             self.add_player("policy_{}".format(self.population), self.rating["policy_0"])
             return self.policy_names[-1]
 
-        self.rating["policy_{}".format(weakest_player)] = self.rating["policy_0"]
+        self.rating[weakest_player] = self.rating["policy_0"]
         return weakest_player
 
 
