@@ -169,7 +169,8 @@ def initialize():
 
     policy_names = list(policies.keys())
 
-    helper = Helper.options(name="helper").remote(policy_names=policy_names,
+    helper = Helper.options(name="helper").remote(n_histories=params["n_histories"],
+                                                  policy_names=policy_names,
                                                   burn_in=params["burn_in"],
                                                   k=params["alpha_coeff"])
 

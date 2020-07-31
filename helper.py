@@ -4,9 +4,10 @@ import ray
 
 @ray.remote(num_cpus=0.25, num_gpus=0)
 class Helper:
-    def __init__(self, policy_names, burn_in, k=1.2, alpha=1.0, enemy="static"):
+    def __init__(self, n_histories, policy_names, burn_in, k=1.2, alpha=1.0, enemy="static"):
         self.policy_names = policy_names
         self._is_init = False
+        self.n_histories = n_histories
         self.enemy = enemy
         self.alphas = {policy_name: alpha for policy_name in self.policy_names}
         self.num_steps = {policy_name: 0 for policy_name in self.policy_names}
