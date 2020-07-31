@@ -13,7 +13,7 @@ class EloRatingSystem:
         self.capacity = n_histories + 3
 
         self.add_player("policy_0")
-        self.add_player("static_1")
+        # self.add_player("static_1")
         self.add_player("random_2")
 
     def add_player(self, player, elo=1000):
