@@ -44,7 +44,7 @@ class EloRatingSystem:
         weakest_player = None
 
         if len(self.rating) == self.capacity:
-            for i in range(3, self.capacity):
+            for i in range(2, self.capacity):
                 if self.rating["policy_{}".format(i)] < min_rating:
                     weakest_player = "policy_{}".format(i)
                     min_rating = self.rating[weakest_player]
