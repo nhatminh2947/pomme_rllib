@@ -160,7 +160,7 @@ def initialize():
 
     policies = {
         "policy_0": gen_policy(),
-        "static_1": (StaticPolicy, obs_space, act_space, {}),
+        # "static_1": (StaticPolicy, obs_space, act_space, {}),
         "random_2": (RandomPolicy, obs_space, act_space, {}),
     }
 
