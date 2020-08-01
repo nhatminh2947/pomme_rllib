@@ -6,7 +6,7 @@ torch, nn = try_import_torch()
 
 
 class ActorCriticModel(nn.Module, TorchModelV2):
-    def __init__(self, obs_space, action_space, num_outputs, model_config, name, in_channels):
+    def __init__(self, obs_space, action_space, num_outputs, model_config, name, in_channels, input_size):
         TorchModelV2.__init__(self, obs_space, action_space, num_outputs, model_config, name)
         nn.Module.__init__(self)
 
