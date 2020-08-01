@@ -10,11 +10,11 @@ class EloRatingSystem:
         self.policy_names = []
         self.k = k
         self.n_histories = n_histories
-        self.capacity = n_histories + 3
+        self.capacity = n_histories + 2
 
         self.add_player("policy_0")
-        # self.add_player("static_1")
-        self.add_player("random_2")
+        self.add_player("static_1")
+        # self.add_player("random_2")
 
     def add_player(self, player, elo=1000):
         self.rating[player] = elo

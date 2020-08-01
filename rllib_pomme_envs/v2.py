@@ -14,10 +14,15 @@ class RllibPomme(v0.RllibPomme):
         super().__init__(config)
         self._centering = config["center"]
         self._input_size = config["input_size"]
+        self._evaluate = config["evaluate"]
         self.memory = [
             Memory(i) for i in range(self.num_agents)
         ]
-        self.policies = None
+        if self._evaluate:
+            self.policies = config["policies"]
+        else:
+            self.policies = None
+        self.agent_names = []
         self.num_steps = 0
 
     def step(self, action_dict):
@@ -76,15 +81,11 @@ class RllibPomme(v0.RllibPomme):
         return "policy_{}".format(agent_name.split("_")[1])
 
     def reset(self):
-        helper = ray.util.get_actor("helper")
-        helper.set_policy_names.remote()
-
-        self.num_steps = 0
-        self.prev_obs = self.env.reset()
-        obs = {}
-        self.reset_stat()
-        self.policies = ray.get(helper.get_training_policies.remote())
-        self.agent_names = []
+        if not self._evaluate:
+            helper = ray.util.get_actor("helper")
+            helper.set_policy_names.remote()
+            self.policies = ray.get(helper.get_training_policies.remote())
+            self.agent_names = []
 
         if np.random.random() < 0.5:
             for i in range(4):
@@ -93,6 +94,10 @@ class RllibPomme(v0.RllibPomme):
             for i in range(4):
                 self.agent_names.append("{}_{}".format(self.policies[(i + 1) % 2], i))
 
+        self.reset_stat()
+        self.prev_obs = self.env.reset()
+        obs = {}
+        self.num_steps = 0
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):

@@ -118,7 +118,8 @@ def initialize():
         "render": params["render"],
         "game_state_file": params["game_state_file"],
         "center": params["center"],
-        "input_size": params["input_size"]
+        "input_size": params["input_size"],
+        "evaluate": False
     }
 
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
@@ -160,8 +161,8 @@ def initialize():
 
     policies = {
         "policy_0": gen_policy(),
-        # "static_1": (StaticPolicy, obs_space, act_space, {}),
-        "random_2": (RandomPolicy, obs_space, act_space, {}),
+        "static_1": (StaticPolicy, obs_space, act_space, {}),
+        # "random_2": (RandomPolicy, obs_space, act_space, {}),
     }
 
     for i in range(params["n_histories"]):

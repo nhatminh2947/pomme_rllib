@@ -14,8 +14,6 @@ from helper import Helper
 from models import fourth_model, fifth_model, eighth_model
 from models import one_vs_one_model
 from policies.random_policy import RandomPolicy
-from policies.simple_policy import SimplePolicy
-from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
 from utils import policy_mapping
 
@@ -47,20 +45,21 @@ def gen_policy():
     return PPOTorchPolicy, obs_space, act_space, config
 
 
-policies = {
-    "policy_{}".format(i): gen_policy() for i in range(2)
-}
-policies["opponent"] = gen_policy()
-policies["random"] = (RandomPolicy, obs_space, act_space, {})
-policies["static"] = (StaticPolicy, obs_space, act_space, {})
-policies["simple"] = (SimplePolicy, obs_space, act_space, {})
+policies = {"policy_0": gen_policy(),
+            # "static_1": (StaticPolicy, obs_space, act_space, {}),
+            "random_2": (RandomPolicy, obs_space, act_space, {})}
+
+for i in range(8):
+    policies["policy_{}".format(i + 2)] = gen_policy()
 
 env_config = {
     "env_id": env_id,
     "render": False,
     "game_state_file": None,
     "center": False,
-    "input_size": 11
+    "input_size": 11,
+    "policies": ["policy_0", "random_2"],
+    "evaluate": True
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
@@ -82,8 +81,8 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 140
-checkpoint_dir = "/home/lucius/ray_results/2vs2/PPO_PommeMultiAgent-v2_0_2020-07-24_16-36-027wkyeno6"
+checkpoint = 100
+checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-01_13-52-44lzprfyog"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -101,7 +100,7 @@ win = 0
 loss = 0
 tie = 0
 
-agent_names = ray.get(helper.get_training_policies.remote())
+agent_names = env.agent_names
 
 for i in range(100):
     obs = env.reset()
@@ -113,15 +112,14 @@ for i in range(100):
         env.render()
         actions = {agent_name: 0 for agent_name in agent_names}
 
-        if agent_names[id] in obs:
-            actions[agent_names[id]] = ppo_agent.compute_action(observation=obs[agent_names[id]],
-                                                                policy_id="policy_0",
-                                                                explore=True)
-        # # actions[id] = int(actions[0])
-        if agent_names[id + 2] in obs:
-            actions[agent_names[id + 2]] = ppo_agent.compute_action(observation=obs[agent_names[id + 2]],
-                                                                    policy_id="policy_0",
-                                                                    explore=True)
+        for i in range(4):
+            name, id, _ = agent_names[i].split("_")
+            policy_id = "{}_{}".format(name, id)
+
+            if agent_names[i] in obs:
+                actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
+                                                                   policy_id=policy_id,
+                                                                   explore=True)
         # actions[id] = int(actions[2])
 
         obs, reward, done, info = env.step(actions)
