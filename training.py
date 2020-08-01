@@ -165,7 +165,7 @@ def initialize():
     }
 
     for i in range(params["n_histories"]):
-        policies["policy_{}".format(i + 3)] = gen_policy()
+        policies["policy_{}".format(i + 2)] = gen_policy()
 
     policy_names = list(policies.keys())
 
