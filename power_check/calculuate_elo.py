@@ -9,7 +9,7 @@ data = genfromtxt("./prior_power.txt", delimiter='\t', dtype=str)
 player_names = data[0]
 
 for player in player_names:
-    ers.add_player(player, elo=1000)
+    ers.add_policy(player, elo=1000)
 
 ers.list_elo_rating()
 

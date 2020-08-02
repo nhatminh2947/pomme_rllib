@@ -69,12 +69,12 @@ class PopulationBasedTraining:
 
         # update hyperparameters in storage
         # key = "agt_" + str(pol_i_id)
-        # helper = ray.util.get_actor("helper")
-        # ray.get(helper.update_hyperparameters.remote(key, pol.config["lr"], pol.config["gamma"]))
+        # ers = ray.util.get_actor("ers")
+        # ray.get(ers.update_hyperparameters.remote(key, pol.config["lr"], pol.config["gamma"]))
 
     def is_eligible(self, policy_name):
-        helper = ray.util.get_actor("helper")
-        num_steps = ray.get(helper.get_num_steps.remote(policy_name))
+        ers = ray.util.get_actor("ers")
+        num_steps = ray.get(ers.get_num_steps.remote(policy_name))
 
         if num_steps >= self.burn_in:
             return num_steps - self.last_num_steps_since_evolution[policy_name] > self.ready_num_steps
@@ -88,6 +88,6 @@ class PopulationBasedTraining:
                 if parent_policy is not None:
                     self.inherit(trainer, parent_policy, policy_name)
                     self.mutate(trainer, policy_name)
-                    helper = ray.util.get_actor("helper")
-                    num_steps = ray.get(helper.get_num_steps.remote(policy_name))
+                    ers = ray.util.get_actor("ers")
+                    num_steps = ray.get(ers.get_num_steps.remote(policy_name))
                     self.last_num_steps_since_evolution[policy_name] = num_steps

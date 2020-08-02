@@ -91,8 +91,8 @@ class RllibPomme(MultiAgentEnv):
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        helper = ray.util.get_actor("helper")
-        self.agent_names = ray.get(helper.get_training_policies.remote())
+        ers = ray.util.get_actor("ers")
+        self.agent_names = ray.get(ers.get_training_policies.remote())
         for i in range(self.num_agents):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 obs[self.agent_names[i]] = featurize(self.prev_obs[i])

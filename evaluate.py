@@ -8,16 +8,14 @@ from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
-
+from policies.static_policy import StaticPolicy
 import utils
-from helper import Helper
 from models import fourth_model, fifth_model, eighth_model
 from models import one_vs_one_model
-from policies.random_policy import RandomPolicy
 from rllib_pomme_envs import v2
 from utils import policy_mapping
 
-ray.init()
+ray.init(local_mode=True)
 env_id = "PommeTeamCompetition-v0"
 # env_id = "PommeTeam-v0"
 # env_id = "PommeFFACompetitionFast-v0"
@@ -45,11 +43,13 @@ def gen_policy():
     return PPOTorchPolicy, obs_space, act_space, config
 
 
-policies = {"policy_0": gen_policy(),
-            # "static_1": (StaticPolicy, obs_space, act_space, {}),
-            "random_2": (RandomPolicy, obs_space, act_space, {})}
+policies = {
+    "policy_0": gen_policy(),
+    "static_1": (StaticPolicy, obs_space, act_space, {}),
+    # "random_2": (RandomPolicy, obs_space, act_space, {})
+}
 
-for i in range(8):
+for i in range(4):
     policies["policy_{}".format(i + 2)] = gen_policy()
 
 env_config = {
@@ -58,7 +58,7 @@ env_config = {
     "game_state_file": None,
     "center": False,
     "input_size": 11,
-    "policies": ["policy_0", "random_2"],
+    "policies": ["policy_0", "static_1"],
     "evaluate": True
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
@@ -81,16 +81,14 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 100
-checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-01_13-52-44lzprfyog"
+checkpoint = 800
+checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-02_02-05-00lxm2584_"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
 for agent_id in range(4):
     agent_list.append(agents.StaticAgent())
 
-helper = Helper.options(name="helper").remote(2, policies, env_id, 1.2)
-helper.set_policy_names.remote()
 env = v2.RllibPomme(env_config)
 
 policy = ppo_agent.get_policy("policy_0")
@@ -100,11 +98,12 @@ win = 0
 loss = 0
 tie = 0
 
-agent_names = env.agent_names
 
 for i in range(100):
     obs = env.reset()
 
+    agent_names = env.agent_names
+    print(agent_names)
     id = i % 2
 
     total_reward = 0

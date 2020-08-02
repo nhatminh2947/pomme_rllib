@@ -91,8 +91,8 @@ class RllibPomme(v0.RllibPomme):
             if prev_obs['ammo'] > 0:
                 stat[Metrics.RealBombs.name] += 1
 
-        helper = ray.util.get_actor("helper")
-        alpha = ray.get(helper.get_alpha.remote(policy_name))
+        ers = ray.util.get_actor("ers")
+        alpha = ray.get(ers.get_alpha.remote(policy_name))
 
         exploration_reward = self.exploration_reward(action, prev_obs, current_obs, stat)
         stat[Metrics.ExplorationReward.name] += exploration_reward
@@ -105,8 +105,8 @@ class RllibPomme(v0.RllibPomme):
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        helper = ray.util.get_actor("helper")
-        self.policies = ray.get(helper.get_training_policies.remote())
+        ers = ray.util.get_actor("ers")
+        self.policies = ray.get(ers.get_training_policies.remote())
         self.agent_names = []
         # print("Called reset")
         # print("self.agent_name:", self.agent_names)

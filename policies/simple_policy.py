@@ -253,7 +253,7 @@ class SimplePolicy(Policy):
                               bombs, enemies):
 
         def is_stuck_direction(next_position, bomb_range, next_board, enemies):
-            '''Helper function to do determine if the agents next move is possible.'''
+            '''ers function to do determine if the agents next move is possible.'''
             Q = queue.PriorityQueue()
             Q.put((0, next_position))
             seen = set()

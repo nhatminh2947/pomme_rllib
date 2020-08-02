@@ -8,7 +8,7 @@ from gym import spaces
 from pommerman import agents, constants
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 
-from helper import Helper
+from ers import ers
 from policies.random_policy import RandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
@@ -65,8 +65,8 @@ class TestEnvironment(unittest.TestCase):
         policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
         env_id = "PommeTeamCompetition-v0"
-        helper = Helper.options(name="helper").remote(2, policies, env_id, 0)
-        helper.set_policy_names.remote()
+        ers = ers.options(name="ers").remote(2, policies, env_id, 0)
+        ers.set_policy_names.remote()
 
         env_config = {
             "env_id": env_id,

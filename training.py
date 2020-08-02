@@ -15,11 +15,9 @@ from ray.rllib.policy import Policy
 import arguments
 import utils
 from eloranking import EloRatingSystem
-from helper import Helper
 from metrics import Metrics
 from models import one_vs_one_model, third_model, fourth_model, fifth_model, sixth_model, seventh_model, eighth_model, \
     nineth_model, tenth_model
-from policies.random_policy import RandomPolicy
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v0, v1, v2, one_vs_one
@@ -36,7 +34,6 @@ class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
         info = None
-        helper = ray.util.get_actor("helper")
         ers = ray.util.get_actor("ers")
 
         policies = list(set([policy for _, policy in episode.agent_rewards]))
@@ -47,7 +44,7 @@ class PommeCallbacks(DefaultCallbacks):
                 info = episode.last_info_for(agent_name)
 
                 agent_stat = info["metrics"]
-                num_steps = ray.get(helper.update_num_steps.remote(policy, info["num_steps"]))
+                num_steps = ray.get(ers.update_num_steps.remote(policy, info["num_steps"]))
                 episode.custom_metrics["policy_0/num_steps"] = num_steps
 
                 for key in Metrics:
@@ -90,19 +87,18 @@ class PommeCallbacks(DefaultCallbacks):
             episode.custom_metrics["{}/win_rate".format(policies[1])] = 0
 
     def on_train_result(self, trainer, result: dict, **kwargs):
-        helper = ray.util.get_actor("helper")
         ers = ray.util.get_actor("ers")
 
         if result["custom_metrics"]:
             if "policy_0/EnemyDeath_mean" in result["custom_metrics"]:
-                alpha = ray.get(helper.update_alpha.remote("policy_0",
-                                                           result["custom_metrics"]["policy_0/EnemyDeath_mean"]))
+                alpha = ray.get(ers.update_alpha.remote("policy_0",
+                                                        result["custom_metrics"]["policy_0/EnemyDeath_mean"]))
                 result["custom_metrics"]["{}/alpha".format("policy_0")] = alpha
 
-        if ray.get(ers.strong_enough.remote()):
-            policy_name = ray.get(ers.make_history.remote())
+        policy_name = ray.get(ers.update_population.remote())
+        if policy_name is not None:
             utils.copy_weight(trainer, "policy_0", policy_name)
-            helper.update_bounding.remote()
+
         # pbt.run(trainer)
 
 
@@ -170,12 +166,9 @@ def initialize():
 
     policy_names = list(policies.keys())
 
-    helper = Helper.options(name="helper").remote(n_histories=params["n_histories"],
-                                                  policy_names=policy_names,
-                                                  burn_in=params["burn_in"],
-                                                  k=params["alpha_coeff"])
-
     ers = EloRatingSystem.options(name="ers").remote(n_histories=params["n_histories"],
+                                                     alpha_coeff=params["alpha_coeff"],
+                                                     burn_in=params["burn_in"],
                                                      k=0.1)
 
     print("Training policies:", policies.keys())

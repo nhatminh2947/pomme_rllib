@@ -82,11 +82,10 @@ class RllibPomme(v0.RllibPomme):
 
     def reset(self):
         if not self._evaluate:
-            helper = ray.util.get_actor("helper")
-            helper.set_policy_names.remote()
-            self.policies = ray.get(helper.get_training_policies.remote())
-            self.agent_names = []
+            ers = ray.util.get_actor("ers")
+            self.policies = ray.get(ers.get_training_policies.remote())
 
+        self.agent_names = []
         if np.random.random() < 0.5:
             for i in range(4):
                 self.agent_names.append("{}_{}".format(self.policies[i % 2], i))
@@ -140,8 +139,8 @@ class RllibPomme(v0.RllibPomme):
             if prev_obs['ammo'] > 0:
                 stat[Metrics.RealBombs.name] += 1
 
-        helper = ray.util.get_actor("helper")
-        alpha = ray.get(helper.get_alpha.remote(policy_name))
+        ers = ray.util.get_actor("ers")
+        alpha = ray.get(ers.get_alpha.remote(policy_name))
 
         exploration_reward = self.exploration_reward(action, prev_obs, current_obs, stat)
         stat[Metrics.ExplorationReward.name] += exploration_reward
