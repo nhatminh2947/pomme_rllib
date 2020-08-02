@@ -14,6 +14,12 @@ agents_2 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.2", "na
             "nips19-inspir-ai.inspir"]
 
 
+def softmax(x, mask=None):
+    if mask is not None:
+        x = x + np.log(mask + 1e-45)
+    return np.exp(x) / sum(np.exp(x))
+
+
 def copy_weight(trainer, src, dest):
     P0key_P1val = {}
     for (k, v), (k2, v2) in zip(trainer.get_policy(dest).get_weights().items(),
@@ -22,6 +28,8 @@ def copy_weight(trainer, src, dest):
 
     trainer.set_weights({dest: P0key_P1val,
                          src: trainer.get_policy(src).get_weights()})
+
+    trainer.workers.local_worker().filters[dest] = trainer.workers.local_worker().filters[src].copy()
 
     for (k, v), (k2, v2) in zip(trainer.get_policy(dest).get_weights().items(),
                                 trainer.get_policy(src).get_weights().items()):
