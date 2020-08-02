@@ -68,7 +68,7 @@ class EloRatingSystem:
     def update_population(self):
         policy_name = "policy_{}".format(np.random.randint(2, self.capacity))
 
-        if self.expected_score("policy_0", policy_name) < 0.6:
+        if self.expected_score("policy_0", policy_name) >= 0.6:
             self.population[policy_name].rating = self.population["policy_0"].rating
             self.population[policy_name].ready = True
             return policy_name
