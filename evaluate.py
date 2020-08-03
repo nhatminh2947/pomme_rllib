@@ -8,10 +8,12 @@ from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
-from policies.static_policy import StaticPolicy
+
 import utils
+from eloranking import EloRatingSystem
 from models import fourth_model, fifth_model, eighth_model
 from models import one_vs_one_model
+from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
 from utils import policy_mapping
 
@@ -26,6 +28,11 @@ env = pommerman.make(env_id, [])
 
 obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
 act_space = spaces.Discrete(6)
+
+ers = EloRatingSystem.options(name="ers").remote(n_histories=4,
+                                                 alpha_coeff=0.8,
+                                                 burn_in=100000000,
+                                                 k=0.1)
 
 
 def gen_policy():
@@ -58,7 +65,7 @@ env_config = {
     "game_state_file": None,
     "center": False,
     "input_size": 11,
-    "policies": ["policy_0", "static_1"],
+    "policies": ["policy_0", "policy_2"],
     "evaluate": True
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
@@ -81,8 +88,8 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 800
-checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-02_02-05-00lxm2584_"
+checkpoint = 450
+checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_00-56-370apzy6cf"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -97,7 +104,6 @@ weights = policy.get_weights()
 win = 0
 loss = 0
 tie = 0
-
 
 for i in range(100):
     obs = env.reset()
@@ -120,8 +126,11 @@ for i in range(100):
                                                                    policy_id=policy_id,
                                                                    explore=True)
         # actions[id] = int(actions[2])
+                print(obs[agent_names[i]])
 
         obs, reward, done, info = env.step(actions)
+
+
 
         if done["__all__"]:
             print("info:", info)
