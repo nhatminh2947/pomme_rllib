@@ -1,9 +1,8 @@
-import time
-
 import pommerman
 import ray
 from gym import spaces
 from pommerman import agents
+from pommerman import constants
 from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
@@ -65,7 +64,7 @@ env_config = {
     "game_state_file": None,
     "center": False,
     "input_size": 11,
-    "policies": ["policy_0", "policy_2"],
+    "policies": ["policy_0", "policy_3"],
     "evaluate": True
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
@@ -88,8 +87,8 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 450
-checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_00-56-370apzy6cf"
+checkpoint = 350
+checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_12-01-59zyfjsfiz"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -125,18 +124,43 @@ for i in range(100):
                 actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
                                                                    policy_id=policy_id,
                                                                    explore=True)
+                print("agent_name:", agent_names[i])
+                print(obs[agent_names[i]][11])
         # actions[id] = int(actions[2])
-                print(obs[agent_names[i]])
+        #         print(obs[agent_names[i]])
 
         obs, reward, done, info = env.step(actions)
 
-
-
         if done["__all__"]:
-            print("info:", info)
-            print("reward:", total_reward)
+            # print("info:", info)
             print("=========")
-            time.sleep(5)
+
+            for agent_name in agent_names:
+                if agent_name not in info:
+                    continue
+                if info[agent_name]["result"] != constants.Result.Incomplete:
+                    if info[agent_name]["result"] == constants.Result.Tie:
+                        print("tie")
+                        tie += 1
+                    else:
+                        _, _, id = agent_name.split("_")
+                        if int(id) in info[agent_name]["winners"]:
+                            if "policy" in agent_name:
+                                print("win")
+                                win += 1
+                            else:
+                                print("loss")
+                                loss += 1
+                        else:
+                            if "policy" not in agent_name:
+                                print("win")
+                                win += 1
+                            else:
+                                print("loss")
+                                loss += 1
+                    break
+
+            # time.sleep(5)
             break
     # env.render(close=True)
     # env.close()

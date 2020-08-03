@@ -1,6 +1,7 @@
 import numpy as np
 import ray
 from pommerman import constants
+from pommerman import utility
 
 from memory import Memory
 from metrics import Metrics
@@ -69,7 +70,7 @@ class RllibPomme(v0.RllibPomme):
 
                 obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering,
                                                         input_size=self._input_size)
-                rewards[self.agent_names[i]] = self.reward(policy_name, i, actions[i], self.prev_obs[i],
+                rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
                                                            _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
 
@@ -148,3 +149,75 @@ class RllibPomme(v0.RllibPomme):
 
         return (1 - alpha) * game_reward + alpha * exploration_reward
         # return game_reward + exploration_reward
+
+    def exploration_reward_v1(self, action, prev_obs, current_obs, stat):
+        reward = 0
+        if prev_obs['blast_strength'] < current_obs['blast_strength']:
+            reward += 0.1
+            stat[Metrics.IncrRange.name] += 1
+
+        if utility._position_is_item(prev_obs['board'],
+                                     current_obs['position'],
+                                     constants.Item.ExtraBomb):
+            reward += 0.1
+            stat[Metrics.ExtraBomb.name] += 1
+
+        if not prev_obs['can_kick'] and current_obs['can_kick']:
+            reward += 0.2
+            stat[Metrics.Kick.name] = True
+
+        pos = current_obs['position']
+        if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
+            dx = [-1, 0, 0, 1]
+            dy = [0, -1, 1, 0]
+            reward += 0.005
+            for i in range(4):
+                for j in range(1, prev_obs['blast_strength']):
+                    row = pos[0] + j * dx[i]
+                    col = pos[1] + j * dy[i]
+                    if 0 <= row < current_obs['board'].shape[0] and 0 <= col < current_obs['board'].shape[0]:
+                        if current_obs['board'][row, col] != constants.Item.Passage.value \
+                                and current_obs['board'][row, col] == constants.Item.Wood.value:
+                            # reward += 0.01
+                            stat[Metrics.ExplodeWood.name] += 1
+                            break
+
+        see_enemy = False
+        for enemy in current_obs['enemies']:
+            if (current_obs['board'] == enemy.value).any():
+                see_enemy = True
+
+        if not see_enemy:
+            reward -= 0.01
+
+        return reward
+
+    def reward_v1(self, policy_name, id, action, prev_obs, current_obs, info, stat):
+        ers = ray.util.get_actor("ers")
+        alpha = ray.get(ers.get_alpha.remote(policy_name))
+
+        exploration_reward = self.exploration_reward_v1(action, prev_obs, current_obs, stat)
+        stat[Metrics.ExplorationReward.name] += exploration_reward
+
+        game_reward = 0
+
+        if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
+            stat[Metrics.DeadOrSuicide.name] += 1
+            game_reward += -1.0
+        else:
+            for i in range(10, 14):
+                if i in prev_obs['alive'] and i not in current_obs['alive']:  # agent i is died
+                    if constants.Item(value=i) in current_obs['enemies']:
+                        game_reward += 0.5
+                        stat[Metrics.EnemyDeath.name] += 1
+                    elif constants.Item(value=i) == current_obs['teammate']:
+                        game_reward += -0.25
+
+        if action == constants.Action.Bomb.value:
+            stat[Metrics.ActionBombs.name] += 1
+            if prev_obs['ammo'] > 0:
+                stat[Metrics.RealBombs.name] += 1
+
+        stat[Metrics.GameReward.name] += game_reward
+
+        return (1 - alpha) * game_reward + alpha * exploration_reward

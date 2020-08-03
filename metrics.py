@@ -5,11 +5,12 @@ class Metrics(Enum):
     ActionBombs = 0
     RealBombs = 1
     EnemyDeath = 2
-    DeadOrSuicide = 3
-    IncrRange = 4
-    ExtraBomb = 5
-    Kick = 6
-    ExplodeWood = 7
-    ExplorationReward = 8
-    GameReward = 9
+    TeammateDeath = 3
+    DeadOrSuicide = 4
+    IncrRange = 5
+    ExtraBomb = 6
+    Kick = 7
+    ExplodeWood = 8
+    ExplorationReward = 9
+    GameReward = 10
 
