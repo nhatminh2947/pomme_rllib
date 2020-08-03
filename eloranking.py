@@ -68,7 +68,9 @@ class EloRatingSystem:
     def update_population(self):
         min_rating = 10000
         weakest_policy = None
-        for policy_name in self.population:
+        for i, policy_name in enumerate(self.population):
+            if i < 2:
+                continue
             if min_rating > self.population[policy_name].rating:
                 weakest_policy = policy_name
                 min_rating = self.population[policy_name].rating
