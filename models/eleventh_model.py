@@ -1,5 +1,7 @@
+import numpy as np
 from ray.rllib.models.modelv2 import ModelV2
 from ray.rllib.models.torch.recurrent_net import RecurrentNetwork
+from ray.rllib.policy.rnn_sequencing import add_time_dimension
 from ray.rllib.utils import try_import_torch
 from ray.rllib.utils.annotations import override
 
@@ -40,7 +42,7 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
             nn.ReLU()
         )
 
-        self.lstm = nn.LSTM(512, 512)
+        self.lstm = nn.LSTM(512, 512, batch_first=True)
 
         self.actor_layers = nn.Sequential(
             nn.Linear(512, 256),
@@ -54,27 +56,43 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
             nn.Linear(512, 1)
         )
 
+        self._shared_layer_out = None
         self._features = None
 
     @override(ModelV2)
     def get_initial_state(self):
         # Place hidden states on same device as model.
         h = [
-            self.shared_layers.weight.new(1, 512).zero_().squeeze(0),
-            self.shared_layers.weight.new(1, 512).zero_().squeeze(0)
+            torch.zeros(512, dtype=torch.float),
+            torch.zeros(512, dtype=torch.float)
         ]
         return h
 
-    @override(RecurrentNetwork)
-    def forward_rnn(self, inputs, state, seq_lens):
-        x = self.shared_layers(inputs)
+    @override(ModelV2)
+    def forward(self, input_dict, state, seq_lens):
+        if isinstance(seq_lens, np.ndarray):
+            seq_lens = torch.Tensor(seq_lens).int()
 
-        self._features, [h, c] = self.lstm(
-            x, [torch.unsqueeze(state[0], 0),
-                torch.unsqueeze(state[1], 0)]
+        x = input_dict["obs"]
+        x = self.shared_layers(x)
+
+        output, new_state = self.forward_rnn(
+            add_time_dimension(x.float(), seq_lens, framework="torch"),
+            state,
+            seq_lens
         )
 
-        action_out = self.action_branch(self._features)
+        return torch.reshape(output, [-1, self.num_outputs]), new_state
+
+    @override(RecurrentNetwork)
+    def forward_rnn(self, inputs, state, seq_lens):
+        self._features, [h, c] = self.lstm(
+            inputs,
+            [torch.unsqueeze(state[0], 0),
+             torch.unsqueeze(state[1], 0)]
+        )
+
+        action_out = self.actor_layers(self._features)
         return action_out, [torch.squeeze(h, 0), torch.squeeze(c, 0)]
 
     def value_function(self):
