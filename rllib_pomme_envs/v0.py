@@ -91,7 +91,7 @@ class RllibPomme(MultiAgentEnv):
         self.prev_obs = self.env.reset()
         obs = {}
         self.reset_stat()
-        ers = ray.util.get_actor("ers")
+        ers = ray.get_actor("ers")
         self.agent_names = ray.get(ers.get_training_policies.remote())
         for i in range(self.num_agents):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
