@@ -34,7 +34,7 @@ class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
         info = None
-        ers = ray.get_actor("ers")
+        ers = ray.util.get_actor("ers")
 
         policies = list(set([policy for _, policy in episode.agent_rewards]))
         policy_0_win = False
@@ -87,7 +87,7 @@ class PommeCallbacks(DefaultCallbacks):
             episode.custom_metrics["{}/win_rate".format(policies[1])] = 0
 
     def on_train_result(self, trainer, result: dict, **kwargs):
-        ers = ray.get_actor("ers")
+        ers = ray.util.get_actor("ers")
 
         if result["custom_metrics"]:
             if "policy_0/EnemyDeath_mean" in result["custom_metrics"]:
@@ -145,7 +145,7 @@ def initialize():
         config = {
             "model": {
                 "custom_model": params["custom_model"],
-                "custom_model_config": {
+                "custom_options": {
                     "in_channels": utils.NUM_FEATURES,
                     "input_size": params["input_size"]
                 },

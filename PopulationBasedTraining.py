@@ -21,7 +21,7 @@ class PopulationBasedTraining:
         player_b = self.policy_names[np.random.randint(0, self.population_size)]
         while player_b == player_a:
             player_b = self.policy_names[np.random.randint(0, self.population_size)]
-        ers = ray.get_actor("ers")
+        ers = ray.util.get_actor("ers")
         if ray.get(ers.expected_score.remote(player_a, player_b)) < self.t_select:
             return player_b
         return None
@@ -69,11 +69,11 @@ class PopulationBasedTraining:
 
         # update hyperparameters in storage
         # key = "agt_" + str(pol_i_id)
-        # ers = ray.get_actor("ers")
+        # ers = ray.util.get_actor("ers")
         # ray.get(ers.update_hyperparameters.remote(key, pol.config["lr"], pol.config["gamma"]))
 
     def is_eligible(self, policy_name):
-        ers = ray.get_actor("ers")
+        ers = ray.util.get_actor("ers")
         num_steps = ray.get(ers.get_num_steps.remote(policy_name))
 
         if num_steps >= self.burn_in:
@@ -88,6 +88,6 @@ class PopulationBasedTraining:
                 if parent_policy is not None:
                     self.inherit(trainer, parent_policy, policy_name)
                     self.mutate(trainer, policy_name)
-                    ers = ray.get_actor("ers")
+                    ers = ray.util.get_actor("ers")
                     num_steps = ray.get(ers.get_num_steps.remote(policy_name))
                     self.last_num_steps_since_evolution[policy_name] = num_steps

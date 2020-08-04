@@ -1,6 +1,6 @@
 import numpy as np
 from ray.rllib.models.modelv2 import ModelV2
-from ray.rllib.models.torch.recurrent_net import RecurrentNetwork
+from ray.rllib.models.torch.recurrent_torch_model import RecurrentTorchModel
 from ray.rllib.policy.rnn_sequencing import add_time_dimension
 from ray.rllib.utils import try_import_torch
 from ray.rllib.utils.annotations import override
@@ -8,7 +8,7 @@ from ray.rllib.utils.annotations import override
 torch, nn = try_import_torch()
 
 
-class TorchRNNModel(RecurrentNetwork, nn.Module):
+class TorchRNNModel(RecurrentTorchModel, nn.Module):
     def __init__(self, obs_space, action_space, num_outputs, model_config, name, in_channels, input_size):
         nn.Module.__init__(self)
         super().__init__(obs_space, action_space, num_outputs, model_config, name)
@@ -84,7 +84,7 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
 
         return torch.reshape(output, [-1, self.num_outputs]), new_state
 
-    @override(RecurrentNetwork)
+    @override(RecurrentTorchModel)
     def forward_rnn(self, inputs, state, seq_lens):
         self._features, [h, c] = self.lstm(
             inputs,

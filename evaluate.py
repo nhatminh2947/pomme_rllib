@@ -7,10 +7,10 @@ from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
-
+from agents.static_agent import StaticAgent
 import utils
 from eloranking import EloRatingSystem
-from models import fourth_model, fifth_model, eighth_model
+from models import fourth_model, fifth_model, eighth_model, eleventh_model
 from models import one_vs_one_model
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
@@ -32,6 +32,24 @@ ers = EloRatingSystem.options(name="ers").remote(n_histories=4,
                                                  alpha_coeff=0.8,
                                                  burn_in=100000000,
                                                  k=0.1)
+
+env_config = {
+    "env_id": env_id,
+    "render": False,
+    "game_state_file": None,
+    "center": False,
+    "input_size": 11,
+    "policies": ["policy_0", "policy_2"],
+    "evaluate": True
+}
+
+ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
+ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
+ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
+ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
+ModelCatalog.register_custom_model("11th_model", eleventh_model.TorchRNNModel)
+ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
+tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 
 
 def gen_policy():
@@ -58,22 +76,6 @@ policies = {
 for i in range(4):
     policies["policy_{}".format(i + 2)] = gen_policy()
 
-env_config = {
-    "env_id": env_id,
-    "render": False,
-    "game_state_file": None,
-    "center": False,
-    "input_size": 11,
-    "policies": ["policy_0", "policy_2"],
-    "evaluate": True
-}
-ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
-ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
-ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel)
-ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
-ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
-tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
-
 ppo_agent = PPOTrainer(config={
     "env_config": env_config,
     "num_workers": 2,
@@ -86,14 +88,13 @@ ppo_agent = PPOTrainer(config={
     "use_pytorch": True
 }, env="PommeMultiAgent-v2")
 
-# fdb733b6
 checkpoint = 800
 checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_17-04-08zag8lm3i"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
 for agent_id in range(4):
-    agent_list.append(agents.StaticAgent())
+    agent_list.append(StaticAgent())
 
 env = v2.RllibPomme(env_config)
 
