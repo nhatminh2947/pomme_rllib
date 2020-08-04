@@ -188,7 +188,7 @@ class RllibPomme(v0.RllibPomme):
                 see_enemy = True
 
         if not see_enemy:
-            reward -= 0.01
+            reward -= 0.001
 
         return reward
 
