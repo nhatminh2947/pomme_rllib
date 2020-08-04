@@ -71,7 +71,7 @@ class RllibPomme(v0.RllibPomme):
                 obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering,
                                                         input_size=self._input_size)
                 rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
-                                                           _obs[i], _info, self.stat[i])
+                                                              _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
 
         self.prev_obs = _obs
@@ -204,14 +204,17 @@ class RllibPomme(v0.RllibPomme):
         if id + 10 in prev_obs['alive'] and id + 10 not in current_obs['alive']:  # died
             stat[Metrics.DeadOrSuicide.name] += 1
             game_reward += -1.0
-        else:
-            for i in range(10, 14):
-                if i in prev_obs['alive'] and i not in current_obs['alive']:  # agent i is died
-                    if constants.Item(value=i) in current_obs['enemies']:
-                        game_reward += 0.5
-                        stat[Metrics.EnemyDeath.name] += 1
-                    elif constants.Item(value=i) == current_obs['teammate']:
-                        game_reward += -0.25
+
+        for i in range(10, 14):
+            if i == id + 10:
+                continue
+
+            if i in prev_obs['alive'] and i not in current_obs['alive']:  # agent i is died
+                if constants.Item(value=i) in current_obs['enemies']:
+                    game_reward += 0.5
+                    stat[Metrics.EnemyDeath.name] += 1
+                elif constants.Item(value=i) == current_obs['teammate']:
+                    game_reward += -0.25
 
         if action == constants.Action.Bomb.value:
             stat[Metrics.ActionBombs.name] += 1

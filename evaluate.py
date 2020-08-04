@@ -1,20 +1,24 @@
+import numpy as np
 import pommerman
 import ray
 from gym import spaces
-from pommerman import agents
 from pommerman import constants
 from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.models import ModelCatalog
-from agents.static_agent import StaticAgent
+from ray.rllib.utils import try_import_torch
+
 import utils
+from agents.static_agent import StaticAgent
 from eloranking import EloRatingSystem
 from models import fourth_model, fifth_model, eighth_model, eleventh_model
 from models import one_vs_one_model
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
 from utils import policy_mapping
+
+torch, nn = try_import_torch()
 
 ray.init(local_mode=True)
 env_id = "PommeTeamCompetition-v0"
@@ -39,7 +43,7 @@ env_config = {
     "game_state_file": None,
     "center": False,
     "input_size": 11,
-    "policies": ["policy_0", "policy_2"],
+    "policies": ["policy_0", "static_1"],
     "evaluate": True
 }
 
@@ -55,7 +59,7 @@ tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "eighth_model",
+            "custom_model": "11th_model",
             "custom_options": {
                 "in_channels": utils.NUM_FEATURES,
                 "input_size": 11
@@ -88,8 +92,8 @@ ppo_agent = PPOTrainer(config={
     "use_pytorch": True
 }, env="PommeMultiAgent-v2")
 
-checkpoint = 800
-checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_17-04-08zag8lm3i"
+checkpoint = 50
+checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-04_19-43-08r8phh_2v"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -106,6 +110,20 @@ loss = 0
 tie = 0
 
 for i in range(100):
+    state = [[
+        np.zeros(512, dtype=np.float),
+        np.zeros(512, dtype=np.float)
+    ], [
+        np.zeros(512, dtype=np.float),
+        np.zeros(512, dtype=np.float)
+    ], [
+        np.zeros(512, dtype=np.float),
+        np.zeros(512, dtype=np.float)
+    ], [
+        np.zeros(512, dtype=np.float),
+        np.zeros(512, dtype=np.float)
+    ]]
+
     obs = env.reset()
 
     agent_names = env.agent_names
@@ -122,9 +140,15 @@ for i in range(100):
             policy_id = "{}_{}".format(name, id)
 
             if agent_names[i] in obs:
-                actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
-                                                                   policy_id=policy_id,
-                                                                   explore=True)
+                if "policy_0" in agent_names[i]:
+                    actions[agent_names[i]], state[i], _ = ppo_agent.compute_action(observation=obs[agent_names[i]],
+                                                                                    state=state[i],
+                                                                                    policy_id=policy_id,
+                                                                                    explore=True)
+                else:
+                    actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
+                                                                       policy_id=policy_id,
+                                                                       explore=True)
                 # print("agent_name:", agent_names[i])
                 # print(obs[agent_names[i]][11])
         # actions[id] = int(actions[2])
