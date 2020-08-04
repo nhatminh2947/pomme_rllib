@@ -1,18 +1,37 @@
 from gym import spaces
 from pommerman.agents import BaseAgent
+from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
+from ray.rllib.models import ModelCatalog
 
 import utils
 from memory import Memory
+from models import eighth_model
 from policies.static_policy import StaticPolicy
+from rllib_pomme_envs import v2
 from utils import featurize_v6
 from utils import policy_mapping
 
 
-class ray_agent(BaseAgent):
+class RayAgent(BaseAgent):
     def __init__(self):
         super().__init__()
+
+        env_id = "PommeTeamCompetition-v0"
+        env_config = {
+            "env_id": env_id,
+            "render": False,
+            "game_state_file": None,
+            "center": False,
+            "input_size": 11,
+            "policies": ["policy_0", "policy_2"],
+            "evaluate": True
+        }
+
+        tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
+        ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
+
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
         act_space = spaces.Discrete(6)
 
@@ -35,17 +54,8 @@ class ray_agent(BaseAgent):
             "static_1": (StaticPolicy, obs_space, act_space, {}),
             # "random_2": (RandomPolicy, obs_space, act_space, {})
         }
-        env_id = "PommeTeamCompetition-v0"
-
-        env_config = {
-            "env_id": env_id,
-            "render": False,
-            "game_state_file": None,
-            "center": False,
-            "input_size": 11,
-            "policies": ["policy_0", "policy_2"],
-            "evaluate": True
-        }
+        for i in range(4):
+            policies["policy_{}".format(i + 2)] = gen_policy()
 
         self.ppo_agent = PPOTrainer(config={
             "env_config": env_config,
@@ -59,14 +69,21 @@ class ray_agent(BaseAgent):
             "use_pytorch": True
         }, env="PommeMultiAgent-v2")
 
-        checkpoint = 300
+        checkpoint = 800
         checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_17-04-08zag8lm3i"
         self.ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
         self.memory = Memory(0)
 
     def act(self, obs, action_space):
-        self.memory.update_memory(obs)
-        self.ppo_agent.compute_action(observation=featurize_v6(self.memory.obs, centering=False, input_size=11),
-                                      policy_id="policy_0",
-                                      explore=True)
+        if self.memory.obs is None:
+            self.memory.init_memory(obs)
+        else:
+            self.memory.update_memory(obs)
+        action = self.ppo_agent.compute_action(
+            observation=featurize_v6(self.memory.obs, centering=False, input_size=11),
+            policy_id="policy_0",
+            explore=True
+        )
+
+        return int(action)
