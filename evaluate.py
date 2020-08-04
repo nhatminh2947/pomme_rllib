@@ -64,7 +64,7 @@ env_config = {
     "game_state_file": None,
     "center": False,
     "input_size": 11,
-    "policies": ["policy_0", "policy_3"],
+    "policies": ["policy_0", "policy_2"],
     "evaluate": True
 }
 ModelCatalog.register_custom_model("eighth_model", eighth_model.ActorCriticModel)
@@ -87,8 +87,8 @@ ppo_agent = PPOTrainer(config={
 }, env="PommeMultiAgent-v2")
 
 # fdb733b6
-checkpoint = 350
-checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_12-01-59zyfjsfiz"
+checkpoint = 800
+checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_17-04-08zag8lm3i"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -124,8 +124,8 @@ for i in range(100):
                 actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
                                                                    policy_id=policy_id,
                                                                    explore=True)
-                print("agent_name:", agent_names[i])
-                print(obs[agent_names[i]][11])
+                # print("agent_name:", agent_names[i])
+                # print(obs[agent_names[i]][11])
         # actions[id] = int(actions[2])
         #         print(obs[agent_names[i]])
 
