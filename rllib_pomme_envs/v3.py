@@ -42,12 +42,6 @@ class RllibPomme(v0.RllibPomme):
             else:
                 actions.append(0)
 
-        for i in range(self.num_agents):
-            if actions[i] == constants.Action.Bomb.value:
-                self.stat[i][Metrics.ActionBombs.name] += 1
-                if self.prev_obs[i]['ammo'] > 0:
-                    self.stat[i][Metrics.RealBombs.name] += 1
-
         obs = {}
         rewards = {}
         dones = {}
@@ -140,7 +134,8 @@ class RllibPomme(v0.RllibPomme):
                     game_reward += 0.5
                     stat[Metrics.EnemyDeath.name] += 1
 
-        if action == constants.Action.Bomb.value:
+        act = action[0] if type(action) == tuple else action
+        if act == constants.Action.Bomb.value:
             stat[Metrics.ActionBombs.name] += 1
             if prev_obs['ammo'] > 0:
                 stat[Metrics.RealBombs.name] += 1
@@ -172,7 +167,9 @@ class RllibPomme(v0.RllibPomme):
             stat[Metrics.Kick.name] = True
 
         pos = current_obs['position']
-        if prev_obs['ammo'] > 0 and action == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
+        act = action[0] if type(action) == tuple else action
+
+        if prev_obs['ammo'] > 0 and act == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
             dx = [-1, 0, 0, 1]
             dy = [0, -1, 1, 0]
             reward += 0.005
@@ -216,7 +213,8 @@ class RllibPomme(v0.RllibPomme):
                     game_reward += 0.5
                     stat[Metrics.EnemyDeath.name] += 1
 
-        if action == constants.Action.Bomb.value:
+        act = action[0] if type(action) == tuple else action
+        if act == constants.Action.Bomb.value:
             stat[Metrics.ActionBombs.name] += 1
             if prev_obs['ammo'] > 0:
                 stat[Metrics.RealBombs.name] += 1
