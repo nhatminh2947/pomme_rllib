@@ -92,8 +92,8 @@ ppo_agent = PPOTrainer(config={
     "use_pytorch": True
 }, env="PommeMultiAgent-v2")
 
-checkpoint = 50
-checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-04_19-43-08r8phh_2v"
+checkpoint = 450
+checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-04_23-28-57yyplnmzb"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -140,15 +140,15 @@ for i in range(100):
             policy_id = "{}_{}".format(name, id)
 
             if agent_names[i] in obs:
-                if "policy_0" in agent_names[i]:
+                if "static" in agent_names[i]:
+                    actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
+                                                                       policy_id=policy_id,
+                                                                       explore=True)
+                else:
                     actions[agent_names[i]], state[i], _ = ppo_agent.compute_action(observation=obs[agent_names[i]],
                                                                                     state=state[i],
                                                                                     policy_id=policy_id,
                                                                                     explore=True)
-                else:
-                    actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
-                                                                       policy_id=policy_id,
-                                                                       explore=True)
                 # print("agent_name:", agent_names[i])
                 # print(obs[agent_names[i]][11])
         # actions[id] = int(actions[2])

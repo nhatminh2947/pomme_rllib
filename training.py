@@ -16,11 +16,11 @@ import arguments
 import utils
 from eloranking import EloRatingSystem
 from metrics import Metrics
-from models import one_vs_one_model, third_model, fourth_model, fifth_model, sixth_model, seventh_model, eighth_model, \
-    nineth_model, tenth_model, eleventh_model
+from models import one_vs_one_model, eighth_model, \
+    eleventh_model, twelfth_model
 from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
 from policies.static_policy import StaticPolicy
-from rllib_pomme_envs import v0, v1, v2, one_vs_one
+from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
 from utils import policy_mapping
 
 parser = arguments.get_parser()
@@ -34,7 +34,7 @@ class PommeCallbacks(DefaultCallbacks):
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
         info = None
-        ers = ray.util.get_actor("ers")
+        ers = ray.get_actor("ers")
 
         policies = list(set([policy for _, policy in episode.agent_rewards]))
         policy_0_win = False
@@ -87,7 +87,7 @@ class PommeCallbacks(DefaultCallbacks):
             episode.custom_metrics["{}/win_rate".format(policies[1])] = 0
 
     def on_train_result(self, trainer, result: dict, **kwargs):
-        ers = ray.util.get_actor("ers")
+        ers = ray.get_actor("ers")
 
         if result["custom_metrics"]:
             if "policy_0/EnemyDeath_mean" in result["custom_metrics"]:
@@ -119,39 +119,34 @@ def initialize():
     }
 
     ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("3rd_model", third_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("4th_model", fourth_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("5th_model", fifth_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("6th_model", sixth_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("7th_model", seventh_model.ActorCriticModel)
     ModelCatalog.register_custom_model("8th_model", eighth_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("9th_model", nineth_model.ActorCriticModel)
-    ModelCatalog.register_custom_model("10th_model", tenth_model.ActorCriticModel)
     ModelCatalog.register_custom_model("11th_model", eleventh_model.TorchRNNModel)
+    ModelCatalog.register_custom_model("12th_model", twelfth_model.TorchRNNModel)
 
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
+    tune.register_env("PommeMultiAgent-v3", lambda x: v3.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-1vs1", lambda x: one_vs_one.RllibPomme(env_config))
     if params["env_id"] == "OneVsOne-v0":
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
     else:
         obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, params["input_size"], params["input_size"]))
 
-    act_space = spaces.Discrete(6)
+    act_space = spaces.Tuple(tuple([spaces.Discrete(6)] + [spaces.Discrete(8)] * 2))
 
     # Policy setting
     def gen_policy():
         config = {
             "model": {
                 "custom_model": params["custom_model"],
-                "custom_options": {
+                "custom_model_config": {
                     "in_channels": utils.NUM_FEATURES,
                     "input_size": params["input_size"]
                 },
                 "no_final_linear": True,
             },
-            "use_pytorch": True
+            "framework": "torch"
         }
         return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
 
@@ -238,12 +233,13 @@ def training_team():
                 "policy_mapping_fn": policy_mapping,
                 "policies_to_train": ["policy_0"],
             },
+            "clip_actions": False,
             "observation_filter": params["filter"],  # should use MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "metrics_smoothing_episodes": 100,
             "log_level": "ERROR",
-            "use_pytorch": True
+            "framework": "torch"
         }
     )
 

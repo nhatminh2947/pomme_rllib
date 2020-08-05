@@ -39,22 +39,18 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
             nn.Linear(input_size * input_size * 128, 1024),
             nn.ReLU(),
             nn.Linear(1024, 512),
-            nn.ReLU()
-        )
-
-        self.lstm = nn.LSTM(512, 512, batch_first=True)
-
-        self.actor_layers = nn.Sequential(
+            nn.ReLU(),
             nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Linear(256, action_space.n)
+            nn.Linear(256, 128),
+            nn.ReLU(),
         )
 
-        self.critic_layers = nn.Sequential(
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 1)
-        )
+        self.lstm = nn.LSTM(128, 128, batch_first=True)
+
+        self.actor_layers = nn.Linear(128, 22)
+
+        self.critic_layers = nn.Linear(128, 1)
 
         self._shared_layer_out = None
         self._features = None
@@ -63,8 +59,8 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
     def get_initial_state(self):
         # Place hidden states on same device as model.
         h = [
-            torch.zeros(512, dtype=torch.float),
-            torch.zeros(512, dtype=torch.float)
+            torch.zeros(128, dtype=torch.float),
+            torch.zeros(128, dtype=torch.float)
         ]
         return h
 

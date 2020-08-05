@@ -6,7 +6,7 @@ from pommerman import utility
 from memory import Memory
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize_v6
+from utils import featurize_v7
 
 
 # Note: change team for training agents
@@ -32,9 +32,13 @@ class RllibPomme(v0.RllibPomme):
                         record_json_dir="/home/lucius/ray_results/records/logs")
 
         actions = []
-        for i in range(4):
-            if self.agent_names[i] in action_dict:
-                actions.append(int(action_dict[self.agent_names[i]]))
+
+        for agent_name in self.agent_names:
+            if agent_name in action_dict:
+                if type(action_dict[agent_name]) == np.int64:
+                    actions.append(int(action_dict[agent_name]))
+                else:
+                    actions.append(action_dict[agent_name])
             else:
                 actions.append(0)
 
@@ -68,7 +72,7 @@ class RllibPomme(v0.RllibPomme):
 
                 self.memory[i].update_memory(_obs[i])
 
-                obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering,
+                obs[self.agent_names[i]] = featurize_v7(self.memory[i].obs, centering=self._centering,
                                                         input_size=self._input_size)
                 rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
                                                               _obs[i], _info, self.stat[i])
@@ -96,12 +100,13 @@ class RllibPomme(v0.RllibPomme):
 
         self.reset_stat()
         self.prev_obs = self.env.reset()
+
         obs = {}
         self.num_steps = 0
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                obs[self.agent_names[i]] = featurize_v6(self.prev_obs[i], centering=self._centering,
+                obs[self.agent_names[i]] = featurize_v7(self.prev_obs[i], centering=self._centering,
                                                         input_size=self._input_size)
 
         return obs

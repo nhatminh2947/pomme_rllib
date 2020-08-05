@@ -3,7 +3,7 @@ import torch
 from pommerman import constants
 from torch import nn
 
-NUM_FEATURES = 23
+NUM_FEATURES = 23 + 16
 # NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
@@ -406,6 +406,69 @@ def featurize_v6(obs, centering=False, input_size=9):
                          ammo, blast_strength, can_kick], 0)
 
     features = np.concatenate([one_hot_board, one_hot_bomb_moving_direction, features], 0)
+
+    return features
+
+
+def featurize_v7(obs, centering=False, input_size=9):
+    agent_id = obs["board"][obs["position"]]
+
+    preprocessed_obs = obs.copy()
+    if centering:
+        preprocessed_obs = center(obs, input_size)
+
+    one_hot_message_1 = np.zeros((8, input_size, input_size))
+    one_hot_message_1[obs["message"][0]] = np.ones((input_size, input_size))
+    one_hot_message_2 = np.zeros((8, input_size, input_size))
+    one_hot_message_2[obs["message"][1]] = np.ones((input_size, input_size))
+
+    board = np.asarray(preprocessed_obs["board"], dtype=np.int)
+
+    one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
+
+    one_hot_board[0] = one_hot_board[0] + one_hot_board[6] + one_hot_board[7] + one_hot_board[8]
+    if obs["can_kick"]:
+        one_hot_board[0] += one_hot_board[3]
+
+    if agent_id % 2 == 1:
+        one_hot_board[[10, 11]] = one_hot_board[[11, 10]]
+        one_hot_board[[12, 13]] = one_hot_board[[13, 12]]
+
+    if agent_id == 12 or agent_id == 13:
+        one_hot_board[[10, 12]] = one_hot_board[[12, 10]]
+
+    one_hot_board[13] = one_hot_board[11] + one_hot_board[13]
+
+    one_hot_board = np.delete(one_hot_board, [9, 11], 0)
+
+    one_hot_bomb_moving_direction = \
+        nn.functional.one_hot(torch.tensor(np.asarray(obs["bomb_moving_direction"], dtype=np.int)),
+                              num_classes=5).transpose(0, 2).transpose(1, 2).numpy()
+
+    one_hot_bomb_moving_direction = np.delete(one_hot_bomb_moving_direction, [0], 0)
+
+    teammate_alive = np.full(board.shape,
+                             fill_value=1 if preprocessed_obs["teammate"].value in preprocessed_obs["alive"] else 0)
+
+    alive_enemies = 0
+    for enemy in preprocessed_obs["enemies"]:
+        if enemy.value != constants.Item.AgentDummy.value and enemy.value in preprocessed_obs["alive"]:
+            alive_enemies += 1
+
+    enemies_alive = np.full(board.shape, fill_value=alive_enemies)
+
+    ammo = np.full(board.shape, fill_value=preprocessed_obs["ammo"])
+    blast_strength = np.full(board.shape, fill_value=preprocessed_obs["blast_strength"])
+    can_kick = np.full(board.shape, fill_value=1 if preprocessed_obs["can_kick"] else 0)
+
+    features = np.stack([preprocessed_obs["bomb_life"],
+                         preprocessed_obs["bomb_blast_strength"],
+                         teammate_alive,
+                         enemies_alive,
+                         ammo, blast_strength, can_kick], 0)
+
+    features = np.concatenate(
+        [one_hot_board, one_hot_bomb_moving_direction, features, one_hot_message_1, one_hot_message_2], 0)
 
     return features
 

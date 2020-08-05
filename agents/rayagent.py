@@ -15,7 +15,7 @@ from utils import policy_mapping
 
 
 class RayAgent(BaseAgent):
-    def __init__(self):
+    def __init__(self, checkpoint):
         super().__init__()
 
         env_id = "PommeTeamCompetition-v0"
@@ -69,9 +69,7 @@ class RayAgent(BaseAgent):
             "use_pytorch": True
         }, env="PommeMultiAgent-v2")
 
-        checkpoint = 800
-        checkpoint_dir = "/home/lucius/ray_results/2vs2_sp/PPO_PommeMultiAgent-v2_0_2020-08-03_17-04-08zag8lm3i"
-        self.ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
+        self.ppo_agent.restore(checkpoint)
 
         self.memory = Memory(0)
 
@@ -83,7 +81,7 @@ class RayAgent(BaseAgent):
         action = self.ppo_agent.compute_action(
             observation=featurize_v6(self.memory.obs, centering=False, input_size=11),
             policy_id="policy_0",
-            explore=True
+            explore=False
         )
 
         return int(action)
