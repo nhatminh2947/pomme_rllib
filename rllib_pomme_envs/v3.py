@@ -212,7 +212,7 @@ class RllibPomme(v0.RllibPomme):
                 elif constants.Item(value=i) in current_obs['enemies']:
                     game_reward += 0.5
                     stat[Metrics.EnemyDeath.name] += 1
-            elif i == id + 10 and constants.Result.Tie:
+            elif i == id + 10 and info["result"] == constants.Result.Tie:
                 game_reward += -1.0
 
         act = action[0] if type(action) == tuple else action
