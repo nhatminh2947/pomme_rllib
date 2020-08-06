@@ -152,7 +152,7 @@ def initialize():
     policies = {
         "policy_0": gen_policy(),
         "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "smart_random_2": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        "smartrandom_2": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "simple_3": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),

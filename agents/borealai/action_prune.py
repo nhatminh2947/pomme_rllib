@@ -329,7 +329,7 @@ def _compute_safe_actions(obs, exclude_kicking=False, prev_two_obs=(None, None))
     return ret
 
 
-def get_filtered_actions(obs, prev_two_obs=None):
+def get_filtered_actions(obs, prev_two_obs=(None, None)):
     if obs['board'][obs['position']] not in obs['alive']:
         return [constants.Action.Stop.value]
     obs_cpy = copy.deepcopy(obs)

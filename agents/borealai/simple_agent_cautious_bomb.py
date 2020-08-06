@@ -126,6 +126,11 @@ class CautiousAgent(BaseAgent):
                 })
             return ret
 
+        obs['position'] = tuple(np.asarray(obs['position'], dtype=np.int))
+        obs['message'] = tuple(np.asarray(obs['message'], dtype=np.int))
+        obs['enemies'] = [constants.Item(e) for e in obs['enemies']]
+        obs['teammate'] = constants.Item(obs['teammate'])
+
         # do a must_bomb_test, if it can kill the opponent with guarantee, place a bomb here
         if must_place_bomb_test(obs):
             return constants.Action.Bomb.value
