@@ -1,15 +1,15 @@
 from ray.rllib.policy.policy import Policy
 from ray.rllib.utils.annotations import override
 
-from agents.borealai.random_agent import SmartRandomAgent
+from agents.borealai.simple_agent_cautious_bomb import CautiousAgent
 
 
-class SmartRandomPolicy(Policy):
+class CautiousPolicy(Policy):
     """Hand-coded policy that returns random actions."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.agent = SmartRandomAgent()
+        self.agent = CautiousAgent()
 
     @override(Policy)
     def compute_actions(self,

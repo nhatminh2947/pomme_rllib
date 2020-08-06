@@ -18,7 +18,7 @@ from eloranking import EloRatingSystem
 from metrics import Metrics
 from models import one_vs_one_model, eighth_model, \
     eleventh_model, twelfth_model
-from policies import RandomPolicy, StaticPolicy, SimplePolicy
+from policies import SmartRandomPolicy, StaticPolicy, SimplePolicy, NeotericPolicy, CautiousPolicy
 from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
 from utils import policy_mapping
 
@@ -152,8 +152,10 @@ def initialize():
     policies = {
         "policy_0": gen_policy(),
         "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "random_2": (RandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        "smart_random_2": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "simple_3": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
     }
 
     for i in range(params["n_histories"]):

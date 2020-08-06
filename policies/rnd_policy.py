@@ -14,7 +14,7 @@ from ray.rllib.utils.torch_ops import sequence_mask
 
 import utils
 from models.rnd_model import RNDActorCriticModel
-from policies.random_policy import RandomPolicy
+from policies.random_policy import SmartRandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v1
 
@@ -408,7 +408,7 @@ if __name__ == '__main__':
     policies = {
         "policy_{}".format(i): gen_policy() for i in range(2)
     }
-    policies["random"] = (RandomPolicy, obs_space, act_space, {})
+    policies["random"] = (SmartRandomPolicy, obs_space, act_space, {})
     policies["static"] = (StaticPolicy, obs_space, act_space, {})
     print(policies.keys())
 

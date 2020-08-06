@@ -3,6 +3,7 @@ import torch
 from gym.spaces import Dict, Discrete, Tuple, Box
 from pommerman import constants
 from torch import nn
+import copy
 
 NUM_FEATURES = 23 + 16
 # NUM_FEATURES = 21
@@ -24,7 +25,8 @@ original_obs_space = Dict({
     'blast_strength': Discrete(11),
     'can_kick': Discrete(2),
     'teammate': Discrete(14),
-    'enemies': Box(low=9, high=13, shape=(3,))
+    'enemies': Box(low=9, high=13, shape=(3,)),
+    'message': Box(low=0, high=7, shape=(2,))
 })
 
 
@@ -370,7 +372,7 @@ def featurize_v5(obs, centering=False, input_size=9):
 def featurize_v6(obs, centering=False, input_size=9):
     agent_id = obs["board"][obs["position"]]
 
-    preprocessed_obs = obs.copy()
+    preprocessed_obs = copy.deepcopy(obs)
     if centering:
         preprocessed_obs = center(obs, input_size)
 
@@ -427,7 +429,7 @@ def featurize_v6(obs, centering=False, input_size=9):
 def featurize_v7(obs, centering=False, input_size=9):
     agent_id = obs["board"][obs["position"]]
 
-    preprocessed_obs = obs.copy()
+    preprocessed_obs = copy.deepcopy(obs)
     if centering:
         preprocessed_obs = center(obs, input_size)
 
@@ -488,17 +490,19 @@ def featurize_v7(obs, centering=False, input_size=9):
 
 
 def featurize_non_learning_agent(obs):
+    temp_obs = copy.deepcopy(obs)
     featurized_obs = {
-        'alive': obs['alive'],
-        'board': obs['board'],
-        'bomb_blast_strength': obs['bomb_blast_strength'],
-        'bomb_life': obs['bomb_life'],
-        'position': np.array(obs['position']),
-        'ammo': obs['ammo'],
-        'blast_strength': obs['blast_strength'],
-        'can_kick': obs['can_kick'],
-        'teammate': obs['teammate'].value,
-        'enemies': [enemy.value for enemy in obs['enemies']]
+        'alive': temp_obs['alive'],
+        'board': temp_obs['board'],
+        'bomb_blast_strength': temp_obs['bomb_blast_strength'],
+        'bomb_life': temp_obs['bomb_life'],
+        'position': np.array(temp_obs['position']),
+        'ammo': temp_obs['ammo'],
+        'blast_strength': temp_obs['blast_strength'],
+        'can_kick': temp_obs['can_kick'],
+        'teammate': temp_obs['teammate'].value,
+        'enemies': [enemy.value for enemy in temp_obs['enemies']],
+        'message': np.array(temp_obs['message'])
     }
 
     while len(featurized_obs['alive']) != 4:
@@ -520,7 +524,7 @@ def policy_mapping(agent_id):
 
 
 def center(obs, size=9):
-    centered_obs = obs.copy()
+    centered_obs = copy.deepcopy(obs)
 
     centered_obs["board"] = np.ones((size, size), dtype=np.float32)
     centered_obs["bomb_blast_strength"] = np.zeros((size, size), dtype=np.float32)

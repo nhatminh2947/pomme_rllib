@@ -9,7 +9,7 @@ from pommerman import agents, constants
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 
 from ers import ers
-from policies.random_policy import RandomPolicy
+from policies.random_policy import SmartRandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
 
@@ -61,7 +61,7 @@ class TestEnvironment(unittest.TestCase):
         }
 
         policies["opponent"] = gen_policy()
-        policies["random"] = (RandomPolicy, obs_space, act_space, {})
+        policies["random"] = (SmartRandomPolicy, obs_space, act_space, {})
         policies["static"] = (StaticPolicy, obs_space, act_space, {})
 
         env_id = "PommeTeam-v0"

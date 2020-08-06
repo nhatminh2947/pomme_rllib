@@ -6,4 +6,3 @@ from agents.neoteric.neoteric_agent import NeotericAgent
 from agents.rayagent import RayAgent
 from agents.simple_agent import SimpleAgent
 from agents.static_agent import StaticAgent
-from .static_agent import StaticAgent

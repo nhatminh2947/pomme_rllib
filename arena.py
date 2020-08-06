@@ -43,6 +43,7 @@ for i in range(100):
         # env.render()
         actions = env[i % 2].act(state)
         state, reward, done, info = env[i % 2].step(actions)
+        print(actions[i % 2 + 1])
 
         if done:
             result = constants.Result.Loss

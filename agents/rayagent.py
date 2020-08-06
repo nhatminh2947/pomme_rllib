@@ -8,7 +8,7 @@ from ray.rllib.models import ModelCatalog
 import utils
 from memory import Memory
 from models import eighth_model
-from policies import StaticPolicy
+from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
 from utils import featurize_v6
 from utils import policy_mapping

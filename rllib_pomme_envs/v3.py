@@ -35,10 +35,10 @@ class RllibPomme(v0.RllibPomme):
 
         for agent_name in self.agent_names:
             if agent_name in action_dict:
-                if type(action_dict[agent_name]) != tuple:
-                    actions.append(int(action_dict[agent_name]))
-                else:
+                if type(action_dict[agent_name]) in [tuple, list]:
                     actions.append(action_dict[agent_name])
+                else:
+                    actions.append(int(action_dict[agent_name]))
             else:
                 actions.append(0)
 
@@ -70,7 +70,7 @@ class RllibPomme(v0.RllibPomme):
                                                             input_size=self._input_size)
                     # obs[self.agent_names[i]] = featurize_non_learning_agent(self.memory[i].obs)
                 else:
-                    obs[self.agent_names[i]] = featurize_non_learning_agent(self.memory[i].obs)
+                    obs[self.agent_names[i]] = featurize_non_learning_agent(_obs[i])
 
                 rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
                                                               _obs[i], _info, self.stat[i])
