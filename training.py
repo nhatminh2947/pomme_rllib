@@ -18,8 +18,7 @@ from eloranking import EloRatingSystem
 from metrics import Metrics
 from models import one_vs_one_model, eighth_model, \
     eleventh_model, twelfth_model
-from policies.rnd_policy import RNDTrainer, RNDPPOPolicy
-from policies.static_policy import StaticPolicy
+from policies import RandomPolicy, StaticPolicy, SimplePolicy
 from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
 from utils import policy_mapping
 
@@ -152,19 +151,23 @@ def initialize():
 
     policies = {
         "policy_0": gen_policy(),
-        "static_1": (StaticPolicy, obs_space, act_space, {}),
-        # "random_2": (RandomPolicy, obs_space, act_space, {}),
+        "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        "random_2": (RandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        "simple_3": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
     }
 
     for i in range(params["n_histories"]):
-        policies["policy_{}".format(i + 2)] = gen_policy()
+        policies["policy_{}".format(len(policies))] = gen_policy()
 
     policy_names = list(policies.keys())
 
-    ers = EloRatingSystem.options(name="ers").remote(n_histories=params["n_histories"],
-                                                     alpha_coeff=params["alpha_coeff"],
-                                                     burn_in=params["burn_in"],
-                                                     k=0.1)
+    ers = EloRatingSystem.options(name="ers").remote(
+        policy_names=policy_names,
+        n_histories=params["n_histories"],
+        alpha_coeff=params["alpha_coeff"],
+        burn_in=params["burn_in"],
+        k=0.1
+    )
 
     print("Training policies:", policies.keys())
 

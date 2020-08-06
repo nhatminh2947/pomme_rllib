@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from gym.spaces import Dict, Discrete, Tuple, Box
 from pommerman import constants
 from torch import nn
 
@@ -12,6 +13,19 @@ agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "na
 agents_2 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.2", "navocado", "skynet955",
             "nips19-gorogm.gorogm", "nips19-pauljasek.thing1andthing2", "nips19-sumedhgupta.neoterics",
             "nips19-inspir-ai.inspir"]
+
+original_obs_space = Dict({
+    'alive': Box(low=9, high=13, shape=(4,)),
+    'board': Box(low=0, high=13, shape=(11, 11)),
+    'bomb_blast_strength': Box(low=0, high=13, shape=(11, 11)),
+    'bomb_life': Box(low=0, high=13, shape=(11, 11)),
+    'position': Box(low=0, high=10, shape=(2,)),
+    'ammo': Discrete(11),
+    'blast_strength': Discrete(11),
+    'can_kick': Discrete(2),
+    'teammate': Discrete(14),
+    'enemies': Box(low=9, high=13, shape=(3,))
+})
 
 
 def softmax(x, mask=None):
@@ -471,6 +485,25 @@ def featurize_v7(obs, centering=False, input_size=9):
         [one_hot_board, one_hot_bomb_moving_direction, features, one_hot_message_1, one_hot_message_2], 0)
 
     return features
+
+
+def featurize_non_learning_agent(obs):
+    featurized_obs = {
+        'alive': obs['alive'],
+        'board': obs['board'],
+        'bomb_blast_strength': obs['bomb_blast_strength'],
+        'bomb_life': obs['bomb_life'],
+        'position': np.array(obs['position']),
+        'ammo': obs['ammo'],
+        'blast_strength': obs['blast_strength'],
+        'can_kick': obs['can_kick'],
+        'teammate': obs['teammate'].value,
+        'enemies': [enemy.value for enemy in obs['enemies']]
+    }
+
+    while len(featurized_obs['alive']) != 4:
+        featurized_obs['alive'].append(constants.Item.AgentDummy.value)
+    return featurized_obs
 
 
 def limit_gamma_explore(config):

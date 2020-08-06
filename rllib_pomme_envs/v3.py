@@ -6,7 +6,7 @@ from pommerman import utility
 from memory import Memory
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize_v7
+from utils import featurize_v7, featurize_non_learning_agent
 
 
 # Note: change team for training agents
@@ -35,7 +35,7 @@ class RllibPomme(v0.RllibPomme):
 
         for agent_name in self.agent_names:
             if agent_name in action_dict:
-                if type(action_dict[agent_name]) == np.int64:
+                if type(action_dict[agent_name]) != tuple:
                     actions.append(int(action_dict[agent_name]))
                 else:
                     actions.append(action_dict[agent_name])
@@ -65,9 +65,13 @@ class RllibPomme(v0.RllibPomme):
                 policy_name = "{}_{}".format(name, id)
 
                 self.memory[i].update_memory(_obs[i])
+                if "policy" in self.agent_names[i]:
+                    obs[self.agent_names[i]] = featurize_v7(self.memory[i].obs, centering=self._centering,
+                                                            input_size=self._input_size)
+                    # obs[self.agent_names[i]] = featurize_non_learning_agent(self.memory[i].obs)
+                else:
+                    obs[self.agent_names[i]] = featurize_non_learning_agent(self.memory[i].obs)
 
-                obs[self.agent_names[i]] = featurize_v7(self.memory[i].obs, centering=self._centering,
-                                                        input_size=self._input_size)
                 rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
                                                               _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
@@ -100,8 +104,12 @@ class RllibPomme(v0.RllibPomme):
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                obs[self.agent_names[i]] = featurize_v7(self.prev_obs[i], centering=self._centering,
-                                                        input_size=self._input_size)
+                if "policy" in self.agent_names[i]:
+                    obs[self.agent_names[i]] = featurize_v7(self.prev_obs[i], centering=self._centering,
+                                                            input_size=self._input_size)
+                    # obs[self.agent_names[i]] = featurize_non_learning_agent(self.prev_obs[i])
+                else:
+                    obs[self.agent_names[i]] = featurize_non_learning_agent(self.prev_obs[i])
 
         return obs
 

@@ -15,7 +15,7 @@ class Member:
 
 @ray.remote(num_cpus=0.1, num_gpus=0)
 class EloRatingSystem:
-    def __init__(self, n_histories, alpha_coeff, burn_in, k=16):
+    def __init__(self, policy_names, n_histories, alpha_coeff, burn_in, k=16):
         self.population = {}
         self.k = k
         self.n_histories = n_histories
@@ -23,10 +23,11 @@ class EloRatingSystem:
         self.alpha_coeff = alpha_coeff
         self.burn_in = burn_in
 
-        self.add_policy("policy_0", False)
-        self.add_policy("static_1", True)
-        for i in range(n_histories):
-            self.add_policy("policy_{}".format(i + 2), False)
+        for policy_name in policy_names:
+            self.add_policy(policy_name, False)
+
+        # self.population["static_1"].ready = True
+        self.population["simple_3"].ready = True
 
     def update_alpha(self, policy_name, enemy_death_mean):
         self.population[policy_name].alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
