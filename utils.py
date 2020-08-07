@@ -438,16 +438,16 @@ def featurize_v7(obs, centering=False, input_size=9):
         preprocessed_obs = center(obs, input_size)
 
     one_hot_message_1 = np.zeros((8, input_size, input_size))
-    one_hot_message_1[obs["message"][0]] = np.ones((input_size, input_size))
+    one_hot_message_1[preprocessed_obs["message"][0]] = np.ones((input_size, input_size))
     one_hot_message_2 = np.zeros((8, input_size, input_size))
-    one_hot_message_2[obs["message"][1]] = np.ones((input_size, input_size))
+    one_hot_message_2[preprocessed_obs["message"][1]] = np.ones((input_size, input_size))
 
     board = np.asarray(preprocessed_obs["board"], dtype=np.int)
 
     one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
 
     one_hot_board[0] = one_hot_board[0] + one_hot_board[6] + one_hot_board[7] + one_hot_board[8]
-    if obs["can_kick"]:
+    if preprocessed_obs["can_kick"]:
         one_hot_board[0] += one_hot_board[3]
 
     if agent_id % 2 == 1:
@@ -462,7 +462,7 @@ def featurize_v7(obs, centering=False, input_size=9):
     one_hot_board = np.delete(one_hot_board, [9, 11], 0)
 
     one_hot_bomb_moving_direction = \
-        nn.functional.one_hot(torch.tensor(np.asarray(obs["bomb_moving_direction"], dtype=np.int)),
+        nn.functional.one_hot(torch.tensor(np.asarray(preprocessed_obs["bomb_moving_direction"], dtype=np.int)),
                               num_classes=5).transpose(0, 2).transpose(1, 2).numpy()
 
     one_hot_bomb_moving_direction = np.delete(one_hot_bomb_moving_direction, [0], 0)
