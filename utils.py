@@ -1,9 +1,13 @@
+import copy
+
 import numpy as np
+import pommerman
 import torch
-from gym.spaces import Dict, Discrete, Tuple, Box
+from gym.spaces import Dict, Discrete, Box
 from pommerman import constants
 from torch import nn
-import copy
+
+from agents.static_agent import StaticAgent
 
 NUM_FEATURES = 23 + 16
 # NUM_FEATURES = 21
@@ -549,3 +553,12 @@ def center(obs, size=9):
         = obs["bomb_moving_direction"][max(0, x - u):min(11, x + u + 1), max(0, y - u):min(11, y + u + 1)]
 
     return centered_obs
+
+
+def make_env(num_agents, env_id, game_state_file):
+    agent_list = []
+    for i in range(num_agents):
+        agent_list.append(StaticAgent())
+
+    return pommerman.make(env_id, agent_list, game_state_file)
+

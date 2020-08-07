@@ -3,8 +3,8 @@ import ray
 from pommerman import constants
 
 from metrics import Metrics
-from rllib_pomme_envs import v0
-from utils import featurize_v4, featurize_v6
+from . import v0
+import utils
 
 
 # Note: change team for training agents
@@ -48,7 +48,7 @@ class RllibPomme(v0.RllibPomme):
                 name, id, _ = self.agent_names[i].split("_")
                 policy_name = "{}_{}".format(name, id)
 
-                obs[self.agent_names[i]] = featurize_v6(_obs[i], centering=False, input_size=8)
+                obs[self.agent_names[i]] = utils.featurize_v6(_obs[i], centering=False, input_size=8)
                 rewards[self.agent_names[i]] = self.reward(policy_name, i, actions[i], self.prev_obs[i],
                                                            _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)

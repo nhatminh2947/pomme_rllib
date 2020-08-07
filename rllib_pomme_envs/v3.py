@@ -3,10 +3,10 @@ import ray
 from pommerman import constants
 from pommerman import utility
 
+import utils
 from memory import Memory
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize_v7, featurize_non_learning_agent
 
 
 # Note: change team for training agents
@@ -66,11 +66,11 @@ class RllibPomme(v0.RllibPomme):
 
                 self.memory[i].update_memory(_obs[i])
                 if "policy" in self.agent_names[i]:
-                    obs[self.agent_names[i]] = featurize_v7(self.memory[i].obs, centering=self._centering,
-                                                            input_size=self._input_size)
+                    obs[self.agent_names[i]] = utils.featurize_v7(self.memory[i].obs, centering=self._centering,
+                                                                  input_size=self._input_size)
                     # obs[self.agent_names[i]] = featurize_non_learning_agent(self.memory[i].obs)
                 else:
-                    obs[self.agent_names[i]] = featurize_non_learning_agent(_obs[i])
+                    obs[self.agent_names[i]] = utils.featurize_non_learning_agent(_obs[i])
 
                 rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
                                                               _obs[i], _info, self.stat[i])
@@ -105,11 +105,11 @@ class RllibPomme(v0.RllibPomme):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 if "policy" in self.agent_names[i]:
-                    obs[self.agent_names[i]] = featurize_v7(self.prev_obs[i], centering=self._centering,
-                                                            input_size=self._input_size)
+                    obs[self.agent_names[i]] = utils.featurize_v7(self.prev_obs[i], centering=self._centering,
+                                                                  input_size=self._input_size)
                     # obs[self.agent_names[i]] = featurize_non_learning_agent(self.prev_obs[i])
                 else:
-                    obs[self.agent_names[i]] = featurize_non_learning_agent(self.prev_obs[i])
+                    obs[self.agent_names[i]] = utils.featurize_non_learning_agent(self.prev_obs[i])
 
         return obs
 

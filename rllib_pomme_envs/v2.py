@@ -3,10 +3,10 @@ import ray
 from pommerman import constants
 from pommerman import utility
 
+import utils
 from memory import Memory
 from metrics import Metrics
 from rllib_pomme_envs import v0
-from utils import featurize_v6
 
 
 # Note: change team for training agents
@@ -68,8 +68,8 @@ class RllibPomme(v0.RllibPomme):
 
                 self.memory[i].update_memory(_obs[i])
 
-                obs[self.agent_names[i]] = featurize_v6(self.memory[i].obs, centering=self._centering,
-                                                        input_size=self._input_size)
+                obs[self.agent_names[i]] = utils.featurize_v6(self.memory[i].obs, centering=self._centering,
+                                                              input_size=self._input_size)
                 rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
                                                               _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
@@ -101,8 +101,8 @@ class RllibPomme(v0.RllibPomme):
         for i in range(self.num_agents):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                obs[self.agent_names[i]] = featurize_v6(self.prev_obs[i], centering=self._centering,
-                                                        input_size=self._input_size)
+                obs[self.agent_names[i]] = utils.featurize_v6(self.prev_obs[i], centering=self._centering,
+                                                              input_size=self._input_size)
 
         return obs
 

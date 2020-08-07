@@ -1,4 +1,3 @@
-import pommerman
 import ray
 from gym import spaces
 from pommerman import constants
@@ -6,20 +5,15 @@ from pommerman import utility
 from ray.rllib.env.multi_agent_env import MultiAgentEnv
 
 import utils
-from agents.static_agent import StaticAgent
 from metrics import Metrics
-from utils import featurize
 
 
 # Note: change team for training agents
 class RllibPomme(MultiAgentEnv):
     def __init__(self, config):
         self.num_agents = 2 if config["env_id"] == "OneVsOne-v0" else 4
-        self.agent_list = []
-        for i in range(self.num_agents):
-            self.agent_list.append(StaticAgent())
 
-        self.env = pommerman.make(config["env_id"], self.agent_list, config["game_state_file"])
+        self.env = utils.make_env(self.num_agents, config["env_id"], config["game_state_file"])
         self.is_render = config["render"]
         self.action_space = self.env.action_space
         self.prev_obs = None
@@ -72,7 +66,7 @@ class RllibPomme(MultiAgentEnv):
 
         for id in range(self.num_agents):
             if self.is_agent_alive(id):
-                obs[self.agent_names[id]] = featurize(_obs[id])
+                obs[self.agent_names[id]] = utils.featurize(_obs[id])
                 rewards[self.agent_names[id]] = self.reward(id, actions[id], self.prev_obs[id],
                                                             _obs[id], _info, self.stat[id])
                 infos[self.agent_names[id]] = _info
@@ -95,7 +89,7 @@ class RllibPomme(MultiAgentEnv):
         self.agent_names = ray.get(ers.get_training_policies.remote())
         for i in range(self.num_agents):
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
-                obs[self.agent_names[i]] = featurize(self.prev_obs[i])
+                obs[self.agent_names[i]] = utils.featurize(self.prev_obs[i])
 
         return obs
 

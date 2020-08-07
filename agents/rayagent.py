@@ -10,8 +10,6 @@ from memory import Memory
 from models import eighth_model
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
-from utils import featurize_v6
-from utils import policy_mapping
 
 
 class RayAgent(BaseAgent):
@@ -62,7 +60,7 @@ class RayAgent(BaseAgent):
             "num_workers": 2,
             "multiagent": {
                 "policies": policies,
-                "policy_mapping_fn": policy_mapping,
+                "policy_mapping_fn": utils.policy_mapping,
                 "policies_to_train": ["policy_0"],
             },
             "observation_filter": "MeanStdFilter",
@@ -79,7 +77,7 @@ class RayAgent(BaseAgent):
         else:
             self.memory.update_memory(obs)
         action = self.ppo_agent.compute_action(
-            observation=featurize_v6(self.memory.obs, centering=False, input_size=11),
+            observation=utils.featurize_v6(self.memory.obs, centering=False, input_size=11),
             policy_id="policy_0",
             explore=False
         )
