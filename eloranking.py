@@ -26,8 +26,8 @@ class EloRatingSystem:
         for policy_name in policy_names:
             self.add_policy(policy_name, False)
 
-        # self.population["static_1"].ready = True
-        self.population["smartrandom_2"].ready = True
+        self.population["static_1"].ready = True
+        # self.population["smartrandom_2"].ready = True
         # self.population["simple_3"].ready = True
         # self.population["cautious_4"].ready = True
         # self.population["neoteric_5"].ready = True
