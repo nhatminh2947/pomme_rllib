@@ -67,7 +67,10 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
         x = input_dict["obs"]["conv_features"]
         x = self.shared_layers(x)
 
-        last_reward = torch.tensor(np.expand_dims(input_dict["prev_rewards"], 1), dtype=torch.float)
+        if type(input_dict["prev_rewards"]) != torch.Tensor:
+            input_dict["prev_rewards"] = torch.tensor(input_dict["prev_rewards"])
+
+        last_reward = torch.reshape(input_dict["prev_rewards"], [-1, 1]).float()
         prev_actions = np.array(input_dict["prev_actions"], dtype=np.int)
 
         # prev_actions = [np.asarray(prev_action, dtype=np.int) for prev_action in prev_actions]
