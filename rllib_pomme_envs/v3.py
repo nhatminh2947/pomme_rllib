@@ -66,7 +66,7 @@ class RllibPomme(v0.RllibPomme):
 
                 self.memory[i].update_memory(_obs[i])
                 if "policy" in self.agent_names[i]:
-                    obs[self.agent_names[i]] = utils.featurize_v7(self.memory[i].obs, centering=self._centering,
+                    obs[self.agent_names[i]] = utils.featurize_v8(self.memory[i].obs, centering=self._centering,
                                                                   input_size=self._input_size)
                     # obs[self.agent_names[i]] = featurize_non_learning_agent(self.memory[i].obs)
                 else:
@@ -105,7 +105,7 @@ class RllibPomme(v0.RllibPomme):
             self.memory[i].init_memory(self.prev_obs[i])
             if self.is_agent_alive(i, self.prev_obs[i]['alive']):
                 if "policy" in self.agent_names[i]:
-                    obs[self.agent_names[i]] = utils.featurize_v7(self.prev_obs[i], centering=self._centering,
+                    obs[self.agent_names[i]] = utils.featurize_v8(self.prev_obs[i], centering=self._centering,
                                                                   input_size=self._input_size)
                     # obs[self.agent_names[i]] = featurize_non_learning_agent(self.prev_obs[i])
                 else:

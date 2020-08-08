@@ -14,7 +14,7 @@ from agents.static_agent import StaticAgent
 from eloranking import EloRatingSystem
 from models import fourth_model, fifth_model, eighth_model, eleventh_model, twelfth_model
 from models import one_vs_one_model
-from policies.static_policy import StaticPolicy
+from policies import SmartRandomPolicy, SimplePolicy, NeotericPolicy, CautiousPolicy, StaticPolicy
 from rllib_pomme_envs import v2, v3
 from utils import policy_mapping
 
@@ -27,23 +27,59 @@ ray.init(local_mode=True, num_gpus=1)
 # env_id = "OneVsOne-v0"
 env_id = "PommeRadioCompetition-v2"
 
+input_size = 9
+center = True
+n_histories = 4
+
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 11, 11))
+obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, input_size, input_size))
 act_space = spaces.Tuple(tuple([spaces.Discrete(6)] + [spaces.Discrete(8)] * 2))
 
-ers = EloRatingSystem.options(name="ers").remote(n_histories=4,
-                                                 alpha_coeff=0.8,
-                                                 burn_in=100000000,
-                                                 k=0.1)
+
+def gen_policy():
+    config = {
+        "model": {
+            "custom_model": "12th_model",
+            "custom_model_config": {
+                "in_channels": utils.NUM_FEATURES,
+                "input_size": input_size
+            },
+            "no_final_linear": True,
+        },
+        "framework": "torch"
+    }
+    return PPOTorchPolicy, obs_space, act_space, config
+
+
+policies = {
+    "policy_0": gen_policy(),
+    "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "smartrandom_2": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "simple_3": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
+}
+policy_names = list(policies.keys())
+
+for i in range(n_histories):
+    policies["policy_{}".format(len(policies))] = gen_policy()
+
+ers = EloRatingSystem.options(name="ers").remote(
+    policy_names=policy_names,
+    n_histories=4,
+    alpha_coeff=0.8,
+    burn_in=100000000,
+    k=0.1
+)
 
 env_config = {
     "env_id": env_id,
     "render": False,
     "game_state_file": None,
-    "center": False,
-    "input_size": 11,
-    "policies": ["policy_0", "policy_2"],
+    "center": center,
+    "input_size": input_size,
+    "policies": ["policy_0", "smartrandom_2"],
     "evaluate": True
 }
 
@@ -58,31 +94,6 @@ ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
 tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 tune.register_env("PommeMultiAgent-v3", lambda x: v3.RllibPomme(env_config))
 
-
-def gen_policy():
-    config = {
-        "model": {
-            "custom_model": "12th_model",
-            "custom_model_config": {
-                "in_channels": utils.NUM_FEATURES,
-                "input_size": 11
-            },
-            "no_final_linear": True,
-        },
-        "framework": "torch"
-    }
-    return PPOTorchPolicy, obs_space, act_space, config
-
-
-policies = {
-    "policy_0": gen_policy(),
-    "static_1": (StaticPolicy, obs_space, spaces.Discrete(6), {}),
-    # "random_2": (RandomPolicy, obs_space, act_space, {})
-}
-
-for i in range(4):
-    policies["policy_{}".format(i + 2)] = gen_policy()
-
 ppo_agent = PPOTrainer(config={
     "env_config": env_config,
     "num_workers": 0,
@@ -96,8 +107,8 @@ ppo_agent = PPOTrainer(config={
     "framework": "torch"
 }, env="PommeMultiAgent-v3")
 
-checkpoint = 200
-checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-05_21-37-52w187rxz8"
+checkpoint = 520
+checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-08_00-51-05524bypwf"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -144,13 +155,15 @@ for i in range(100):
             policy_id = "{}_{}".format(name, id)
 
             if agent_names[i] in obs:
-                if "static" in agent_names[i]:
-                    actions[agent_names[i]] = 0
-                else:
+                if "policy" in agent_names[i]:
                     actions[agent_names[i]], state[i], _ = ppo_agent.compute_action(observation=obs[agent_names[i]],
                                                                                     state=state[i],
                                                                                     policy_id=policy_id,
                                                                                     explore=True)
+                else:
+                    actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
+                                                                       policy_id=policy_id,
+                                                                       explore=True)
                 # print("agent_name:", agent_names[i])
                 # print(obs[agent_names[i]][11])
         # actions[id] = int(actions[2])

@@ -15,7 +15,7 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
 
         self.shared_layers = nn.Sequential(
             nn.Conv2d(
-                in_channels=in_channels,
+                in_channels=14,
                 out_channels=32,
                 kernel_size=3,
                 stride=1),
@@ -41,11 +41,11 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
             nn.Flatten()
         )
 
-        self.lstm = nn.LSTM(256, 256, batch_first=True)
+        self.lstm = nn.LSTM(302, 128, batch_first=True)
 
-        self.actor_layers = nn.Linear(256, 22)
+        self.actor_layers = nn.Linear(128, 22)
 
-        self.critic_layers = nn.Linear(256, 1)
+        self.critic_layers = nn.Linear(128, 1)
 
         self._shared_layer_out = None
         self._features = None
@@ -64,8 +64,20 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
         if isinstance(seq_lens, np.ndarray):
             seq_lens = torch.Tensor(seq_lens).int()
 
-        x = input_dict["obs"]
+        x = input_dict["obs"]["conv_features"]
         x = self.shared_layers(x)
+
+        last_reward = torch.tensor(np.expand_dims(input_dict["prev_rewards"], 1), dtype=torch.float)
+        prev_actions = np.array(input_dict["prev_actions"], dtype=np.int)
+
+        # prev_actions = [np.asarray(prev_action, dtype=np.int) for prev_action in prev_actions]
+        prev_actions = [prev_actions[:, i] for i in range(len(self.action_space))]
+        one_hot_prev_actions = torch.cat(
+            [nn.functional.one_hot(torch.tensor(a), space.n) for a, space in zip(prev_actions, self.action_space)],
+            axis=-1
+        )
+
+        x = torch.cat((x, input_dict["obs"]["features"], last_reward, one_hot_prev_actions.float()), dim=1)
 
         output, new_state = self.forward_rnn(
             add_time_dimension(x.float(), seq_lens, framework="torch"),

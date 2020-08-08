@@ -9,7 +9,7 @@ from pommerman import agents, constants
 from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 
 from ers import ers
-from policies.random_policy import SmartRandomPolicy
+from policies.smartrandom_policy import SmartRandomPolicy
 from policies.static_policy import StaticPolicy
 from rllib_pomme_envs import v2
 

@@ -9,7 +9,7 @@ from torch import nn
 
 from agents.static_agent import StaticAgent
 
-NUM_FEATURES = 23 + 16
+NUM_FEATURES = 19 + 16
 # NUM_FEATURES = 21
 
 agents_1 = ["cinjon-simpleagent", "hakozakijunctions", "eisenach", "dypm.1", "navocado", "skynet955",
@@ -32,6 +32,16 @@ original_obs_space = Dict({
     'enemies': Box(low=9, high=13, shape=(3,)),
     'message': Box(low=0, high=7, shape=(2,))
 })
+
+
+def get_obs_space(input_size, is_full_conv=True):
+    if is_full_conv:
+        return Box(low=0, high=20, shape=(NUM_FEATURES, input_size, input_size))
+    else:
+        return Dict({
+            'conv_features': Box(low=0, high=13, shape=(14, input_size, input_size)),
+            'features': Box(low=-1, high=10, shape=(23,))
+        })
 
 
 def softmax(x, mask=None):
@@ -461,11 +471,11 @@ def featurize_v7(obs, centering=False, input_size=9):
 
     one_hot_board = np.delete(one_hot_board, [9, 11], 0)
 
-    one_hot_bomb_moving_direction = \
-        nn.functional.one_hot(torch.tensor(np.asarray(preprocessed_obs["bomb_moving_direction"], dtype=np.int)),
-                              num_classes=5).transpose(0, 2).transpose(1, 2).numpy()
-
-    one_hot_bomb_moving_direction = np.delete(one_hot_bomb_moving_direction, [0], 0)
+    # one_hot_bomb_moving_direction = \
+    #     nn.functional.one_hot(torch.tensor(np.asarray(preprocessed_obs["bomb_moving_direction"], dtype=np.int)),
+    #                           num_classes=5).transpose(0, 2).transpose(1, 2).numpy()
+    #
+    # one_hot_bomb_moving_direction = np.delete(one_hot_bomb_moving_direction, [0], 0)
 
     teammate_alive = np.full(board.shape,
                              fill_value=1 if preprocessed_obs["teammate"].value in preprocessed_obs["alive"] else 0)
@@ -487,10 +497,69 @@ def featurize_v7(obs, centering=False, input_size=9):
                          enemies_alive,
                          ammo, blast_strength, can_kick], 0)
 
-    features = np.concatenate(
-        [one_hot_board, one_hot_bomb_moving_direction, features, one_hot_message_1, one_hot_message_2], 0)
+    features = np.concatenate([
+        one_hot_board,
+        # one_hot_bomb_moving_direction,
+        features,
+        one_hot_message_1,
+        one_hot_message_2
+    ], 0)
 
     return features
+
+
+def featurize_v8(obs, centering=False, input_size=9):
+    agent_id = obs["board"][obs["position"]]
+
+    preprocessed_obs = copy.deepcopy(obs)
+    if centering:
+        preprocessed_obs = center(obs, input_size)
+
+    board = np.asarray(preprocessed_obs["board"], dtype=np.int)
+
+    one_hot_board = nn.functional.one_hot(torch.tensor(board), 14).transpose(0, 2).transpose(1, 2).numpy()
+
+    one_hot_board[0] = one_hot_board[0] + one_hot_board[6] + one_hot_board[7] + one_hot_board[8]
+    if preprocessed_obs["can_kick"]:
+        one_hot_board[0] += one_hot_board[3]
+
+    if agent_id % 2 == 1:
+        one_hot_board[[10, 11]] = one_hot_board[[11, 10]]
+        one_hot_board[[12, 13]] = one_hot_board[[13, 12]]
+
+    if agent_id == 12 or agent_id == 13:
+        one_hot_board[[10, 12]] = one_hot_board[[12, 10]]
+
+    one_hot_board[13] = one_hot_board[11] + one_hot_board[13]
+
+    one_hot_board = np.delete(one_hot_board, [9, 11], 0)
+
+    teammate = obs["teammate"].value
+    enemies = [e.value for e in obs["enemies"][:2]]
+
+    position = np.array(obs["position"], dtype=np.float32) / 10 * 2 - 1
+    ammo = np.array([obs["ammo"]], dtype=np.float32)
+    blast_strength = np.array([obs["blast_strength"]], dtype=np.float32)
+    can_kick = np.array([obs["can_kick"]], dtype=np.float32)
+    teammate_alive = np.array([teammate in obs["alive"]], dtype=np.float32)
+    two_enemies = np.array([enemies[0] in obs["alive"] and enemies[1] in obs["alive"]], dtype=np.float32)
+
+    message = np.zeros((2, 8), dtype=np.float32)
+    message[np.arange(2), obs["message"]] = 1
+    message = message.reshape(-1)
+
+    features = np.concatenate([position, ammo, blast_strength, can_kick, teammate_alive, two_enemies, message])
+
+    conv_features = np.concatenate([
+        one_hot_board,
+        np.expand_dims(preprocessed_obs["bomb_life"], 0),
+        np.expand_dims(preprocessed_obs["bomb_blast_strength"], 0)
+    ], 0)
+
+    return {
+        "conv_features": conv_features,
+        "features": features
+    }
 
 
 def featurize_non_learning_agent(obs):
@@ -561,4 +630,3 @@ def make_env(num_agents, env_id, game_state_file):
         agent_list.append(StaticAgent())
 
     return pommerman.make(env_id, agent_list, game_state_file)
-

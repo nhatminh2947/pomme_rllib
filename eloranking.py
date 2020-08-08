@@ -25,7 +25,7 @@ class EloRatingSystem:
 
         for policy_name in policy_names:
             self.add_policy(policy_name, False)
-        self.population["policy_0"].rating = 1080
+        # self.population["policy_0"].rating = 1080
         self.population["static_1"].ready = True
         # self.population["smartrandom_2"].ready = True
         # self.population["simple_3"].ready = True

@@ -49,6 +49,11 @@ class SmartRandomAgentNoBomb(BaseAgent):
     """ random with filtered actions but no bomb"""
 
     def act(self, obs, action_space):
+        obs['position'] = tuple(np.asarray(obs['position'], dtype=np.int))
+        obs['message'] = tuple(np.asarray(obs['message'], dtype=np.int))
+        obs['enemies'] = [constants.Item(e) for e in obs['enemies']]
+        obs['teammate'] = constants.Item(obs['teammate'])
+
         valid_actions = action_prune.get_filtered_actions(obs)
         if Action.Bomb.value in valid_actions:
             valid_actions.remove(Action.Bomb.value)

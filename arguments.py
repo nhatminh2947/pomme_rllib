@@ -53,6 +53,6 @@ def get_parser():
     parser.add_argument("--burn_in", type=int, default=1e8)
     parser.add_argument("--exploration_steps", type=int, default=1e6)
     parser.add_argument("--n_histories", type=int, default=4)
-
+    parser.add_argument("--full_conv", action="store_true")
 
     return parser
