@@ -25,11 +25,11 @@ class EloRatingSystem:
 
         for policy_name in policy_names:
             self.add_policy(policy_name, False, 1000)
-            self.population["policy_0"].rating = 792
+            self.population["policy_0"].rating = 1000
         self.population["static_1"].ready = True
-        self.population["static_1"].rating = 1208
-#        self.population["smartrandom_2"].ready = True
-# self.population["smartrandom_2"].rating = 1035
+        # self.population["static_1"].rating = 1208
+        # self.population["smartrandom_2"].ready = True
+        # self.population["smartrandom_2"].rating = 1035
         # self.population["simple_3"].ready = True
         # self.population["cautious_4"].ready = True
         # self.population["neoteric_5"].ready = True
@@ -74,7 +74,7 @@ class EloRatingSystem:
     def update_population(self):
         min_rating = 10000
         weakest_policy = None
-        
+
         is_strongest = True
 
         for i, policy_name in enumerate(self.population):
@@ -90,12 +90,12 @@ class EloRatingSystem:
                     if "policy" in policy_name:
                         return policy_name
                     return None
-        
+
             for i, policy_name in enumerate(self.population):
                 if policy_name != "policy_0" and "policy" in policy_name and min_rating > self.population[policy_name].rating:
                     weakest_policy = policy_name
                     min_rating = self.population[policy_name].rating
-            
+
             self.population[weakest_policy].rating = self.population["policy_0"].rating
         return weakest_policy
 
