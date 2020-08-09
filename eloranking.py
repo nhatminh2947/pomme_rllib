@@ -24,10 +24,12 @@ class EloRatingSystem:
         self.burn_in = burn_in
 
         for policy_name in policy_names:
-            self.add_policy(policy_name, False)
-        # self.population["policy_0"].rating = 1080
+            self.add_policy(policy_name, False, 1000)
+            self.population["policy_0"].rating = 792
         self.population["static_1"].ready = True
-        # self.population["smartrandom_2"].ready = True
+        self.population["static_1"].rating = 1208
+#        self.population["smartrandom_2"].ready = True
+# self.population["smartrandom_2"].rating = 1035
         # self.population["simple_3"].ready = True
         # self.population["cautious_4"].ready = True
         # self.population["neoteric_5"].ready = True
@@ -72,22 +74,30 @@ class EloRatingSystem:
     def update_population(self):
         min_rating = 10000
         weakest_policy = None
+        
+        is_strongest = True
+
         for i, policy_name in enumerate(self.population):
-            if i < 2:
-                continue
-            if min_rating > self.population[policy_name].rating:
-                weakest_policy = policy_name
-                min_rating = self.population[policy_name].rating
+            if policy_name != "policy_0" and self.population[policy_name].ready:
+                if self.expected_score("policy_0", policy_name) < 0.6:
+                    is_strongest = False
 
-            if self.expected_score("policy_0", policy_name) < 0.6:
-                return None
-
-        self.population[weakest_policy].ready = True
-        if "policy" in weakest_policy:
-            self.population[weakest_policy].rating = self.population["policy_0"].rating
-            return weakest_policy
-
-        return None
+        if is_strongest:
+            for i, policy_name in enumerate(self.population):
+                if policy_name != "policy_0" and self.population[policy_name].ready == False:
+                    self.population[policy_name].ready = True
+                    self.population[policy_name].rating = self.population["policy_0"].rating
+                    if "policy" in policy_name:
+                        return policy_name
+                    return None
+        
+            for i, policy_name in enumerate(self.population):
+                if policy_name != "policy_0" and "policy" in policy_name and min_rating > self.population[policy_name].rating:
+                    weakest_policy = policy_name
+                    min_rating = self.population[policy_name].rating
+            
+            self.population[policy_name].rating = self.population["policy_0"].rating
+        return weakest_policy
 
 
 if __name__ == '__main__':
