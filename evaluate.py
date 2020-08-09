@@ -12,9 +12,10 @@ from ray.rllib.utils import try_import_torch
 import utils
 from agents.static_agent import StaticAgent
 from eloranking import EloRatingSystem
-from models import fourth_model, fifth_model, eighth_model, eleventh_model, twelfth_model
+from models import fourth_model, fifth_model, eighth_model, eleventh_model, twelfth_model, thirdteenth_model
 from models import one_vs_one_model
-from policies import SmartRandomPolicy, SimplePolicy, NeotericPolicy, CautiousPolicy, StaticPolicy
+from policies import SmartRandomPolicy, SimplePolicy, NeotericPolicy, CautiousPolicy, StaticPolicy, \
+    SmartRandomNoBombPolicy
 from rllib_pomme_envs import v2, v3
 from utils import policy_mapping
 
@@ -33,14 +34,14 @@ n_histories = 4
 
 env = pommerman.make(env_id, [])
 
-obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, input_size, input_size))
+obs_space = utils.get_obs_space(input_size, False)
 act_space = spaces.Tuple(tuple([spaces.Discrete(6)] + [spaces.Discrete(8)] * 2))
 
 
 def gen_policy():
     config = {
         "model": {
-            "custom_model": "12th_model",
+            "custom_model": "13th_model",
             "custom_model_config": {
                 "in_channels": utils.NUM_FEATURES,
                 "input_size": input_size
@@ -55,11 +56,13 @@ def gen_policy():
 policies = {
     "policy_0": gen_policy(),
     "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-    "smartrandom_2": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-    "simple_3": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-    "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-    "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
+    "smartrandomnobomb_2": (SmartRandomNoBombPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "smartrandom_3": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "simple_4": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "cautious_5": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "neoteric_6": (NeotericPolicy, utils.original_obs_space, act_space, {}),
 }
+
 policy_names = list(policies.keys())
 
 for i in range(n_histories):
@@ -68,7 +71,7 @@ for i in range(n_histories):
 ers = EloRatingSystem.options(name="ers").remote(
     policy_names=policy_names,
     n_histories=4,
-    alpha_coeff=0.8,
+    alpha_coeff=100,
     burn_in=100000000,
     k=0.1
 )
@@ -79,7 +82,7 @@ env_config = {
     "game_state_file": None,
     "center": center,
     "input_size": input_size,
-    "policies": ["policy_0", "smartrandom_2"],
+    "policies": ["policy_0", "smartrandomnobomb_2"],
     "evaluate": True
 }
 
@@ -89,12 +92,14 @@ ModelCatalog.register_custom_model("fourth_model", fourth_model.ActorCriticModel
 ModelCatalog.register_custom_model("fifth_model", fifth_model.ActorCriticModel)
 ModelCatalog.register_custom_model("11th_model", eleventh_model.TorchRNNModel)
 ModelCatalog.register_custom_model("12th_model", twelfth_model.TorchRNNModel)
+ModelCatalog.register_custom_model("13th_model", thirdteenth_model.TorchRNNModel)
 
 ModelCatalog.register_custom_model("1vs1", one_vs_one_model.ActorCriticModel)
 tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
 tune.register_env("PommeMultiAgent-v3", lambda x: v3.RllibPomme(env_config))
 
 ppo_agent = PPOTrainer(config={
+    "num_gpus": 1,
     "env_config": env_config,
     "num_workers": 0,
     "multiagent": {
@@ -102,13 +107,13 @@ ppo_agent = PPOTrainer(config={
         "policy_mapping_fn": policy_mapping,
         "policies_to_train": ["policy_0"],
     },
-    "observation_filter": "MeanStdFilter",
+    "observation_filter": "NoFilter",
     "clip_actions": False,
     "framework": "torch"
 }, env="PommeMultiAgent-v3")
 
-checkpoint = 520
-checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-08_00-51-05524bypwf"
+checkpoint = 160
+checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-08_21-22-22sry1rfcz"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -145,6 +150,14 @@ for i in range(100):
     print(agent_names)
     id = i % 2
 
+    prev_reward = {
+        agent_name: 0 for agent_name in agent_names
+    }
+
+    prev_action = {
+        agent_name: np.zeros(3, ) for agent_name in agent_names
+    }
+
     total_reward = 0
     while True:
         env.render()
@@ -159,7 +172,10 @@ for i in range(100):
                     actions[agent_names[i]], state[i], _ = ppo_agent.compute_action(observation=obs[agent_names[i]],
                                                                                     state=state[i],
                                                                                     policy_id=policy_id,
+                                                                                    prev_action=prev_action[agent_names[i]],
+                                                                                    prev_reward=prev_reward[agent_names[i]],
                                                                                     explore=True)
+                    prev_action[agent_names[i]] = actions[agent_names[i]]
                 else:
                     actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],
                                                                        policy_id=policy_id,
@@ -171,8 +187,11 @@ for i in range(100):
 
         obs, reward, done, info = env.step(actions)
 
+        prev_reward = reward
+
         if done["__all__"]:
             # print("info:", info)
+            print(reward)
             print("=========")
 
             for agent_name in agent_names:

@@ -96,7 +96,7 @@ class EloRatingSystem:
                     weakest_policy = policy_name
                     min_rating = self.population[policy_name].rating
             
-            self.population[policy_name].rating = self.population["policy_0"].rating
+            self.population[weakest_policy].rating = self.population["policy_0"].rating
         return weakest_policy
 
 
