@@ -1,8 +1,10 @@
 import numpy as np
+import pommerman
 import ray
 from pommerman import constants
 from pommerman import utility
 
+import agents
 import utils
 from memory import Memory
 from metrics import Metrics
@@ -31,16 +33,11 @@ class RllibPomme(v0.RllibPomme):
             self.render(record_pngs_dir="/home/lucius/ray_results/records/pngs",
                         record_json_dir="/home/lucius/ray_results/records/logs")
 
-        actions = []
+        actions = self.env.act(self.prev_obs)
 
-        for agent_name in self.agent_names:
-            if agent_name in action_dict:
-                if type(action_dict[agent_name]) in [tuple, list]:
-                    actions.append(action_dict[agent_name])
-                else:
-                    actions.append(int(action_dict[agent_name]))
-            else:
-                actions.append(0)
+        for i, agent_name in enumerate(self.agent_names):
+            if agent_name in action_dict and "policy" in agent_name:
+                actions[i] = action_dict[agent_name]
 
         obs = {}
         rewards = {}
@@ -82,20 +79,37 @@ class RllibPomme(v0.RllibPomme):
     def get_policy_name(self, agent_name):
         return "policy_{}".format(agent_name.split("_")[1])
 
+    def select_agent(self, name):
+        if "policy" in name or "static" in name:
+            return agents.StaticAgent()
+        if "smartrandomnobomb" in name:
+            return agents.SmartRandomAgentNoBomb()
+        if "smartrandom" in name:
+            return agents.SmartRandomAgent()
+        if "simple" in name:
+            return agents.SimpleAgent()
+        if "cautious" in name:
+            return agents.CautiousAgent()
+        if "neoteric" in name:
+            return agents.NeotericAgent()
+
     def reset(self):
         if not self._evaluate:
             ers = ray.get_actor("ers")
             self.policies = ray.get(ers.get_training_policies.remote())
 
         self.agent_names = []
-        if np.random.random() < 0.5:
-            for i in range(4):
-                self.agent_names.append("{}_{}".format(self.policies[i % 2], i))
-        else:
-            for i in range(4):
-                self.agent_names.append("{}_{}".format(self.policies[(i + 1) % 2], i))
+        agent_list = []
+        rand = int(np.random.random() < 0.5)
+
+        for i in range(4):
+            self.agent_names.append("{}_{}".format(self.policies[(i + rand) % 2], i))
+            agent_list.append(self.select_agent(self.agent_names[-1]))
 
         self.reset_stat()
+        if self.env is not None:
+            self.env.close()
+        self.env = pommerman.make(self._env_id, agent_list)
         self.prev_obs = self.env.reset()
 
         obs = {}

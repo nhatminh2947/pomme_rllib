@@ -27,18 +27,16 @@ class EloRatingSystem:
             self.add_policy(policy_name, False, 1000)
 
         self.population["policy_0"].rating = 1295
-        # self.population["static_1"].ready = True
+        self.population["static_1"].ready = True
         # self.population["static_1"].rating = 814
         # self.population["smartrandomnobomb_2"].ready = True
         # self.population["smartrandomnobomb_2"].rating = 958
         # self.population["smartrandom_3"].ready = True
         # self.population["smartrandom_3"].rating = 1154
-        # self.population["simple_4"].ready = True
-        # self.population["simple_4"].rating = 1188
-        # self.population["cautious_5"].ready = True
-        # self.population["cautious_5"].rating = 1251
-        self.population["neoteric_6"].ready = True
-        self.population["neoteric_6"].rating = 1295
+        # self.population["cautious_4"].ready = True
+        # self.population["cautious_4"].rating = 1251
+        # self.population["neoteric_5"].ready = True
+        # self.population["neoteric_5"].rating = 1295
 
     def update_alpha(self, policy_name, enemy_death_mean):
         self.population[policy_name].alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
@@ -71,13 +69,6 @@ class EloRatingSystem:
             enemy = np.random.choice(list(self.population.keys()), size=1, p=prob)[0]
 
         return "policy_0", enemy
-
-    # def strong_enough(self):
-    #     for i in range(max(1, self.population - self.n_histories), self.population):
-    #         if self.expected_score("policy_0", self.policy_names[i]) < 0.6:
-    #             return False
-    #
-    #     return True
 
     def update_population(self):
         min_rating = 10000

@@ -2,7 +2,7 @@ import pommerman
 import ray
 from pommerman import constants
 from pommerman.agents import DockerAgent
-
+import agents
 from agents import RayAgent
 
 ray.init(local_mode=True)
@@ -15,23 +15,23 @@ checkpoint = "{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, id, id)
 #   dypm    2/71/27
 
 agent_list = [[
-    RayAgent(checkpoint),
-    # agents.CautiousAgent(),
-    # agents.SmartRandomAgent(),
-    # agents.CautiousAgent(),
-    # agents.SmartRandomAgent(),
-    DockerAgent("multiagentlearning/dypm.1", port=12001),
-    RayAgent(checkpoint),
-    DockerAgent("multiagentlearning/dypm.2", port=12002),
+    # RayAgent(checkpoint),
+    agents.CautiousAgent(),
+    agents.SimpleAgent(),
+    agents.CautiousAgent(),
+    agents.SimpleAgent(),
+    # DockerAgent("multiagentlearning/dypm.1", port=12001),
+    # RayAgent(checkpoint),
+    # DockerAgent("multiagentlearning/dypm.2", port=12002),
 ], [
-    # agents.SmartRandomAgent(),
-    # agents.CautiousAgent(),
-    # agents.SmartRandomAgent(),
-    # agents.CautiousAgent(),
-    DockerAgent("multiagentlearning/dypm.1", port=12003),
-    RayAgent(checkpoint),
-    DockerAgent("multiagentlearning/dypm.2", port=12004),
-    RayAgent(checkpoint),
+    agents.SimpleAgent(),
+    agents.CautiousAgent(),
+    agents.SimpleAgent(),
+    agents.CautiousAgent(),
+    # DockerAgent("multiagentlearning/dypm.1", port=12003),
+    # RayAgent(checkpoint),
+    # DockerAgent("multiagentlearning/dypm.2", port=12004),
+    # RayAgent(checkpoint),
 ]]
 
 env = [pommerman.make('PommeRadioCompetition-v2', agent_list[0]),
@@ -45,7 +45,7 @@ for i in range(100):
     state = env[i % 2].reset()
     done = False
     while not done:
-        # env[i % 2].render()
+        env[i % 2].render()
         actions = env[i % 2].act(state)
         state, reward, done, info = env[i % 2].step(actions)
 

@@ -155,9 +155,8 @@ def initialize():
         "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "smartrandomnobomb_2": (SmartRandomNoBombPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "smartrandom_3": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "simple_4": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "cautious_5": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "neoteric_6": (NeotericPolicy, utils.original_obs_space, act_space, {}),
+        "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
     }
 
     for i in range(params["n_histories"]):
