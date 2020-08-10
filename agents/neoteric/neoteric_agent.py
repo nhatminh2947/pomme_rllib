@@ -68,7 +68,6 @@ class NeotericAgent(agents.BaseAgent):
             self.powerups[2] = 1 + self.powerups[0]
         else:
             call_to_pos = obs['position']
-        print("call_to_pos", call_to_pos)
 
         if obs['message'][0] == 6:
             self.teammate_powerups[obs['message'][1] - 1] = 1 + self.teammate_powerups[obs['message'][1] - 1]
@@ -182,8 +181,6 @@ class NeotericAgent(agents.BaseAgent):
             majority_safe_action = Counter(action_lst).most_common(1)[0][0]
 
         decoded_location = (obs['message'][0] * 2 - 1, obs['message'][1] * 2 - 1)
-        print('obs[message]:', obs['message'])
-        print("decoded_location:", decoded_location)
         # if original and follower and not a dummy message and location reachable, but not too close, then go
         if self.original and state.isFollower and obs['message'][0] and obs['message'][0] < 6 \
                 and self.networkSensor.network._get(decoded_location).reachable() \
@@ -240,10 +237,8 @@ class NeotericAgent(agents.BaseAgent):
         self.prev_action = self.curr_action
         if call_to_pos[0] < 6:
             m1, m2 = self.networkSensor.network.generateMessage(call_to_pos)
-            print("generate message", m1, m2)
         else:
             m1, m2 = call_to_pos[0], call_to_pos[1]
-            print('m1, m2', m1, m2)
         return self.curr_action.value, m1, m2
 
     def episode_end(self, reward):

@@ -30,7 +30,7 @@ original_obs_space = Dict({
     'can_kick': Discrete(2),
     'teammate': Discrete(14),
     'enemies': Box(low=9, high=13, shape=(3,)),
-    'message': Box(low=0, high=7, shape=(2,))
+    'message': Box(low=0, high=10, shape=(2,))
 })
 
 
