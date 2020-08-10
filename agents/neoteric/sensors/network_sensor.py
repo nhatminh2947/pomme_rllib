@@ -110,6 +110,7 @@ class Network:
         self.prev_ticks = torch.zeros(11, 11)
 
     def _get(self, position):
+        # print('position:', position)
         return self.grid[position[0]][position[1]]
 
     def getAction(self, node):

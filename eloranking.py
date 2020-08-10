@@ -25,14 +25,20 @@ class EloRatingSystem:
 
         for policy_name in policy_names:
             self.add_policy(policy_name, False, 1000)
-            self.population["policy_0"].rating = 1000
-        self.population["static_1"].ready = True
-        # self.population["static_1"].rating = 1208
-        # self.population["smartrandom_2"].ready = True
-        # self.population["smartrandom_2"].rating = 1035
-        # self.population["simple_3"].ready = True
-        # self.population["cautious_4"].ready = True
-        # self.population["neoteric_5"].ready = True
+
+        self.population["policy_0"].rating = 1295
+        # self.population["static_1"].ready = True
+        # self.population["static_1"].rating = 814
+        # self.population["smartrandomnobomb_2"].ready = True
+        # self.population["smartrandomnobomb_2"].rating = 958
+        # self.population["smartrandom_3"].ready = True
+        # self.population["smartrandom_3"].rating = 1154
+        # self.population["simple_4"].ready = True
+        # self.population["simple_4"].rating = 1188
+        # self.population["cautious_5"].ready = True
+        # self.population["cautious_5"].rating = 1251
+        self.population["neoteric_6"].ready = True
+        self.population["neoteric_6"].rating = 1295
 
     def update_alpha(self, policy_name, enemy_death_mean):
         self.population[policy_name].alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
@@ -61,6 +67,8 @@ class EloRatingSystem:
         mask = np.asarray([self.population[policy].ready for policy in self.population])
         prob = utils.softmax([np.log(self.population[policy].rating) for policy in self.population], mask)
         enemy = np.random.choice(list(self.population.keys()), size=1, p=prob)[0]
+        while not self.population[enemy].ready:
+            enemy = np.random.choice(list(self.population.keys()), size=1, p=prob)[0]
 
         return "policy_0", enemy
 
@@ -84,7 +92,7 @@ class EloRatingSystem:
 
         if is_strongest:
             for i, policy_name in enumerate(self.population):
-                if policy_name != "policy_0" and self.population[policy_name].ready == False:
+                if policy_name != "policy_0" and not self.population[policy_name].ready:
                     self.population[policy_name].ready = True
                     self.population[policy_name].rating = self.population["policy_0"].rating
                     if "policy" in policy_name:
@@ -92,7 +100,9 @@ class EloRatingSystem:
                     return None
 
             for i, policy_name in enumerate(self.population):
-                if policy_name != "policy_0" and "policy" in policy_name and min_rating > self.population[policy_name].rating:
+                if policy_name != "policy_0" \
+                        and "policy" in policy_name \
+                        and min_rating > self.population[policy_name].rating:
                     weakest_policy = policy_name
                     min_rating = self.population[policy_name].rating
 

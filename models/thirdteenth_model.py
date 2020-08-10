@@ -64,14 +64,16 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
         if isinstance(seq_lens, np.ndarray):
             seq_lens = torch.Tensor(seq_lens).int()
 
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
         x = input_dict["obs"]["conv_features"]
         x = self.shared_layers(x)
 
         if type(input_dict["prev_rewards"]) != torch.Tensor:
-            input_dict["prev_rewards"] = torch.tensor(input_dict["prev_rewards"], device='cuda')
+            input_dict["prev_rewards"] = torch.tensor(input_dict["prev_rewards"], device=device)
 
         last_reward = torch.reshape(input_dict["prev_rewards"], [-1, 1]).float()
-        
+
         if type(input_dict["prev_actions"]) != torch.Tensor:
             prev_actions = np.array(input_dict["prev_actions"], dtype=np.int)
         else:
@@ -84,7 +86,7 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
             axis=-1
         )
 
-        x = torch.cat((x, input_dict["obs"]["features"], last_reward, one_hot_prev_actions.float().cuda()), dim=1)
+        x = torch.cat((x, input_dict["obs"]["features"], last_reward, one_hot_prev_actions.float().to(device)), dim=1)
 
         output, new_state = self.forward_rnn(
             add_time_dimension(x.float(), seq_lens, framework="torch"),

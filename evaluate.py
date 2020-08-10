@@ -21,7 +21,8 @@ from utils import policy_mapping
 
 torch, nn = try_import_torch()
 
-ray.init(local_mode=True, num_gpus=1)
+if not ray.is_initialized():
+    ray.init(local_mode=True, num_gpus=0)
 # env_id = "PommeTeamCompetition-v0"
 # env_id = "PommeTeam-v0"
 # env_id = "PommeFFACompetitionFast-v0"
@@ -82,7 +83,7 @@ env_config = {
     "game_state_file": None,
     "center": center,
     "input_size": input_size,
-    "policies": ["policy_0", "smartrandomnobomb_2"],
+    "policies": ["policy_0", "neoteric_6"],
     "evaluate": True
 }
 
@@ -112,8 +113,8 @@ ppo_agent = PPOTrainer(config={
     "framework": "torch"
 }, env="PommeMultiAgent-v3")
 
-checkpoint = 160
-checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-08_21-22-22sry1rfcz"
+checkpoint = 380
+checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-09_14-31-21_o9o3yp8"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
