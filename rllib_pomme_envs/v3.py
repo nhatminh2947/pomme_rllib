@@ -37,7 +37,7 @@ class RllibPomme(v0.RllibPomme):
 
         for i, agent_name in enumerate(self.agent_names):
             if agent_name in action_dict and "policy" in agent_name:
-                actions[i] = action_dict[agent_name]
+                actions[i] = action_dict[agent_name].tolist()
 
         obs = {}
         rewards = {}

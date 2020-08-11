@@ -17,7 +17,7 @@ import utils
 from eloranking import EloRatingSystem
 from metrics import Metrics
 from models import one_vs_one_model, eighth_model, eleventh_model, twelfth_model, thirdteenth_model
-from policies import SmartRandomPolicy, StaticPolicy, SimplePolicy, NeotericPolicy, CautiousPolicy, \
+from policies import SmartRandomPolicy, StaticPolicy, NeotericPolicy, CautiousPolicy, \
     SmartRandomNoBombPolicy
 from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
 from utils import policy_mapping
@@ -133,7 +133,7 @@ def initialize():
     else:
         obs_space = utils.get_obs_space(params["input_size"], is_full_conv=params["full_conv"])
 
-    act_space = spaces.Tuple(tuple([spaces.Discrete(6)] + [spaces.Discrete(8)] * 2))
+    act_space = spaces.MultiDiscrete([6, 8, 8])
 
     # Policy setting
     def gen_policy(explore=True):

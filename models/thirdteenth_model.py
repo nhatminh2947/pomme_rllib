@@ -80,9 +80,9 @@ class TorchRNNModel(RecurrentNetwork, nn.Module):
             prev_actions = np.array(input_dict["prev_actions"].cpu().numpy(), dtype=np.int)
 
         # prev_actions = [np.asarray(prev_action, dtype=np.int) for prev_action in prev_actions]
-        prev_actions = [prev_actions[:, i] for i in range(len(self.action_space))]
+        prev_actions = [prev_actions[:, i] for i in range(self.action_space.shape[0])]
         one_hot_prev_actions = torch.cat(
-            [nn.functional.one_hot(torch.tensor(a), space.n) for a, space in zip(prev_actions, self.action_space)],
+            [nn.functional.one_hot(torch.tensor(a), space) for a, space in zip(prev_actions, self.action_space.nvec)],
             axis=-1
         )
 
