@@ -136,7 +136,7 @@ def initialize():
     act_space = spaces.Tuple(tuple([spaces.Discrete(6)] + [spaces.Discrete(8)] * 2))
 
     # Policy setting
-    def gen_policy():
+    def gen_policy(explore=True):
         config = {
             "model": {
                 "custom_model": params["custom_model"],
@@ -146,6 +146,7 @@ def initialize():
                 },
                 "no_final_linear": True,
             },
+            "explore": explore,
             "framework": "torch"
         }
         return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
@@ -160,7 +161,7 @@ def initialize():
     }
 
     for i in range(params["n_histories"]):
-        policies["policy_{}".format(len(policies))] = gen_policy()
+        policies["policy_{}".format(len(policies))] = gen_policy(False)
 
     policy_names = list(policies.keys())
 
