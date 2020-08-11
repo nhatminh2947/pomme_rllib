@@ -188,7 +188,7 @@ class RllibPomme(v0.RllibPomme):
             stat[Metrics.Kick.name] = True
 
         pos = current_obs['position']
-        act = action[0] if type(action) == tuple else action
+        act = action[0] if type(action) != int else action
 
         if prev_obs['ammo'] > 0 and act == constants.Action.Bomb.value and prev_obs['bomb_life'][pos] == 0:
             dx = [-1, 0, 0, 1]
@@ -236,7 +236,7 @@ class RllibPomme(v0.RllibPomme):
             elif i == id + 10 and info["result"] == constants.Result.Tie:
                 game_reward += -1.0
 
-        act = action[0] if type(action) == tuple else action
+        act = action[0] if type(action) != int else action
         if act == constants.Action.Bomb.value:
             stat[Metrics.ActionBombs.name] += 1
             if prev_obs['ammo'] > 0:
