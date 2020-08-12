@@ -213,6 +213,7 @@ def training_team():
         checkpoint_at_end=True,
         verbose=1,
         config={
+            "max_seq_len": params["max_seq_len"],
             "gamma": params["gamma"],
             "lr": params["lr"],
             "entropy_coeff": params["entropy_coeff"],

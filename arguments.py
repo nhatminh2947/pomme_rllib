@@ -54,5 +54,6 @@ def get_parser():
     parser.add_argument("--exploration_steps", type=int, default=1e6)
     parser.add_argument("--n_histories", type=int, default=4)
     parser.add_argument("--full_conv", action="store_true")
+    parser.add_argument("--max_seq_len", type=int, default=50)
 
     return parser
