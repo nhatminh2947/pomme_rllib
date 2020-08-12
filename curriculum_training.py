@@ -5,6 +5,8 @@ from gym import spaces
 from pommerman import constants
 from ray import tune
 from ray.rllib.agents.callbacks import DefaultCallbacks
+from ray.rllib.agents.ppo.ppo import PPOTrainer
+from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.env import BaseEnv
 from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.models import ModelCatalog
@@ -18,7 +20,6 @@ from models import one_vs_one_model, eighth_model, eleventh_model, twelfth_model
 from policies import SmartRandomPolicy, StaticPolicy, NeotericPolicy, CautiousPolicy, \
     SmartRandomNoBombPolicy
 from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
-from trainer.pbt_trainer import PBTTrainer, PBTTorchPolicy
 from utils import policy_mapping
 
 parser = arguments.get_parser()
@@ -146,7 +147,7 @@ def initialize():
             "explore": explore,
             "framework": "torch"
         }
-        return PBTTorchPolicy, obs_space, act_space, config
+        return PPOTorchPolicy, obs_space, act_space, config
 
     policies = {
         "policy_0": gen_policy(),
@@ -178,7 +179,7 @@ def initialize():
 def training_team():
     env_config, policies, policies_to_train = initialize()
 
-    trainer = PBTTrainer
+    trainer = PPOTrainer
 
     trials = tune.run(
         trainer,

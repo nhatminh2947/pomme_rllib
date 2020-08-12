@@ -11,24 +11,27 @@ id = 420
 checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v3_0_2020-08-12_01-50-02jkoli2e8"
 checkpoint = "{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, id, id)
 
-#   Agent   win/loss/tie
-#   skynet  56/15/29
-#   dypm    2/71/27
+#   Agent       win/loss/tie
+#   skynet      56/15/29
+#   navocado
+#   dypm        2/71/27
 
 agent_list = [[
     RayAgent(checkpoint),
+    DockerAgent("multiagentlearning/navocado", port=12001),
     RayAgent(checkpoint),
-    RayAgent(checkpoint),
+    DockerAgent("multiagentlearning/navocado", port=12002),
+    # RayAgent(checkpoint),
     # agents.StaticAgent(),
-    RayAgent(checkpoint),
+    # RayAgent(checkpoint),
     # agents.StaticAgent(),
-    # DockerAgent("multiagentlearning/dypm.1", port=12001),
-    # DockerAgent("multiagentlearning/dypm.2", port=12002),
 ], [
+    DockerAgent("multiagentlearning/navocado", port=12004),
     RayAgent(checkpoint),
+    DockerAgent("multiagentlearning/navocado", port=12003),
     RayAgent(checkpoint),
-    RayAgent(checkpoint),
-    RayAgent(checkpoint),
+    # RayAgent(checkpoint),
+    # RayAgent(checkpoint),
     # agents.SimpleAgent(),
     # agents.StaticAgent(),
     # agents.SimpleAgent(),
@@ -47,7 +50,7 @@ for i in range(100):
     state = env[i % 2].reset()
     done = False
     while not done:
-        env[i % 2].render()
+        # env[i % 2].render()
         actions = env[i % 2].act(state)
 
         start_time = time.time()

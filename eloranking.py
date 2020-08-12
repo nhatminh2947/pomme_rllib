@@ -24,11 +24,11 @@ class EloRatingSystem:
         self.burn_in = burn_in
 
         for policy_name in policy_names:
-            self.add_policy(policy_name, False, 0, 1000)
-            
+            self.add_policy(policy_name, True, 0.4, 1000)
+
         # self.population["policy_0"].alpha = 0.4
         # self.population["policy_0"].rating = 1295
-        self.population["static_1"].ready = True
+        # self.population["static_1"].ready = True
         # self.population["static_1"].rating = 814
         # self.population["smartrandomnobomb_2"].ready = True
         # self.population["smartrandomnobomb_2"].rating = 973
@@ -67,11 +67,11 @@ class EloRatingSystem:
     def get_training_policies(self):
         mask = np.asarray([self.population[policy].ready for policy in self.population])
         prob = utils.softmax([np.log(self.population[policy].rating) for policy in self.population], mask)
-        enemy = np.random.choice(list(self.population.keys()), size=1, p=prob)[0]
-        while not self.population[enemy].ready:
-            enemy = np.random.choice(list(self.population.keys()), size=1, p=prob)[0]
+        a, b = np.random.choice(list(self.population.keys()), size=2, p=prob)
+        while a == b:
+            a, b = np.random.choice(list(self.population.keys()), size=2, p=prob)
 
-        return "policy_0", enemy
+        return a, b
 
     def update_population(self):
         min_rating = 10000

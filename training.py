@@ -5,8 +5,6 @@ from gym import spaces
 from pommerman import constants
 from ray import tune
 from ray.rllib.agents.callbacks import DefaultCallbacks
-from ray.rllib.agents.ppo import PPOTrainer
-from ray.rllib.agents.ppo.ppo_torch_policy import PPOTorchPolicy
 from ray.rllib.env import BaseEnv
 from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.models import ModelCatalog
@@ -17,9 +15,8 @@ import utils
 from eloranking import EloRatingSystem
 from metrics import Metrics
 from models import one_vs_one_model, eighth_model, eleventh_model, twelfth_model, thirdteenth_model
-from policies import SmartRandomPolicy, StaticPolicy, NeotericPolicy, CautiousPolicy, \
-    SmartRandomNoBombPolicy
 from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
+from trainer.pbt_trainer import PBTTrainer, PBTTorchPolicy
 from utils import policy_mapping
 
 parser = arguments.get_parser()
@@ -30,60 +27,60 @@ pbt = None
 
 
 class PommeCallbacks(DefaultCallbacks):
-    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
-                       episode: MultiAgentEpisode, **kwargs):
-        info = None
-        ers = ray.get_actor("ers")
-
-        policies = list(set([policy for _, policy in episode.agent_rewards]))
-        policy_0_win = False
-
-        for (agent_name, policy), v in episode.agent_rewards.items():
-            if policy == "policy_0":
-                info = episode.last_info_for(agent_name)
-
-                agent_stat = info["metrics"]
-                num_steps = ray.get(ers.update_num_steps.remote(policy, info["num_steps"]))
-                episode.custom_metrics["policy_0/num_steps"] = num_steps
-
-                for key in Metrics:
-                    if "{}/{}".format(policy, key.name) not in episode.custom_metrics:
-                        episode.custom_metrics["{}/{}".format(policy, key.name)] = 0
-                    episode.custom_metrics["{}/{}".format(policy, key.name)] += agent_stat[key.name] / 2
-
-                if info["result"] == constants.Result.Win:
-                    _, _, agent_id = agent_name.split("_")
-
-                    if int(agent_id) in info["winners"]:
-                        policy_0_win = True
-
-        if policy_0_win and policies[0] != "policy_0":
-            policies[0], policies[1] = policies[1], policies[0]
-        elif not policy_0_win and policies[0] == "policy_0":
-            policies[0], policies[1] = policies[1], policies[0]
-
-        score = 1
-        if info["result"] == constants.Result.Tie:
-            score /= 2
-
-        expected_score = ray.get(ers.expected_score.remote(policies[0], policies[1]))
-        rating_0 = ray.get(ers.update_rating.remote(policies[0], expected_score, score))
-        expected_score = ray.get(ers.expected_score.remote(policies[1], policies[0]))
-        rating_1 = ray.get(ers.update_rating.remote(policies[1], expected_score, 1 - score))
-
-        episode.custom_metrics["{}/elo_rating".format(policies[0])] = rating_0
-        episode.custom_metrics["{}/elo_rating".format(policies[1])] = rating_1
-
-        if info["result"] == constants.Result.Tie:
-            episode.custom_metrics["{}/tie_rate".format(policies[0])] = 1
-            episode.custom_metrics["{}/tie_rate".format(policies[1])] = 1
-            episode.custom_metrics["{}/win_rate".format(policies[0])] = 0
-            episode.custom_metrics["{}/win_rate".format(policies[1])] = 0
-        else:
-            episode.custom_metrics["{}/tie_rate".format(policies[0])] = 0
-            episode.custom_metrics["{}/tie_rate".format(policies[1])] = 0
-            episode.custom_metrics["{}/win_rate".format(policies[0])] = 1
-            episode.custom_metrics["{}/win_rate".format(policies[1])] = 0
+    # def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
+    #                    episode: MultiAgentEpisode, **kwargs):
+    #     info = None
+    #     ers = ray.get_actor("ers")
+    #
+    #     policies = list(set([policy for _, policy in episode.agent_rewards]))
+    #     policy_0_win = False
+    #
+    #     for (agent_name, policy), v in episode.agent_rewards.items():
+    #         if policy == "policy_0":
+    #             info = episode.last_info_for(agent_name)
+    #
+    #             agent_stat = info["metrics"]
+    #             num_steps = ray.get(ers.update_num_steps.remote(policy, info["num_steps"]))
+    #             episode.custom_metrics["policy_0/num_steps"] = num_steps
+    #
+    #             for key in Metrics:
+    #                 if "{}/{}".format(policy, key.name) not in episode.custom_metrics:
+    #                     episode.custom_metrics["{}/{}".format(policy, key.name)] = 0
+    #                 episode.custom_metrics["{}/{}".format(policy, key.name)] += agent_stat[key.name] / 2
+    #
+    #             if info["result"] == constants.Result.Win:
+    #                 _, _, agent_id = agent_name.split("_")
+    #
+    #                 if int(agent_id) in info["winners"]:
+    #                     policy_0_win = True
+    #
+    #     if policy_0_win and policies[0] != "policy_0":
+    #         policies[0], policies[1] = policies[1], policies[0]
+    #     elif not policy_0_win and policies[0] == "policy_0":
+    #         policies[0], policies[1] = policies[1], policies[0]
+    #
+    #     score = 1
+    #     if info["result"] == constants.Result.Tie:
+    #         score /= 2
+    #
+    #     expected_score = ray.get(ers.expected_score.remote(policies[0], policies[1]))
+    #     rating_0 = ray.get(ers.update_rating.remote(policies[0], expected_score, score))
+    #     expected_score = ray.get(ers.expected_score.remote(policies[1], policies[0]))
+    #     rating_1 = ray.get(ers.update_rating.remote(policies[1], expected_score, 1 - score))
+    #
+    #     episode.custom_metrics["{}/elo_rating".format(policies[0])] = rating_0
+    #     episode.custom_metrics["{}/elo_rating".format(policies[1])] = rating_1
+    #
+    #     if info["result"] == constants.Result.Tie:
+    #         episode.custom_metrics["{}/tie_rate".format(policies[0])] = 1
+    #         episode.custom_metrics["{}/tie_rate".format(policies[1])] = 1
+    #         episode.custom_metrics["{}/win_rate".format(policies[0])] = 0
+    #         episode.custom_metrics["{}/win_rate".format(policies[1])] = 0
+    #     else:
+    #         episode.custom_metrics["{}/tie_rate".format(policies[0])] = 0
+    #         episode.custom_metrics["{}/tie_rate".format(policies[1])] = 0
+    #         episode.custom_metrics["{}/win_rate".format(policies[0])] = 1
+    #         episode.custom_metrics["{}/win_rate".format(policies[1])] = 0
 
     def on_train_result(self, trainer, result: dict, **kwargs):
         ers = ray.get_actor("ers")
@@ -94,11 +91,11 @@ class PommeCallbacks(DefaultCallbacks):
                                                         result["custom_metrics"]["policy_0/EnemyDeath_mean"]))
                 result["custom_metrics"]["{}/alpha".format("policy_0")] = alpha
 
-        policy_name = ray.get(ers.update_population.remote())
-        if policy_name is not None:
-            utils.copy_weight(trainer, "policy_0", policy_name)
+        # policy_name = ray.get(ers.update_population.remote())
+        # if policy_name is not None:
+        #     utils.copy_weight(trainer, "policy_0", policy_name)
 
-        # pbt.run(trainer)
+
 
 
 def initialize():
@@ -128,11 +125,8 @@ def initialize():
     tune.register_env("PommeMultiAgent-v2", lambda x: v2.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v3", lambda x: v3.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-1vs1", lambda x: one_vs_one.RllibPomme(env_config))
-    if params["env_id"] == "OneVsOne-v0":
-        obs_space = spaces.Box(low=0, high=20, shape=(utils.NUM_FEATURES, 8, 8))
-    else:
-        obs_space = utils.get_obs_space(params["input_size"], is_full_conv=params["full_conv"])
 
+    obs_space = utils.get_obs_space(params["input_size"], is_full_conv=params["full_conv"])
     act_space = spaces.MultiDiscrete([6, 8, 8])
 
     # Policy setting
@@ -149,19 +143,12 @@ def initialize():
             "explore": explore,
             "framework": "torch"
         }
-        return RNDPPOPolicy if params['use_rnd'] else PPOTorchPolicy, obs_space, act_space, config
+        return PBTTorchPolicy, obs_space, act_space, config
 
-    policies = {
-        "policy_0": gen_policy(),
-        "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "smartrandomnobomb_2": (SmartRandomNoBombPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "smartrandom_3": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
-    }
+    policies = {}
 
     for i in range(params["n_histories"]):
-        policies["policy_{}".format(len(policies))] = gen_policy(False)
+        policies["policy_{}".format(len(policies))] = gen_policy(True)
 
     policy_names = list(policies.keys())
 
@@ -178,25 +165,10 @@ def initialize():
     return env_config, policies, policy_names
 
 
-# How to Implement Self Play with PPO? [rllib]
-# https://github.com/ray-project/ray/issues/6669
-#
-# https://github.com/ray-project/ray/issues/6669#issuecomment-602234412
-# 1. Define a trainable policy and several other non-trainable policies up front. The non-trainable policies
-#   will be the "prior selves" and we will update them as we train. Also define the sampling distribution
-#   for the non-trainable policies in the policy mapping function like @josjo80 did above.
-# 2. Train until a certain metric is met (trainable policy wins greater than 60% of the time).
-# 3. Update a list of "prior selves" weights that can be sampled from to update each of the non-trainable policies.
-# 4. Update the weights of the non-trainable policies by sampling from the list of "prior selves" weights.
-# 5. Back to step 2. Continue process until agent is satisfactorily trained.
-
-
 def training_team():
     env_config, policies, policies_to_train = initialize()
 
-    trainer = PPOTrainer
-    if params['use_rnd']:
-        trainer = RNDTrainer
+    trainer = PBTTrainer
 
     trials = tune.run(
         trainer,
@@ -206,7 +178,6 @@ def training_team():
         num_samples=params['num_samples'],
         queue_trials=params["queue_trials"],
         stop={
-            # "training_iteration": params["training_iteration"],
             "timesteps_total": params["timesteps_total"]
         },
         checkpoint_freq=params["checkpoint_freq"],
@@ -238,10 +209,10 @@ def training_team():
             "multiagent": {
                 "policies": policies,
                 "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0"],
+                "policies_to_train": policies_to_train,
             },
             "clip_actions": False,
-            "observation_filter": params["filter"],  # should use MeanStdFilter
+            "observation_filter": params["filter"],  # NoFilter/MeanStdFilter
             "evaluation_num_episodes": params["evaluation_num_episodes"],
             "evaluation_interval": params["evaluation_interval"],
             "metrics_smoothing_episodes": 100,
