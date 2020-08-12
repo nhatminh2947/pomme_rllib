@@ -139,6 +139,7 @@ def initialize():
     def gen_policy(explore=True):
         config = {
             "model": {
+                "max_seq_len": params["max_seq_len"],
                 "custom_model": params["custom_model"],
                 "custom_model_config": {
                     "in_channels": utils.NUM_FEATURES,
@@ -213,7 +214,6 @@ def training_team():
         checkpoint_at_end=True,
         verbose=1,
         config={
-            "max_seq_len": params["max_seq_len"],
             "gamma": params["gamma"],
             "lr": params["lr"],
             "entropy_coeff": params["entropy_coeff"],
