@@ -24,19 +24,22 @@ class EloRatingSystem:
         self.burn_in = burn_in
 
         for policy_name in policy_names:
-            self.add_policy(policy_name, False, 1000)
-
+            self.add_policy(policy_name, False, 0, 1000)
+            
+        # self.population["policy_0"].alpha = 0.4
         # self.population["policy_0"].rating = 1295
         self.population["static_1"].ready = True
         # self.population["static_1"].rating = 814
         # self.population["smartrandomnobomb_2"].ready = True
-        # self.population["smartrandomnobomb_2"].rating = 958
+        # self.population["smartrandomnobomb_2"].rating = 973
         # self.population["smartrandom_3"].ready = True
-        # self.population["smartrandom_3"].rating = 1154
+        # self.population["smartrandom_3"].rating = 1073 #1154
         # self.population["cautious_4"].ready = True
-        # self.population["cautious_4"].rating = 1251
+        # self.population["cautious_4"].rating = 1089
         # self.population["neoteric_5"].ready = True
         # self.population["neoteric_5"].rating = 1295
+        # self.population["policy_6"].ready = True
+        # self.population["policy_6"].rating = 1295
 
     def update_alpha(self, policy_name, enemy_death_mean):
         self.population[policy_name].alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
@@ -47,8 +50,8 @@ class EloRatingSystem:
     def get_alpha(self, policy_name):
         return self.population[policy_name].alpha
 
-    def add_policy(self, policy_name, ready, elo=1000):
-        self.population[policy_name] = Member(policy_name, elo, ready, 1.0)
+    def add_policy(self, policy_name, ready, alpha, elo=1000):
+        self.population[policy_name] = Member(policy_name, elo, ready, alpha)
 
     def expected_score(self, policy_a, policy_b):
         return 1 / (1 + 10 ** ((self.population[policy_b].rating - self.population[policy_a].rating) / 400))

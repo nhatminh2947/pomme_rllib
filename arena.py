@@ -5,9 +5,10 @@ from pommerman.agents import DockerAgent
 import agents
 from agents import RayAgent
 
+import time
 ray.init(local_mode=True)
-id = 380
-checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-09_14-31-21_o9o3yp8"
+id = 420
+checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v3_0_2020-08-12_01-50-02jkoli2e8"
 checkpoint = "{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, id, id)
 
 #   Agent   win/loss/tie
@@ -15,23 +16,24 @@ checkpoint = "{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, id, id)
 #   dypm    2/71/27
 
 agent_list = [[
-    # RayAgent(checkpoint),
-    agents.CautiousAgent(),
-    agents.SimpleAgent(),
-    agents.CautiousAgent(),
-    agents.SimpleAgent(),
+    RayAgent(checkpoint),
+    RayAgent(checkpoint),
+    RayAgent(checkpoint),
+    # agents.StaticAgent(),
+    RayAgent(checkpoint),
+    # agents.StaticAgent(),
     # DockerAgent("multiagentlearning/dypm.1", port=12001),
-    # RayAgent(checkpoint),
     # DockerAgent("multiagentlearning/dypm.2", port=12002),
 ], [
-    agents.SimpleAgent(),
-    agents.CautiousAgent(),
-    agents.SimpleAgent(),
-    agents.CautiousAgent(),
+    RayAgent(checkpoint),
+    RayAgent(checkpoint),
+    RayAgent(checkpoint),
+    RayAgent(checkpoint),
+    # agents.SimpleAgent(),
+    # agents.StaticAgent(),
+    # agents.SimpleAgent(),
     # DockerAgent("multiagentlearning/dypm.1", port=12003),
-    # RayAgent(checkpoint),
     # DockerAgent("multiagentlearning/dypm.2", port=12004),
-    # RayAgent(checkpoint),
 ]]
 
 env = [pommerman.make('PommeRadioCompetition-v2', agent_list[0]),
@@ -47,7 +49,10 @@ for i in range(100):
     while not done:
         env[i % 2].render()
         actions = env[i % 2].act(state)
+
+        start_time = time.time()
         state, reward, done, info = env[i % 2].step(actions)
+        # print("--- %s seconds ---" % (time.time() - start_time))
 
         if done:
             result = constants.Result.Loss

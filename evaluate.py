@@ -59,9 +59,8 @@ policies = {
     "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
     "smartrandomnobomb_2": (SmartRandomNoBombPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
     "smartrandom_3": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-    "simple_4": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-    "cautious_5": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-    "neoteric_6": (NeotericPolicy, utils.original_obs_space, act_space, {}),
+    "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+    "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
 }
 
 policy_names = list(policies.keys())
@@ -83,7 +82,7 @@ env_config = {
     "game_state_file": None,
     "center": center,
     "input_size": input_size,
-    "policies": ["policy_0", "neoteric_6"],
+    "policies": ["policy_0", "policy_0"],
     "evaluate": True
 }
 
@@ -113,8 +112,8 @@ ppo_agent = PPOTrainer(config={
     "framework": "torch"
 }, env="PommeMultiAgent-v3")
 
-checkpoint = 380
-checkpoint_dir = "/home/lucius/ray_results/2vs2_radio_sp/PPO_PommeMultiAgent-v3_0_2020-08-09_14-31-21_o9o3yp8"
+checkpoint = 280
+checkpoint_dir = "/home/lucius/ray_results/team_radio/PPO_PommeMultiAgent-v3_0_2020-08-10_23-31-46t_25ehym"
 ppo_agent.restore("{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, checkpoint, checkpoint))
 
 agent_list = []
@@ -175,7 +174,7 @@ for i in range(100):
                                                                                     policy_id=policy_id,
                                                                                     prev_action=prev_action[agent_names[i]],
                                                                                     prev_reward=prev_reward[agent_names[i]],
-                                                                                    explore=True)
+                                                                                    explore=False)
                     prev_action[agent_names[i]] = actions[agent_names[i]]
                 else:
                     actions[agent_names[i]] = ppo_agent.compute_action(observation=obs[agent_names[i]],

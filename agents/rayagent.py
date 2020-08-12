@@ -24,8 +24,8 @@ class RayAgent(BaseAgent):
             "env_id": env_id,
             "render": False,
             "game_state_file": None,
-            "center": False,
-            "input_size": 11,
+            "center": True,
+            "input_size": 9,
             "policies": ["policy_0", "static_1"],
             "evaluate": True
         }
@@ -34,7 +34,7 @@ class RayAgent(BaseAgent):
         ModelCatalog.register_custom_model("13th_model", thirdteenth_model.TorchRNNModel)
 
         obs_space = utils.get_obs_space(9, is_full_conv=False)
-        act_space = spaces.Tuple(tuple([spaces.Discrete(6)] + [spaces.Discrete(8)] * 2))
+        act_space = spaces.MultiDiscrete([6, 8, 8])
 
         def gen_policy():
             config = {
@@ -46,7 +46,7 @@ class RayAgent(BaseAgent):
                     },
                     "no_final_linear": True,
                 },
-                "use_pytorch": True
+                "framework": "torch"
             }
             return PPOTorchPolicy, obs_space, act_space, config
 
@@ -55,9 +55,8 @@ class RayAgent(BaseAgent):
             "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
             "smartrandomnobomb_2": (SmartRandomNoBombPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
             "smartrandom_3": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-            "simple_4": (SimplePolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-            "cautious_5": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-            "neoteric_6": (NeotericPolicy, utils.original_obs_space, act_space, {}),
+            "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+            "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
         }
 
         for i in range(4):
@@ -72,7 +71,7 @@ class RayAgent(BaseAgent):
                 "policies_to_train": ["policy_0"],
             },
             "observation_filter": "NoFilter",
-            "use_pytorch": True
+            "framework": "torch"
         }, env="PommeMultiAgent-v3")
 
         self.ppo_agent.restore(checkpoint)
@@ -94,6 +93,7 @@ class RayAgent(BaseAgent):
 
         self.prev_action = np.zeros(3, )
         self.prev_reward = 0
+        self.memory = Memory(0)
 
     def episode_end(self, reward):
         self.set_init_state()
@@ -105,12 +105,12 @@ class RayAgent(BaseAgent):
             self.memory.update_memory(obs)
 
         action, self.state, _ = self.ppo_agent.compute_action(
-            observation=utils.featurize_v8(self.memory.obs, centering=True, input_size=9),
+            observation=utils.featurize_v8(obs, centering=True, input_size=9),
             state=self.state,
             policy_id="policy_0",
             prev_action=self.prev_action,
             prev_reward=self.prev_reward,
-            explore=True)
+            explore=False)
 
         self.prev_action = action
 
