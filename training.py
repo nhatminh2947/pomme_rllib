@@ -16,7 +16,7 @@ import arguments
 import utils
 from eloranking import EloRatingSystem
 from metrics import Metrics
-from models import one_vs_one_model, eighth_model, eleventh_model, twelfth_model, thirdteenth_model
+from models import one_vs_one_model, eighth_model, eleventh_model, twelfth_model, thirdteenth_model, fourteenth_model
 from policies import SmartRandomPolicy, StaticPolicy, NeotericPolicy, CautiousPolicy, \
     SmartRandomNoBombPolicy
 from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
@@ -122,6 +122,7 @@ def initialize():
     ModelCatalog.register_custom_model("11th_model", eleventh_model.TorchRNNModel)
     ModelCatalog.register_custom_model("12th_model", twelfth_model.TorchRNNModel)
     ModelCatalog.register_custom_model("13th_model", thirdteenth_model.TorchRNNModel)
+    ModelCatalog.register_custom_model("14th_model", fourteenth_model.TorchRNNModel)
 
     tune.register_env("PommeMultiAgent-v0", lambda x: v0.RllibPomme(env_config))
     tune.register_env("PommeMultiAgent-v1", lambda x: v1.RllibPomme(env_config))
@@ -157,8 +158,8 @@ def initialize():
         "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "smartrandomnobomb_2": (SmartRandomNoBombPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "smartrandom_3": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
+        # "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
+        # "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
     }
 
     for i in range(params["n_histories"]):

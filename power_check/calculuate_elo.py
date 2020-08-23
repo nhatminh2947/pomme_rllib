@@ -1,19 +1,14 @@
 import numpy as np
 from numpy import genfromtxt
-
+import ray
 from eloranking import EloRatingSystem
-
-ers = EloRatingSystem(k=1)
 
 data = genfromtxt("./prior_power.txt", delimiter='\t', dtype=str)
 player_names = data[0]
+# ray.init()
+ers = EloRatingSystem(player_names, 11, 1, 10, k=0.1)
 
-for player in player_names:
-    ers.add_policy(player, elo=1000)
-
-ers.list_elo_rating()
-
-prior = np.zeros((3, 10, 10))
+prior = np.zeros((3, 11, 11))
 
 data = np.delete(data, 0, 0)
 for i, player_a in enumerate(player_names):
@@ -50,4 +45,5 @@ for round in range(1000):
                 expected_score = ers.expected_score(player_b, player_a)
                 ers.update_rating(player_b, expected_score, 0.5)
 
-ers.list_elo_rating()
+for player in player_names:
+    print(f"{player}: {ers.population[player].rating}")

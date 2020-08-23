@@ -46,7 +46,8 @@ class RayAgent(BaseAgent):
                     },
                     "no_final_linear": True,
                 },
-                "framework": "torch"
+                "framework": "torch",
+                "explore": False
             }
             return PPOTorchPolicy, obs_space, act_space, config
 
