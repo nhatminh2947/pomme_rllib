@@ -25,15 +25,15 @@ class EloRatingSystem:
 
         for policy_name in policy_names:
             self.add_policy(policy_name, False, 0, 1000)
-            
-        # self.population["policy_0"].alpha = 0.4
-        # self.population["policy_0"].rating = 1295
+
+        self.population["policy_0"].alpha = 0.4
+        self.population["policy_0"].rating = 1283
         self.population["static_1"].ready = True
-        # self.population["static_1"].rating = 814
-        # self.population["smartrandomnobomb_2"].ready = True
-        # self.population["smartrandomnobomb_2"].rating = 973
-        # self.population["smartrandom_3"].ready = True
-        # self.population["smartrandom_3"].rating = 1073 #1154
+        self.population["static_1"].rating = 822
+        self.population["smartrandomnobomb_2"].ready = True
+        self.population["smartrandomnobomb_2"].rating = 1046
+        self.population["smartrandom_3"].ready = True
+        self.population["smartrandom_3"].rating = 1074
         # self.population["cautious_4"].ready = True
         # self.population["cautious_4"].rating = 1089
         # self.population["neoteric_5"].ready = True
@@ -80,12 +80,17 @@ class EloRatingSystem:
         is_strongest = True
 
         for i, policy_name in enumerate(self.population):
+            if policy_name == "cautious_4" or policy_name == "neoteric_5":
+                continue
             if policy_name != "policy_0" and self.population[policy_name].ready:
                 if self.expected_score("policy_0", policy_name) < 0.6:
                     is_strongest = False
 
         if is_strongest:
             for i, policy_name in enumerate(self.population):
+                if policy_name == "cautious_4" or policy_name == "neoteric_5":
+                    continue
+
                 if policy_name != "policy_0" and not self.population[policy_name].ready:
                     self.population[policy_name].ready = True
                     self.population[policy_name].rating = self.population["policy_0"].rating
@@ -94,6 +99,9 @@ class EloRatingSystem:
                     return None
 
             for i, policy_name in enumerate(self.population):
+                if policy_name == "cautious_4" or policy_name == "neoteric_5":
+                    continue
+
                 if policy_name != "policy_0" \
                         and "policy" in policy_name \
                         and min_rating > self.population[policy_name].rating:
