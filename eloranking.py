@@ -79,9 +79,7 @@ class EloRatingSystem:
         training_policy = np.random.choice(policies)
 
         mask = np.asarray([self.population[policy].ready for policy in self.population])
-        prob = utils.softmax(
-            [(self.population[policy].rating - self.population[training_policy].rating) / 100 for policy in
-             self.population], mask)
+        prob = utils.softmax([self.expected_score(policy, training_policy) for policy in self.population], mask)
         enemy = np.random.choice(list(self.population.keys()), size=1, p=prob)[0]
         while (not self.population[enemy].ready) or (training_policy == enemy):
             enemy = np.random.choice(list(self.population.keys()), size=1, p=prob)[0]

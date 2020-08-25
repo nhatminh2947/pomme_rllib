@@ -42,7 +42,7 @@ class PommeCallbacks(DefaultCallbacks):
 
         policies = list(set([policy for _, policy in episode.agent_rewards]))
         winning_policy = None
-        print(policies)
+
         for (agent_name, policy), v in episode.agent_rewards.items():
             info = episode.last_info_for(agent_name)
 
