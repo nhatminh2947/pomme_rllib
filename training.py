@@ -30,36 +30,38 @@ pbt = None
 
 
 class PommeCallbacks(DefaultCallbacks):
+    def __init__(self):
+        super().__init__()
+        self.training_policies = ["policy_0", "policy_6", "policy_7", "policy_8", "policy_9"]
+        self.run_this_once = True
+
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
                        episode: MultiAgentEpisode, **kwargs):
         info = None
         ers = ray.get_actor("ers")
 
         policies = list(set([policy for _, policy in episode.agent_rewards]))
-        policy_0_win = False
-
+        winning_policy = None
+        print(policies)
         for (agent_name, policy), v in episode.agent_rewards.items():
-            if policy == "policy_0":
-                info = episode.last_info_for(agent_name)
+            info = episode.last_info_for(agent_name)
 
-                agent_stat = info["metrics"]
-                num_steps = ray.get(ers.update_num_steps.remote(policy, info["num_steps"]))
-                episode.custom_metrics["policy_0/num_steps"] = num_steps
+            agent_stat = info["metrics"]
+            num_steps = ray.get(ers.update_num_steps.remote(policy, info["num_steps"]))
+            episode.custom_metrics["policy_0/num_steps"] = num_steps
 
-                for key in Metrics:
-                    if "{}/{}".format(policy, key.name) not in episode.custom_metrics:
-                        episode.custom_metrics["{}/{}".format(policy, key.name)] = 0
-                    episode.custom_metrics["{}/{}".format(policy, key.name)] += agent_stat[key.name] / 2
+            for key in Metrics:
+                if "{}/{}".format(policy, key.name) not in episode.custom_metrics:
+                    episode.custom_metrics["{}/{}".format(policy, key.name)] = 0
+                episode.custom_metrics["{}/{}".format(policy, key.name)] += agent_stat[key.name] / 2
 
-                if info["result"] == constants.Result.Win:
-                    _, _, agent_id = agent_name.split("_")
+            if info["result"] == constants.Result.Win:
+                _, _, agent_id = agent_name.split("_")
 
-                    if int(agent_id) in info["winners"]:
-                        policy_0_win = True
+                if int(agent_id) in info["winners"]:
+                    winning_policy = policy
 
-        if policy_0_win and policies[0] != "policy_0":
-            policies[0], policies[1] = policies[1], policies[0]
-        elif not policy_0_win and policies[0] == "policy_0":
+        if winning_policy != policies[0]:
             policies[0], policies[1] = policies[1], policies[0]
 
         score = 1
@@ -89,14 +91,22 @@ class PommeCallbacks(DefaultCallbacks):
         ers = ray.get_actor("ers")
 
         if result["custom_metrics"]:
-            if "policy_0/EnemyDeath_mean" in result["custom_metrics"]:
-                alpha = ray.get(ers.update_alpha.remote("policy_0",
-                                                        result["custom_metrics"]["policy_0/EnemyDeath_mean"]))
-                result["custom_metrics"]["{}/alpha".format("policy_0")] = alpha
+            for policy in self.training_policies:
+                if f"{policy}/EnemyDeath_mean" in result["custom_metrics"]:
+                    alpha = ray.get(ers.update_alpha.remote(policy,
+                                                            result["custom_metrics"][f"{policy}/EnemyDeath_mean"]))
+                    result["custom_metrics"][f"{policy}/alpha"] = alpha
 
-        policy_name = ray.get(ers.update_population.remote())
-        if policy_name is not None:
-            utils.copy_weight(trainer, "policy_0", policy_name)
+        if self.run_this_once:
+            for policy in self.training_policies:
+                if policy != "policy_0":
+                    utils.copy_weight(trainer, "policy_0", policy)
+
+            self.run_this_once = False
+
+        strongest_policy, weakest_policy = ray.get(ers.update_population.remote())
+        if strongest_policy is not None:
+            utils.copy_weight(trainer, strongest_policy, weakest_policy)
 
         # pbt.run(trainer)
 
@@ -162,8 +172,11 @@ def initialize():
         "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
     }
 
+    policies_to_train = ["policy_0"]
+
     for i in range(params["n_histories"]):
-        policies["policy_{}".format(len(policies))] = gen_policy(False)
+        policies_to_train.append(f"policy_{len(policies)}")
+        policies[f"policy_{len(policies)}"] = gen_policy()
 
     policy_names = list(policies.keys())
 
@@ -177,7 +190,7 @@ def initialize():
 
     print("Training policies:", policies.keys())
 
-    return env_config, policies, policy_names
+    return env_config, policies, policies_to_train
 
 
 # How to Implement Self Play with PPO? [rllib]
@@ -197,8 +210,6 @@ def training_team():
     env_config, policies, policies_to_train = initialize()
 
     trainer = PPOTrainer
-    if params['use_rnd']:
-        trainer = RNDTrainer
 
     trials = tune.run(
         trainer,
@@ -240,7 +251,7 @@ def training_team():
             "multiagent": {
                 "policies": policies,
                 "policy_mapping_fn": policy_mapping,
-                "policies_to_train": ["policy_0"],
+                "policies_to_train": policies_to_train,
             },
             "clip_actions": False,
             "observation_filter": params["filter"],  # should use MeanStdFilter

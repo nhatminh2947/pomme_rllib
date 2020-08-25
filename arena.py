@@ -7,8 +7,8 @@ from pommerman import constants
 from agents import RayAgent
 
 ray.init(local_mode=True)
-id = 1200
-checkpoint_dir = "/home/lucius/ray_results/team_radio_1/PPO_PommeMultiAgent-v3_0_2020-08-15_18-19-350x7kw7f5"
+id = 800
+checkpoint_dir = "/home/lucius/ray_results/team_radio_1/PPO_PommeMultiAgent-v3_0_2020-08-13_03-33-55jymb7f2n"
 checkpoint = "{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, id, id)
 
 #   Agent                               win/loss/tie
