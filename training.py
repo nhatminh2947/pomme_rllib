@@ -97,14 +97,14 @@ class PommeCallbacks(DefaultCallbacks):
                                                             result["custom_metrics"][f"{policy}/EnemyDeath_mean"]))
                     result["custom_metrics"][f"{policy}/alpha"] = alpha
 
-        if self.run_this_once:
-            for policy in self.training_policies:
-                if policy != "policy_0":
-                    utils.copy_weight(trainer, "policy_0", policy)
+        # if self.run_this_once:
+        #     for policy in self.training_policies:
+        #         if policy != "policy_0":
+        #             utils.copy_weight(trainer, "policy_0", policy)
+        #
+        #     self.run_this_once = False
 
-            self.run_this_once = False
-
-        strongest_policy, weakest_policy = ray.get(ers.update_population.remote())
+        strongest_policy, weakest_policy = ray.get(ers.update_population.remote(result["timesteps_total"]))
         if strongest_policy is not None:
             utils.copy_weight(trainer, strongest_policy, weakest_policy)
 

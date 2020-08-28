@@ -10,6 +10,7 @@ class Member:
         self.rating = rating
         self.ready = ready
         self.alpha = alpha
+        self.last_update = 0
         self.num_steps = num_steps
 
 
@@ -87,7 +88,7 @@ class EloRatingSystem:
 
         return training_policy, enemy
 
-    def update_population(self):
+    def update_population(self, timesteps_total):
         min_rating = 10000
         weakest_policy = None
 
@@ -96,7 +97,9 @@ class EloRatingSystem:
         is_strongest = True
 
         for i, policy_name in enumerate(self.population):
-            if self.population[policy_name].rating < min_rating:
+            if "policy" not in policy_name:
+                continue
+            if timesteps_total - self.population[policy_name].last_update > 50000000 and self.population[policy_name].rating < min_rating:
                 weakest_policy = policy_name
                 min_rating = self.population[policy_name].rating
 
@@ -110,6 +113,7 @@ class EloRatingSystem:
 
         if strong_policies:
             policy = np.random.choice(strong_policies)
+            self.population[weakest_policy].last_update = timesteps_total
             return policy, weakest_policy
 #           for i, policy_name in enumerate(self.population):
 #               if policy_name == "cautious_4" or policy_name == "neoteric_5":
@@ -137,7 +141,7 @@ class EloRatingSystem:
 #            self.population[weakest_policy].rating = self.population[strongest_policy].rating
 #            self.population[weakest_policy].alpha = self.population[strongest_policy].alpha
 
-            return strongest_policy, weakest_policy
+            # return strongest_policy, weakest_policy
 
         return None, None
 

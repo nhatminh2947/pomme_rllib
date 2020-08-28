@@ -47,7 +47,7 @@ class RayAgent(BaseAgent):
                     "no_final_linear": True,
                 },
                 "framework": "torch",
-                "explore": True
+                "explore": False
             }
             return PPOTorchPolicy, obs_space, act_space, config
 
@@ -108,7 +108,7 @@ class RayAgent(BaseAgent):
         action, self.state, _ = self.ppo_agent.compute_action(
             observation=utils.featurize_v8(obs, centering=True, input_size=9),
             state=self.state,
-            policy_id="policy_0",
+            policy_id="policy_9",
             prev_action=self.prev_action,
             prev_reward=self.prev_reward,
             explore=False)
