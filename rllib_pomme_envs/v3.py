@@ -68,8 +68,8 @@ class RllibPomme(v0.RllibPomme):
                 else:
                     obs[self.agent_names[i]] = utils.featurize_non_learning_agent(_obs[i])
 
-                rewards[self.agent_names[i]] = self.reward_v1(policy_name, i, actions[i], self.prev_obs[i],
-                                                              _obs[i], _info, self.stat[i])
+                rewards[self.agent_names[i]] = self.reward(policy_name, i, actions[i], self.prev_obs[i],
+                                                           _obs[i], _info, self.stat[i])
                 infos[self.agent_names[i]].update(_info)
 
         self.prev_obs = _obs
