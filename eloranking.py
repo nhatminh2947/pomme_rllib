@@ -28,25 +28,25 @@ class EloRatingSystem:
             self.add_policy(policy_name, False, 0, 1000)
 
         self.population["policy_0"].alpha = 0
-        self.population["policy_0"].rating = 1134
+        self.population["policy_0"].rating = 1098
         self.population["static_1"].ready = True
-        self.population["static_1"].rating = 774
+        self.population["static_1"].rating = 805
         self.population["smartrandomnobomb_2"].ready = True
-        self.population["smartrandomnobomb_2"].rating = 998
+        self.population["smartrandomnobomb_2"].rating = 970
         self.population["smartrandom_3"].ready = True
-        self.population["smartrandom_3"].rating = 1053
+        self.population["smartrandom_3"].rating = 1007
         # self.population["cautious_4"].ready = True
         # self.population["cautious_4"].rating = 1089
         # self.population["neoteric_5"].ready = True
         # self.population["neoteric_5"].rating = 1295
         self.population["policy_6"].ready = True
-        self.population["policy_6"].rating = 1118
+        self.population["policy_6"].rating = 1139
         self.population["policy_7"].ready = True
-        self.population["policy_7"].rating = 1114
+        self.population["policy_7"].rating = 1139
         self.population["policy_8"].ready = True
-        self.population["policy_8"].rating = 1100
+        self.population["policy_8"].rating = 1144
         self.population["policy_9"].ready = True
-        self.population["policy_9"].rating = 1151
+        self.population["policy_9"].rating = 1140
 
     def update_alpha(self, policy_name, enemy_death_mean):
         self.population[policy_name].alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
