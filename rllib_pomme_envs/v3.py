@@ -155,7 +155,7 @@ class RllibPomme(v0.RllibPomme):
                     game_reward += 0.5
                     stat[Metrics.EnemyDeath.name] += 1
 
-        act = action[0] if type(action) == tuple else action
+        act = action[0] if type(action) != int else action
         if act == constants.Action.Bomb.value:
             stat[Metrics.ActionBombs.name] += 1
             if prev_obs['ammo'] > 0:
