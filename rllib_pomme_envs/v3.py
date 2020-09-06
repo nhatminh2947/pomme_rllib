@@ -97,9 +97,8 @@ class RllibPomme(v0.RllibPomme):
         if not self._evaluate:
             ers = ray.get_actor("ers")
             self.policies = ray.get(ers.get_training_policies.remote())
-            phase = ray.get(ers.which_phase.remote())
 
-            if phase > 3:
+            if ray.get(ers.allow_kicking.remote()):
                 self._env_id = "PommeRadioCompetition-v2"
 
         self.agent_names = []

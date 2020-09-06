@@ -24,6 +24,7 @@ class EloRatingSystem:
         self.alpha_coeff = alpha_coeff
         self.burn_in = burn_in
         self.phase = 1
+        self._allow_kicking = False
 
         for policy_name in policy_names:
             self.add_policy(policy_name, False, 0, 1000)
@@ -52,6 +53,9 @@ class EloRatingSystem:
 
     def which_phase(self):
         return self.phase
+
+    def allow_kicking(self):
+        return self._allow_kicking
 
     def update_alpha(self, policy_name, enemy_death_mean):
         if self.phase > 3:
@@ -96,6 +100,8 @@ class EloRatingSystem:
 
     def update_population(self, timesteps_total):
         if self.phase > 3:
+            if timesteps_total > 100000000:
+                self._allow_kicking = True
             min_rating = 10000
             weakest_policy = None
             for i, policy_name in enumerate(self.population):
