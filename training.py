@@ -32,7 +32,7 @@ pbt = None
 class PommeCallbacks(DefaultCallbacks):
     def __init__(self):
         super().__init__()
-        self.training_policies = ["policy_0", "policy_6", "policy_7", "policy_8", "policy_9"]
+        self.training_policies = ["policy_0", "policy_4", "policy_5", "policy_6", "policy_7"]
         self.run_this_once = True
 
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv, policies: Dict[str, Policy],
@@ -97,18 +97,17 @@ class PommeCallbacks(DefaultCallbacks):
                                                             result["custom_metrics"][f"{policy}/EnemyDeath_mean"]))
                     result["custom_metrics"][f"{policy}/alpha"] = alpha
 
-        # if self.run_this_once:
-        #     for policy in self.training_policies:
-        #         if policy != "policy_0":
-        #             utils.copy_weight(trainer, "policy_0", policy)
-        #
-        #     self.run_this_once = False
-
         strongest_policy, weakest_policy = ray.get(ers.update_population.remote(result["timesteps_total"]))
+
+        if self.run_this_once and ray.get(ers.which_phase.remote()) > 3:
+            for policy in self.training_policies:
+                if policy != "policy_0":
+                    utils.copy_weight(trainer, "policy_0", policy)
+
+            self.run_this_once = False
+
         if strongest_policy is not None:
             utils.copy_weight(trainer, strongest_policy, weakest_policy)
-
-        # pbt.run(trainer)
 
 
 def initialize():
@@ -168,8 +167,6 @@ def initialize():
         "static_1": (StaticPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "smartrandomnobomb_2": (SmartRandomNoBombPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
         "smartrandom_3": (SmartRandomPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "cautious_4": (CautiousPolicy, utils.original_obs_space, spaces.Discrete(6), {}),
-        "neoteric_5": (NeotericPolicy, utils.original_obs_space, act_space, {}),
     }
 
     policies_to_train = ["policy_0"]

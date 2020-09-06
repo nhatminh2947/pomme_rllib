@@ -23,38 +23,43 @@ class EloRatingSystem:
         self.capacity = n_histories + 2
         self.alpha_coeff = alpha_coeff
         self.burn_in = burn_in
+        self.phase = 1
 
         for policy_name in policy_names:
             self.add_policy(policy_name, False, 0, 1000)
 
-        self.population["policy_0"].alpha = 0
-        self.population["policy_0"].rating = 1098
+        # self.population["policy_0"].alpha = 0
+        # self.population["policy_0"].rating = 1098
+        self.population["policy_0"].ready = True
         self.population["static_1"].ready = True
-        self.population["static_1"].rating = 805
-        self.population["smartrandomnobomb_2"].ready = True
-        self.population["smartrandomnobomb_2"].rating = 970
-        self.population["smartrandom_3"].ready = True
-        self.population["smartrandom_3"].rating = 1007
+        # self.population["static_1"].rating = 805
+        # self.population["smartrandomnobomb_2"].ready = True
+        # self.population["smartrandomnobomb_2"].rating = 970
+        # self.population["smartrandom_3"].ready = True
+        # self.population["smartrandom_3"].rating = 1007
         # self.population["cautious_4"].ready = True
         # self.population["cautious_4"].rating = 1089
         # self.population["neoteric_5"].ready = True
         # self.population["neoteric_5"].rating = 1295
-        self.population["policy_6"].ready = True
-        self.population["policy_6"].rating = 1139
-        self.population["policy_7"].ready = True
-        self.population["policy_7"].rating = 1139
-        self.population["policy_8"].ready = True
-        self.population["policy_8"].rating = 1144
-        self.population["policy_9"].ready = True
-        self.population["policy_9"].rating = 1140
+        # self.population["policy_6"].ready = True
+        # self.population["policy_6"].rating = 1139
+        # self.population["policy_7"].ready = True
+        # self.population["policy_7"].rating = 1139
+        # self.population["policy_8"].ready = True
+        # self.population["policy_8"].rating = 1144
+        # self.population["policy_9"].ready = True
+        # self.population["policy_9"].rating = 1140
+
+    def which_phase(self):
+        return self.phase
 
     def update_alpha(self, policy_name, enemy_death_mean):
-        # self.population[policy_name].alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
-        # if self.population[policy_name].num_steps >= self.burn_in:
-        #     self.population[policy_name].alpha = 0
-        #     return 0.0
-        # return self.population[policy_name].alpha
-        return 0
+        if self.phase > 3:
+            self.population[policy_name].alpha = 0
+            return 0.0
+
+        self.population[policy_name].alpha = 1 - np.tanh(self.alpha_coeff * enemy_death_mean)
+        return self.population[policy_name].alpha
 
     def get_alpha(self, policy_name):
         return self.population[policy_name].alpha
@@ -76,7 +81,7 @@ class EloRatingSystem:
     def get_training_policies(self):
         policies = []
         for policy in self.population:
-            if "policy" in policy:
+            if "policy" in policy and self.population[policy].ready:
                 policies.append(policy)
 
         training_policy = np.random.choice(policies)
@@ -90,59 +95,52 @@ class EloRatingSystem:
         return training_policy, enemy
 
     def update_population(self, timesteps_total):
-        min_rating = 10000
-        weakest_policy = None
+        if self.phase > 3:
+            min_rating = 10000
+            weakest_policy = None
+            for i, policy_name in enumerate(self.population):
+                if "policy" not in policy_name:
+                    continue
+                if timesteps_total - self.population[policy_name].last_update > 50000000 \
+                        and self.population[policy_name].rating < min_rating:
+                    weakest_policy = policy_name
+                    min_rating = self.population[policy_name].rating
 
-        strongest_policy = None
-        max_rating = -1
-        is_strongest = True
+            strong_policies = []
+            for i, policy_name in enumerate(self.population):
+                if "policy" not in policy_name:
+                    continue
+                if policy_name != weakest_policy and self.population[policy_name].ready:
+                    if self.expected_score(weakest_policy, policy_name) < 0.45:
+                        strong_policies.append(policy_name)
 
-        for i, policy_name in enumerate(self.population):
-            if "policy" not in policy_name:
-                continue
-            if timesteps_total - self.population[policy_name].last_update > 50000000 and self.population[policy_name].rating < min_rating:
-                weakest_policy = policy_name
-                min_rating = self.population[policy_name].rating
+            if strong_policies:
+                self.phase += 1
+                policy = np.random.choice(strong_policies)
+                self.population[weakest_policy].last_update = timesteps_total
+                return policy, weakest_policy
+        else:
+            next_phase = True
+            for i, policy_name in enumerate(["static_1", "smartrandomnobomb_2", "smartrandom_3"]):
+                if self.population[policy_name].ready:
+                    if self.expected_score("policy_0", policy_name) <= 0.55:
+                        next_phase = False
+                        break
 
-        strong_policies = []
-        for i, policy_name in enumerate(self.population):
-            if "policy" not in policy_name:
-                continue
-            if policy_name != weakest_policy and self.population[policy_name].ready:
-                if self.expected_score(weakest_policy, policy_name) < 0.45:
-                    strong_policies.append(policy_name)
-
-        if strong_policies:
-            policy = np.random.choice(strong_policies)
-            self.population[weakest_policy].last_update = timesteps_total
-            return policy, weakest_policy
-#           for i, policy_name in enumerate(self.population):
-#               if policy_name == "cautious_4" or policy_name == "neoteric_5":
-#                   continue
-#
-#               if policy_name != strongest_policy and not self.population[policy_name].ready:
-#                   self.population[policy_name].ready = True
-#                   self.population[policy_name].rating = self.population[strongest_policy].rating
-#                   self.population[policy_name].alpha = self.population[strongest_policy].alpha
-#
-#                   if "policy" in policy_name:
-#                       return strongest_policy, policy_name
-#                   return None, None
-#
-#            for i, policy_name in enumerate(self.population):
-#               if policy_name == "cautious_4" or policy_name == "neoteric_5":
-#                   continue
-#
-#               if policy_name != strongest_policy \
-#                       and "policy" in policy_name \
-#                       and min_rating > self.population[policy_name].rating:
-#                   weakest_policy = policy_name
-#                   min_rating = self.population[policy_name].rating
-#
-#            self.population[weakest_policy].rating = self.population[strongest_policy].rating
-#            self.population[weakest_policy].alpha = self.population[strongest_policy].alpha
-
-            # return strongest_policy, weakest_policy
+            if next_phase:
+                self.phase += 1
+                if not self.population["smartrandomnobomb_2"].ready:
+                    self.population["smartrandomnobomb_2"].ready = True
+                    self.population["smartrandomnobomb_2"].rating = self.population["policy_0"].rating
+                elif not self.population["smartrandom_3"].ready:
+                    self.population["smartrandom_3"].ready = True
+                    self.population["smartrandom_3"].rating = self.population["policy_0"].rating
+                else:
+                    for policy_name in self.population:
+                        if "policy" in policy_name:
+                            self.population[policy_name].ready = True
+                            self.population[policy_name].rating = self.population["policy_0"].rating
+                            self.population[policy_name].alpha = self.population["policy_0"].alpha
 
         return None, None
 

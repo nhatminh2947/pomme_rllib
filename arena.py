@@ -3,48 +3,54 @@ import time
 import pommerman
 import ray
 from pommerman import constants
-from pommerman.agents import DockerAgent
+from pommerman.agents import DockerAgent, PlayerAgent
 
-from agents import RayAgent, SimpleAgent, StaticAgent, SmartRandomAgent, SmartRandomAgentNoBomb
-
-ray.init(local_mode=True)
-id = 1880
+from agents import RayAgent, SimpleAgent, StaticAgent, SmartRandomAgent, SmartRandomAgentNoBomb, RandomAgent
+ray.shutdown()
+ray.init(local_mode=True, ignore_reinit_error=True)
+id = 1400
 # checkpoint_dir = "/home/lucius/ray_results/team_radio_1/PPO_PommeMultiAgent-v3_0_2020-08-13_03-33-55jymb7f2n"
-checkpoint_dir = "/home/lucius/ray_results/team_radio_2/PPO_PommeMultiAgent-v3_0_2020-08-26_00-46-26msxifkca"
+checkpoint_dir = "/home/lucius/ray_results/team_radio_2/PPO_PommeMultiAgent-v3_0_2020-08-31_01-58-50vgng3gfu"
 # checkpoint_dir = "/home/lucius/ray_results/team_radio_1/PPO_PommeMultiAgent-v3_0_2020-08-15_18-19-350x7kw7f5"
+# checkpoint_dir = "/home/lucius/ray_results/team_radio_1/PPO_PommeMultiAgent-v3_0_2020-08-24_17-27-10z5na_vwh"
 checkpoint = "{}/checkpoint_{}/checkpoint-{}".format(checkpoint_dir, id, id)
 
-#   Agent                               win/loss/tie
-#   skynet                              52/ 4/44
-#   navocado                            53/ 7/40        28/12/60
-#   dypm                                 6/14/80
+#   Agent                               win/loss/tie    260         2300        2700
+#   skynet                                              55/4/41     43/7/50     36/8/56
+#   navocado                                            28/22/50    34/13/53    34/18/48
+#   dypm                                                            3/21/76
 #   hakozaki                             3/55/42
 #   eisenach                             8/82/10
-#   nips19-inspir-ai.inspir              1/24/75         1/50/49
-#   nips19-sumedhgupta.neoterics        57/ 8/35        38/40/22
+#   nips19-inspir-ai.inspir              1/24/75
+#   nips19-sumedhgupta.neoterics        57/ 8/35                    46/28/26
 #   nips19-pauljasek.thing1andthing2     1/56/43
 #   nips19-gorogm.gorogm                 4/88/ 8
 
 agent_list = [[
+    # RandomAgent(),
+    # RandomAgent(),
+    # RandomAgent(),
+    # RandomAgent(),
     RayAgent(checkpoint),
     # RayAgent(checkpoint),
+    # PlayerAgent(),
     # SimpleAgent(),
     # StaticAgent(),
     # SmartRandomAgentNoBomb(),
     # SmartRandomAgent(),
-    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12001),
-    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12001),
-    DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12001),
+    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12051),
+    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12041),
+    # DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12011),
     # DockerAgent("multiagentlearning/navocado", port=12001),
-    # DockerAgent("multiagentlearning/skynet955", port=12001),
-    # DockerAgent("multiagentlearning/dypm.1", port=12001),
+    DockerAgent("multiagentlearning/skynet955", port=12005),
+    # DockerAgent("multiagentlearning/dypm.1", port=12021),
     RayAgent(checkpoint),
-    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12002),
-    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12002),
-DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12002),
+    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12052),
+    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12042),
+    # DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12012),
     # DockerAgent("multiagentlearning/navocado", port=12002),
-    # DockerAgent("multiagentlearning/skynet955", port=12002),
-    # DockerAgent("multiagentlearning/dypm.2", port=12002),
+    DockerAgent("multiagentlearning/skynet955", port=12006),
+    # DockerAgent("multiagentlearning/dypm.2", port=12022),
     # RayAgent(checkpoint),
     # SimpleAgent(),
     # StaticAgent(),
@@ -53,32 +59,32 @@ DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12002),
     # agents.StaticAgent(),
 ], [
     # SimpleAgent(),
-    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12003),
-    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12003),
+    # RandomAgent(),
+    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12053),
+    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12043),
     # DockerAgent("multiagentlearning/navocado", port=12003),
-DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12003),
-    # DockerAgent("multiagentlearning/skynet955", port=12003),
+    # DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12013),
+    # DockerAgent("multiagentlearning/skynet955", port=12007),
+    # DockerAgent("multiagentlearning/dypm.1", port=12023),
     # StaticAgent(),
     # SmartRandomAgentNoBomb(),
-    # SmartRandomAgent(),
-    # DockerAgent("multiagentlearning/dypm.1", port=12003),
+    SmartRandomAgent(),
+    # RayAgent(checkpoint),
+    # RayAgent(checkpoint),
     RayAgent(checkpoint),
     # RayAgent(checkpoint),
     # SimpleAgent(),
-    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12004),
-    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12004),
+    # DockerAgent("multiagentlearning/nips19-pauljasek.thing1andthing2", port=12054),
+    # DockerAgent("multiagentlearning/nips19-sumedhgupta.neoterics", port=12044),
     # DockerAgent("multiagentlearning/nips19-gorogm.gorogm", port=12004),
-DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12004),
-    # DockerAgent("multiagentlearning/dypm.2", port=12004),
+    # DockerAgent("multiagentlearning/nips19-inspir-ai.inspir", port=12014),
+    # DockerAgent("multiagentlearning/dypm.2", port=12024),
     # DockerAgent("multiagentlearning/navocado", port=12004),
+    # DockerAgent("multiagentlearning/skynet955", port=12008),
     # StaticAgent(),
-    # SmartRandomAgentNoBomb(),
+    SmartRandomAgentNoBomb(),
     # SmartRandomAgent(),
-    # DockerAgent("multiagentlearning/skynet955", port=12004),
-    # RayAgent(checkpoint),
     RayAgent(checkpoint),
-    # RayAgent(checkpoint),
-    # RayAgent(checkpoint),
     # agents.StaticAgent(),
 ]]
 
@@ -95,7 +101,7 @@ for i in range(100):
     state = env[i % 2].reset()
     done = False
     while not done:
-        # env[i % 2].render(record_pngs_dir='/home/lucius/working/projects/pomme_rllib/logs/pngs/srnb')
+        env[i % 2].render(record_pngs_dir='/home/lucius/working/projects/pomme_rllib/logs/pngs/navocado')
         # env[i % 2].render()
 
         actions = env[i % 2].act(state)
@@ -119,3 +125,4 @@ print("{}/{}/{}".format(win, 100 - tie - win, tie))
 
 env[0].close()
 env[1].close()
+ray.shutdown()

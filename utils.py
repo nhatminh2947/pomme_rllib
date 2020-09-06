@@ -538,8 +538,8 @@ def featurize_v8(obs, centering=False, input_size=9):
     enemies = [e.value for e in obs["enemies"][:2]]
 
     position = np.array(obs["position"], dtype=np.float32) / 10 * 2 - 1
-    ammo = np.array([obs["ammo"]], dtype=np.float32)
-    blast_strength = np.array([obs["blast_strength"]], dtype=np.float32)
+    ammo = np.array([obs["ammo"] / 10], dtype=np.float32)
+    blast_strength = np.array([obs["blast_strength"] / 10], dtype=np.float32)
     can_kick = np.array([obs["can_kick"]], dtype=np.float32)
     teammate_alive = np.array([teammate in obs["alive"]], dtype=np.float32)
     two_enemies = np.array([enemies[0] in obs["alive"] and enemies[1] in obs["alive"]], dtype=np.float32)

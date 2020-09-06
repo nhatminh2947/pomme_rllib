@@ -5,4 +5,5 @@ from .borealai.simple_agent_cautious_bomb import CautiousAgent
 from .neoteric.neoteric_agent import NeotericAgent
 from .simple_agent import SimpleAgent
 from .static_agent import StaticAgent
-# from .rayagent import RayAgent
+from .random_agent import RandomAgent
+from .rayagent import RayAgent
