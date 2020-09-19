@@ -31,7 +31,7 @@ class EloRatingSystem:
 
         # self.population["policy_0"].alpha = 0
         # self.population["policy_0"].rating = 1098
-        # self.population["policy_0"].ready = True
+        self.population["policy_0"].ready = True
         self.population["static_1"].ready = True
         # self.population["static_1"].rating = 805
         # self.population["smartrandomnobomb_2"].ready = True
