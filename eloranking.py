@@ -24,7 +24,7 @@ class EloRatingSystem:
         self.alpha_coeff = alpha_coeff
         self.burn_in = burn_in
         self.phase = 1
-        self._allow_kicking = False
+        self._allow_kicking = True
 
         for policy_name in policy_names:
             self.add_policy(policy_name, False, 0, 1000)
@@ -50,6 +50,9 @@ class EloRatingSystem:
         # self.population["policy_8"].rating = 1144
         # self.population["policy_9"].ready = True
         # self.population["policy_9"].rating = 1140
+
+    def update_alpha_linearly(self, policy_name, timestep_total):
+        self.population[policy_name].alpha = timestep_total / 25000000
 
     def which_phase(self):
         return self.phase

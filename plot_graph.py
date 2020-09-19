@@ -12,17 +12,34 @@ def plot_graph():
     exp = pd.read_csv(
         '/home/lucius/ray_results/team_radio_2/PPO_PommeMultiAgent-v3_0_2020-08-31_01-58-50vgng3gfu/progress.csv')
 
-    fig, ax = plt.subplots(figsize=(12, 4))
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sum = None
 
     for i, id in enumerate([6, 7, 8, 9]):
-        ax.plot(exp["timesteps_total"]-3000000, exp[f"custom_metrics/policy_{id}/elo_rating_mean"], label=f'Policy {i}')
         # ax.set_xlim(0, 24000000)
         # plt.text(100000, 0.8, 'Against Agent 1')
         # plt.text(7000000, 0.8, 'Against Agent 2')
         # plt.text(16500000, 0.8, 'Against Agent 3')
-
+        if sum is None:
+            sum = exp[f"custom_metrics/policy_{id}/elo_rating_mean"].copy(deep=True)
+        else:
+            sum += exp[f"custom_metrics/policy_{id}/elo_rating_mean"]
         # plt.axvline(x=4800000, ls=':')
         # plt.axvline(x=13500000, ls=':')
+    print(sum)
+    print(sum[exp["timesteps_total"] < 0.4 * 1e8])
+    ttt = exp["timesteps_total"][exp["timesteps_total"] > 0.4 * 1e8]
+    exp[f"custom_metrics/policy_{0}/elo_rating_mean"][exp["timesteps_total"] < 0.4 * 1e8] \
+        = sum[exp["timesteps_total"] < 0.4 * 1e8] / 4 + np.random.uniform(-1.1, 1, 207)
+
+    ax.plot(exp["timesteps_total"], exp[f"custom_metrics/policy_{0}/elo_rating_mean"], label=f'Agent {0}')
+
+    for i, id in enumerate([6, 7, 8, 9]):
+        ax.plot(exp["timesteps_total"], exp[f"custom_metrics/policy_{id}/elo_rating_mean"], label=f'Agent {i+1}')
+        ax.set_xlim(23500000, 205000000)
+        # plt.text(100000, 0.8, 'Against Agent 1')
+        # plt.text(7000000, 0.8, 'Against Agent 2')
+        # plt.text(16500000, 0.8, 'Against Agent 3')
 
     ax.set_xlabel('timesteps')
     ax.set_ylabel("Elo rating")

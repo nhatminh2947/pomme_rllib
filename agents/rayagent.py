@@ -8,7 +8,7 @@ from ray.rllib.models import ModelCatalog
 
 import utils
 from memory import Memory
-from models import thirdteenth_model
+from models import thirdteenth_model, fourteenth_model
 from policies import SmartRandomPolicy, SimplePolicy, NeotericPolicy, CautiousPolicy, \
     SmartRandomNoBombPolicy
 from policies.static_policy import StaticPolicy
@@ -19,7 +19,7 @@ class RayAgent(BaseAgent):
     def __init__(self, checkpoint):
         super().__init__()
 
-        env_id = "PommeTeamCompetition-v0"
+        env_id = "PommeRadioCompetition-nokick-v2"
         env_config = {
             "env_id": env_id,
             "render": False,
@@ -32,6 +32,7 @@ class RayAgent(BaseAgent):
 
         tune.register_env("PommeMultiAgent-v3", lambda x: v3.RllibPomme(env_config))
         ModelCatalog.register_custom_model("13th_model", thirdteenth_model.TorchRNNModel)
+        ModelCatalog.register_custom_model("14th_model", fourteenth_model.TorchRNNModel)
 
         obs_space = utils.get_obs_space(9, is_full_conv=False)
         act_space = spaces.MultiDiscrete([6, 8, 8])
@@ -47,7 +48,7 @@ class RayAgent(BaseAgent):
                     "no_final_linear": True,
                 },
                 "framework": "torch",
-                "explore": False
+                "explore": True
             }
             return PPOTorchPolicy, obs_space, act_space, config
 
@@ -108,7 +109,7 @@ class RayAgent(BaseAgent):
         action, self.state, _ = self.ppo_agent.compute_action(
             observation=utils.featurize_v8(obs, centering=True, input_size=9),
             state=self.state,
-            policy_id="policy_6",
+            policy_id="policy_0",
             prev_action=self.prev_action,
             prev_reward=self.prev_reward,
             explore=False)

@@ -17,8 +17,7 @@ import utils
 from eloranking import EloRatingSystem
 from metrics import Metrics
 from models import one_vs_one_model, eighth_model, eleventh_model, twelfth_model, thirdteenth_model, fourteenth_model
-from policies import SmartRandomPolicy, StaticPolicy, NeotericPolicy, CautiousPolicy, \
-    SmartRandomNoBombPolicy
+from policies import SmartRandomPolicy, StaticPolicy, SmartRandomNoBombPolicy
 from rllib_pomme_envs import v0, v1, v2, v3, one_vs_one
 from utils import policy_mapping
 
@@ -93,8 +92,10 @@ class PommeCallbacks(DefaultCallbacks):
         if result["custom_metrics"]:
             for policy in self.training_policies:
                 if f"{policy}/EnemyDeath_mean" in result["custom_metrics"]:
-                    alpha = ray.get(ers.update_alpha.remote(policy,
-                                                            result["custom_metrics"][f"{policy}/EnemyDeath_mean"]))
+                    alpha = ray.get(ers.update_alpha_linearly.remote(policy, result["timesteps_total"]))
+
+                    # alpha = ray.get(
+                    #     ers.update_alpha.remote(policy, result["custom_metrics"][f"{policy}/EnemyDeath_mean"]))
                     result["custom_metrics"][f"{policy}/alpha"] = alpha
 
         strongest_policy, weakest_policy = ray.get(ers.update_population.remote(result["timesteps_total"]))
