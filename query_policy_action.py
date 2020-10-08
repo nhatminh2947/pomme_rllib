@@ -1,4 +1,4 @@
-from ray.rllib.agents.ppo import PPOTrainer
+from ray.rllib.agents.ppo import PPOTrainer0
 
 from rllib_training.envs import PommeRllib
 from pommerman import configs

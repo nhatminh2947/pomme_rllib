@@ -1,0 +1,2 @@
+2020-06-18 00:39:20,968 - INFO - nips19-gorogm.gorogm hakozakijunctions Win
+2020-06-18 00:41:59,185 - INFO - nips19-gorogm.gorogm hakozakijunctions Loss
